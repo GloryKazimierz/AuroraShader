@@ -1,0 +1,6 @@
+* text=auto
+*.fsh text eol=lf
+*.vsh text eol=lf
+*.glsl text eol=lf
+*.properties text eol=lf
+*.lang text eol=lf

@@ -1,0 +1,12 @@
+option.EXPOSURE=Exposure (stops)
+option.SATURATION=Saturation
+option.CONTRAST=Contrast
+option.TEMPERATURE=Temperature
+option.TINT=Tint
+option.GRAYSCALE=Grayscale
+option.EXPOSURE.comment=Brightness in stops. Zero leaves the scene unchanged.
+option.SATURATION.comment=One is neutral. Zero removes color.
+option.CONTRAST.comment=One is neutral. Adjusts contrast around mid-gray.
+option.TEMPERATURE.comment=Zero is neutral. Negative is cooler; positive is warmer.
+option.TINT.comment=Zero is neutral. Negative adds green; positive adds magenta.
+option.GRAYSCALE.comment=Optional weighted grayscale after other color controls.
