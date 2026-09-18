@@ -30,7 +30,7 @@ void main() {
 #elif DEBUG_VIEW == 3
         debugColor = vec3(diffuseTerm(normalView));
 #elif DEBUG_VIEW == 5
-        debugColor = vec3(hardShadowVisibility(pixel));
+        debugColor = vec3(shadowVisibility(pixel));
 #endif
     }
     color = vec4(debugColor, 1.0);

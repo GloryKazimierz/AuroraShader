@@ -25,8 +25,15 @@ option.DIRECT_LIGHT=Direct Light Factor
 option.DIRECT_LIGHT.comment=Strength of the Lambert directional term before shadow visibility.
 
 value.DEBUG_VIEW.4=Raw Shadow Depth
-value.DEBUG_VIEW.5=Shadow Visibility
 option.SHADOWS_ENABLED=Shadows Enabled
-option.SHADOWS_ENABLED.comment=Apply hard cast shadows to direct light. Off restores Milestone 2 lighting; the map remains available in debug 4.
+option.SHADOWS_ENABLED.comment=Apply cast shadows to direct light. Off restores Milestone 2 lighting; the map remains available in debug 4.
 option.SHADOW_BIAS=Shadow Bias
 option.SHADOW_BIAS.comment=Normalized depth offset. Increase to reduce acne; too much detaches shadows.
+
+option.SHADOW_FILTER=Shadow Filtering
+value.SHADOW_FILTER.0=Hard
+value.SHADOW_FILTER.1=3x3 PCF
+option.SHADOW_FILTER.comment=Hard uses one depth comparison. PCF averages nine neighboring comparisons.
+option.SHADOW_SOFTNESS=Shadow Softness
+option.SHADOW_SOFTNESS.comment=PCF spacing in shadow-map texels. One is the default; zero matches Hard. Ignored in Hard mode.
+value.DEBUG_VIEW.5=Shadow Visibility (Filtered)

@@ -28,7 +28,7 @@ void main() {
     color = scene;
     if (surface.a > 0.5) {
         vec2 levels = texelFetch(colortex2, pixel, 0).rg;
-        float visibility = hardShadowVisibility(pixel);
+        float visibility = shadowVisibility(pixel);
         color.rgb = lightScene(scene.rgb, decodeNormal(surface.rgb), levels, visibility);
     }
     // Alpha is unchanged. Iris flips colortex0 after this fullscreen pass.

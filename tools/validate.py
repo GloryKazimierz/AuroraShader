@@ -1,6 +1,7 @@
 """Read-only structural checks; NOT a full GLSL compiler. Python 3.6+."""
 from pathlib import Path
 import math
+from itertools import product
 import re
 import subprocess
 
@@ -16,7 +17,7 @@ def expand(path, chain=()):
         return expand(SHADERS / match[1].lstrip("/"), chain + (path,))
     return re.sub(r'^#include "([^"]+)"\s*$', include, text, flags=re.M)
 
-def preprocess(text, debug, grayscale, shadows=True):
+def preprocess(text, debug, grayscale, shadows=True, filtering=1, softness=1.0):
     macros = {}
     stack = []
     active = True
@@ -29,6 +30,8 @@ def preprocess(text, debug, grayscale, shadows=True):
                 macros[parts[1]] = parts[2] if len(parts) > 2 else "1"
                 if parts[1] == "DEBUG_VIEW":
                     macros[parts[1]] = str(debug)
+                if parts[1] == "SHADOW_FILTER":
+                    macros[parts[1]] = str(filtering)
                 if parts[1] == "SHADOWS_ENABLED" and not shadows:
                     macros.pop(parts[1], None)
             continue
@@ -58,48 +61,47 @@ def preprocess(text, debug, grayscale, shadows=True):
         elif active:
             result.append(line)
     assert not stack, "Unclosed conditional"
-    return "\n".join(result)
+    return "\n".join(result).replace("SHADOW_SOFTNESS", str(softness))
 
 pairs = sorted(SHADERS.glob("*.vsh"))
 assert len(pairs) == 19
 writers = {"gbuffers_terrain", "gbuffers_block", "gbuffers_entities"}
-for debug in range(6):
-    for grayscale in (False, True):
-        for shadows in (False, True):
-            for vertex in pairs:
-                fragment = vertex.with_suffix(".fsh")
-                vs = preprocess(expand(vertex), debug, grayscale, shadows)
-                fs = preprocess(expand(fragment), debug, grayscale, shadows)
-                for source in (vs, fs):
-                    assert source.startswith("#version 330 compatibility")
-                    assert source.count("void main()") == 1
-                    clean = re.sub(r"/\*.*?\*/|//[^\n]*", "", source, flags=re.S)
-                    assert not re.search(r"const int colortex\d+Format\s*=\s*[A-Z]", clean), "Active format enum in GLSL"
-                    for left, right in (("{", "}"), ("(", ")"), ("[", "]")):
-                        depth = 0
-                        for char in clean:
-                            depth += (char == left) - (char == right)
-                            assert depth >= 0, str(fragment)
-                        assert depth == 0, str(fragment)
-                outputs = dict((name, kind) for kind, name in
-                               re.findall(r"^out (\w+) (\w+);", vs, re.M))
-                for kind, name in re.findall(r"^in (\w+) (\w+);", fs, re.M):
-                    assert outputs.get(name) == kind, (fragment, name)
-                locations = [int(n) for n in re.findall(
-                    r"layout\(location = (\d+)\) out vec4", fs)]
-                targets = re.findall(r"/\* RENDERTARGETS: ([0-9,]+) \*/", fs)
-                expected = [] if vertex.stem == "shadow" else ([0, 1, 2] if vertex.stem in writers else [0])
-                assert locations == expected, (fragment, locations)
-                if vertex.stem in ("final", "shadow"):
-                    assert not targets
-                else:
-                    assert len(targets) == 1
-                    assert list(map(int, targets[0].split(","))) == expected
-                if vertex.stem in writers:
-                    assert "writeSurfaceData(lmcoord);" in fs
-                    assert "gl_NormalMatrix * gl_Normal" in vs
-                if vertex.stem == "final" and debug:
-                    assert "gradeColor(scene.rgb)" not in fs
+for debug, grayscale, shadows, filtering, softness in product(
+        range(6), (False,True), (False,True), (0,1), (0.0,.5,1.0,1.5,2.0)):
+    for vertex in pairs:
+        fragment = vertex.with_suffix(".fsh")
+        vs = preprocess(expand(vertex), debug, grayscale, shadows, filtering, softness)
+        fs = preprocess(expand(fragment), debug, grayscale, shadows, filtering, softness)
+        for source in (vs, fs):
+            assert source.startswith("#version 330 compatibility")
+            assert source.count("void main()") == 1
+            clean = re.sub(r"/\*.*?\*/|//[^\n]*", "", source, flags=re.S)
+            assert not re.search(r"const int colortex\d+Format\s*=\s*[A-Z]", clean), "Active format enum in GLSL"
+            for left, right in (("{", "}"), ("(", ")"), ("[", "]")):
+                depth = 0
+                for char in clean:
+                    depth += (char == left) - (char == right)
+                    assert depth >= 0, str(fragment)
+                assert depth == 0, str(fragment)
+        outputs = dict((name, kind) for kind, name in
+                       re.findall(r"^out (\w+) (\w+);", vs, re.M))
+        for kind, name in re.findall(r"^in (\w+) (\w+);", fs, re.M):
+            assert outputs.get(name) == kind, (fragment, name)
+        locations = [int(n) for n in re.findall(
+            r"layout\(location = (\d+)\) out vec4", fs)]
+        targets = re.findall(r"/\* RENDERTARGETS: ([0-9,]+) \*/", fs)
+        expected = [] if vertex.stem == "shadow" else ([0, 1, 2] if vertex.stem in writers else [0])
+        assert locations == expected, (fragment, locations)
+        if vertex.stem in ("final", "shadow"):
+            assert not targets
+        else:
+            assert len(targets) == 1
+            assert list(map(int, targets[0].split(","))) == expected
+        if vertex.stem in writers:
+            assert "writeSurfaceData(lmcoord);" in fs
+            assert "gl_NormalMatrix * gl_Normal" in vs
+        if vertex.stem == "final" and debug:
+            assert "gradeColor(scene.rgb)" not in fs
 
 props = (SHADERS / "shaders.properties").read_text()
 all_source = "\n".join(p.read_text() for p in SHADERS.rglob("*") if p.is_file())
@@ -110,7 +112,7 @@ for line in props.splitlines():
             assert option in options, "Undefined option: " + option
 for option in ("DEBUG_VIEW", "LIGHTING_STRENGTH", "AMBIENT_LIGHT",
                "DIRECT_LIGHT", "EXPOSURE", "SATURATION", "CONTRAST",
-               "TEMPERATURE", "TINT", "GRAYSCALE", "SHADOWS_ENABLED", "SHADOW_BIAS"):
+               "TEMPERATURE", "TINT", "GRAYSCALE", "SHADOWS_ENABLED", "SHADOW_BIAS", "SHADOW_FILTER", "SHADOW_SOFTNESS"):
     assert len(re.findall(r"\b" + option + r"\b", all_source)) >= 2
 for writer in writers:
     for buffer in (1, 2):
@@ -141,7 +143,7 @@ for relative in ("shaders/lib/color.glsl", "shaders/lib/settings.glsl"):
                                         "HEAD:" + relative]).decode()
     current = (ROOT / relative).read_text()
     assert baseline.replace("\r\n", "\n") == current.replace("\r\n", "\n")
-print("PASS: 19 program pairs x 6 debug views x 2 grayscale states x 2 shadow states")
+print("PASS: 19 program pairs x 6 debug views x 2 grayscale states x 2 shadow states x 2 filters x 5 softness values")
 print("PASS: includes, conditionals, stage interfaces, MRT routing, option references")
 print("PASS: normal round trips, lightmap endpoints, cave/torch/disabled invariants")
 print("PASS: Milestone 1 color code/defaults unchanged")
@@ -154,7 +156,7 @@ assert "uniform sampler2D depthtex1;" in shadow_source
 for name in ("gbufferProjectionInverse", "gbufferModelViewInverse",
              "shadowModelView", "shadowProjection"):
     assert "uniform mat4 " + name + ";" in shadow_source
-assert "shadowCoord.z - SHADOW_BIAS <= storedDepth ? 1.0 : 0.0" in shadow_source
+assert "receiverDepth - SHADOW_BIAS <= storedDepth ? 1.0 : 0.0" in shadow_source
 assert "texelFetch(shadowtex1, shadowPixel, 0)" in shadow_source
 assert "greaterThanEqual(shadowCoord" in shadow_source
 assert "cameraPosition" not in re.sub(r"//[^\n]*", "", shadow_source)
@@ -232,3 +234,56 @@ for anchor, angle in (((0,0,0),0), ((3,2,1),.3), ((-1,1,-2),-.2)):
     assert max(abs(a-b) for a,b in zip(actual,expected)) < 1e-10
 print("PASS: hard comparison, ambient/block preservation, depth-only caster scope")
 print("PASS: perspective reconstruction and camera-pose-invariant light coordinates")
+
+# PCF reference cases: one center comparison versus nine binary comparisons.
+def reference_filter(grid, uv, current=.5, bias=.0002, mode=1, softness=1.0):
+    size = len(grid)
+    def compare(u,v):
+        if u < 0 or v < 0 or u >= 1 or v >= 1:
+            return 1.0
+        return float(current-bias <= grid[int(v*size)][int(u*size)])
+    if mode == 0:
+        return compare(*uv)
+    return sum(compare(uv[0]+x*softness/size, uv[1]+y*softness/size)
+               for y in (-1,0,1) for x in (-1,0,1)) / 9.0
+
+edge = [[.2 if x < 4 else .8 for x in range(8)] for y in range(8)]
+for softness in (0.0,.5,1.0,1.5,2.0):
+    for mode in (0,1):
+        assert reference_filter([[.8]*8 for _ in range(8)],(.5,.5),
+                                mode=mode,softness=softness) == 1
+        assert reference_filter([[.2]*8 for _ in range(8)],(.5,.5),
+                                mode=mode,softness=softness) == 0
+        for uv in ((.01,.01),(.4375,.5625),(.5625,.5625),(.99,.99)):
+            value = reference_filter(edge,uv,mode=mode,softness=softness)
+            assert 0 <= value <= 1
+            if mode == 0:
+                assert value == reference_filter(edge,uv,mode=0,softness=1)
+for uv in ((.01,.01),(.4375,.5625),(.5625,.5625),(.99,.99)):
+    assert reference_filter(edge,uv,softness=0) == reference_filter(edge,uv,mode=0)
+assert abs(reference_filter(edge,(3.5/8,4.5/8))-1/3) < 1e-12
+assert abs(reference_filter(edge,(4.5/8,4.5/8))-2/3) < 1e-12
+# 5 of 9 taps leave the map at a corner and are treated as lit.
+assert abs(reference_filter([[.2]*8 for _ in range(8)],(.5/8,.5/8))-5/9) < 1e-12
+
+for mode in (0,1):
+    for softness in (0.0,.5,1.0,1.5,2.0):
+        source = preprocess(shadow_source, 5, False, True, mode, softness)
+        assert ("visibility / 9.0" in source) == (mode == 1)
+        assert ("for (int y = -1;" in source) == (mode == 1)
+        if mode == 1:
+            assert "texelSize * " + str(softness) in source
+# Compare the actual preserved transform block against the tested commit.
+previous_shadow = subprocess.check_output(
+    ["git","-C",str(ROOT),"show","HEAD:shaders/lib/shadow.glsl"]).decode()
+def transform_block(source):
+    return source.split("    float depth = texelFetch(depthtex1, pixel, 0).r;",1)[1].split(
+        "return 1.0;",3)[0:3]
+assert transform_block(previous_shadow) == transform_block(shadow_source)
+for relative in ("shaders/lib/position.glsl", "shaders/lib/lighting.glsl",
+                 "shaders/lib/gbuffer_write.glsl", "shaders/shadow.vsh",
+                 "shaders/shadow.fsh"):
+    baseline = subprocess.check_output(["git","-C",str(ROOT),"show","HEAD:"+relative]).decode()
+    assert baseline.replace("\r\n","\n") == (ROOT/relative).read_text().replace("\r\n","\n")
+print("PASS: Hard/PCF, five softness values, partial coverage and boundary policy")
+print("PASS: tested transforms, lighting, G-buffer writer and caster shaders unchanged")

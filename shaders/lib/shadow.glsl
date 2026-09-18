@@ -5,7 +5,36 @@ uniform mat4 shadowProjection;
 uniform sampler2D shadowtex1; // Opaque/cutout caster depth, no translucency.
 uniform sampler2D depthtex1;  // Camera depth snapshot before translucency.
 
-float hardShadowVisibility(ivec2 pixel) {
+float compareShadow(vec2 shadowUV, float receiverDepth, ivec2 mapSize) {
+    // Preserve the map-boundary policy for every tap: outside the map is lit.
+    if (any(lessThan(shadowUV, vec2(0.0))) ||
+        any(greaterThanEqual(shadowUV, vec2(1.0)))) return 1.0;
+    ivec2 shadowPixel = ivec2(shadowUV * vec2(mapSize));
+    float storedDepth = texelFetch(shadowtex1, shadowPixel, 0).r;
+    // Same constant normalized-depth bias as Milestone 3A, for every tap.
+    return receiverDepth - SHADOW_BIAS <= storedDepth ? 1.0 : 0.0;
+}
+float filterShadow(vec3 shadowCoord) {
+    ivec2 mapSize = textureSize(shadowtex1, 0);
+#if SHADOW_FILTER == 0
+    return compareShadow(shadowCoord.xy, shadowCoord.z, mapSize);
+#else
+    // Actual map resolution determines UV texel size (currently 2048 x 2048).
+    vec2 texelSize = 1.0 / vec2(mapSize);
+    // Softness 1 = one texel spacing/radius; zero collapses all taps to center.
+    vec2 radiusUV = texelSize * SHADOW_SOFTNESS;
+    float visibility = 0.0;
+    for (int y = -1; y <= 1; ++y) {
+        for (int x = -1; x <= 1; ++x) {
+            vec2 offsetUV = vec2(float(x), float(y)) * radiusUV;
+            visibility += compareShadow(shadowCoord.xy + offsetUV, shadowCoord.z, mapSize);
+        }
+    }
+    // Average nine binary COMPARISONS, not depths: mixed coverage yields gray.
+    return visibility / 9.0;
+#endif
+}
+float shadowVisibility(ivec2 pixel) {
 #ifdef SHADOWS_ENABLED
     float depth = texelFetch(depthtex1, pixel, 0).r;
     if (depth >= 1.0) return 1.0; // Sky has no receiver position.
@@ -20,11 +49,7 @@ float hardShadowVisibility(ivec2 pixel) {
     // Outside this single map: assume lit instead of wrapping/clamping shadows.
     if (any(lessThan(shadowCoord, vec3(0.0))) ||
         any(greaterThanEqual(shadowCoord, vec3(1.0)))) return 1.0;
-    ivec2 shadowPixel = ivec2(shadowCoord.xy * vec2(textureSize(shadowtex1, 0)));
-    // One exact texel, one comparison. No PCF or hardware comparison sampler.
-    float storedDepth = texelFetch(shadowtex1, shadowPixel, 0).r;
-    // Constant bias moves the receiver toward the light in normalized depth.
-    return shadowCoord.z - SHADOW_BIAS <= storedDepth ? 1.0 : 0.0;
+    return filterShadow(shadowCoord);
 #else
     return 1.0; // Restores Milestone 2 lighting; map remains available for debug.
 #endif

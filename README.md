@@ -1,8 +1,11 @@
 # MyShader
 
+Milestone 3B adds Hard/3x3 PCF selection and shadow softness and has passed
+user-confirmed Minecraft runtime testing. See [Milestone 3B](docs/MILESTONE_3B.md).
+
 Milestone 3A (basic hard shadows) has passed Minecraft runtime testing with Iris.
 See [Milestone 3A](docs/MILESTONE_3A.md) for the current pipeline, controls,
-limitations and acceptance checklist. Milestone 3B has not started.
+limitations and acceptance checklist. Milestone 3A remains the runtime-tested baseline.
 
 The sections below document the tested Milestone 2 baseline.
 
