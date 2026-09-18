@@ -22,4 +22,11 @@ option.LIGHTING_STRENGTH.comment=Zero restores Milestone 1 scene lighting.
 option.AMBIENT_LIGHT=Ambient Factor
 option.AMBIENT_LIGHT.comment=Lighting floor for sky-exposed surfaces. Caves retain original lightmap lighting.
 option.DIRECT_LIGHT=Direct Light Factor
-option.DIRECT_LIGHT.comment=Strength of the Lambert term; no shadows are calculated.
+option.DIRECT_LIGHT.comment=Strength of the Lambert directional term before shadow visibility.
+
+value.DEBUG_VIEW.4=Raw Shadow Depth
+value.DEBUG_VIEW.5=Shadow Visibility
+option.SHADOWS_ENABLED=Shadows Enabled
+option.SHADOWS_ENABLED.comment=Apply hard cast shadows to direct light. Off restores Milestone 2 lighting; the map remains available in debug 4.
+option.SHADOW_BIAS=Shadow Bias
+option.SHADOW_BIAS.comment=Normalized depth offset. Increase to reduce acne; too much detaches shadows.

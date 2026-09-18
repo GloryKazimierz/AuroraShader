@@ -1,6 +1,7 @@
 #version 330 compatibility
 #include "/lib/lighting_settings.glsl"
 #include "/lib/lighting.glsl"
+#include "/lib/shadow.glsl"
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
@@ -27,7 +28,8 @@ void main() {
     color = scene;
     if (surface.a > 0.5) {
         vec2 levels = texelFetch(colortex2, pixel, 0).rg;
-        color.rgb = lightScene(scene.rgb, decodeNormal(surface.rgb), levels);
+        float visibility = hardShadowVisibility(pixel);
+        color.rgb = lightScene(scene.rgb, decodeNormal(surface.rgb), levels, visibility);
     }
     // Alpha is unchanged. Iris flips colortex0 after this fullscreen pass.
     // Most transparent geometry renders afterward using its original shading.

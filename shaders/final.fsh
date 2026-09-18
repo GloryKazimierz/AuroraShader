@@ -3,6 +3,7 @@
 #include "/lib/color.glsl"
 #include "/lib/lighting_settings.glsl"
 #include "/lib/lighting.glsl"
+#include "/lib/shadow.glsl"
 // Normal mode keeps Milestone 1 grading after deferred lighting/translucency.
 // Debug reads raw surface buffers, bypassing grading and later color overlays.
 uniform sampler2D colortex0;
@@ -14,6 +15,8 @@ void main() {
 #if DEBUG_VIEW == 0
     vec4 scene = texture(colortex0, texcoord);
     color = vec4(gradeColor(scene.rgb), scene.a);
+#elif DEBUG_VIEW == 4
+    color = vec4(vec3(rawShadowDepth(texcoord)), 1.0);
 #else
     ivec2 pixel = ivec2(gl_FragCoord.xy);
     vec4 surface = texelFetch(colortex1, pixel, 0);
@@ -26,6 +29,8 @@ void main() {
         debugColor = vec3(texelFetch(colortex2, pixel, 0).rg, 0.0);
 #elif DEBUG_VIEW == 3
         debugColor = vec3(diffuseTerm(normalView));
+#elif DEBUG_VIEW == 5
+        debugColor = vec3(hardShadowVisibility(pixel));
 #endif
     }
     color = vec4(debugColor, 1.0);

@@ -1,5 +1,11 @@
 # MyShader
 
+Milestone 3A (basic hard shadows) has passed Minecraft runtime testing with Iris.
+See [Milestone 3A](docs/MILESTONE_3A.md) for the current pipeline, controls,
+limitations and acceptance checklist. Milestone 3B has not started.
+
+The sections below document the tested Milestone 2 baseline.
+
 Milestone 1 was tested successfully in Minecraft by the user.
 Milestone 2 adds an educational deferred Lambert lighting pass and debug views;
 it has passed runtime testing in Minecraft with Iris, confirmed by the user.
