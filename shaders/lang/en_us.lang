@@ -10,3 +10,16 @@ option.CONTRAST.comment=One is neutral. Adjusts contrast around mid-gray.
 option.TEMPERATURE.comment=Zero is neutral. Negative is cooler; positive is warmer.
 option.TINT.comment=Zero is neutral. Negative adds green; positive adds magenta.
 option.GRAYSCALE.comment=Optional weighted grayscale after other color controls.
+
+option.DEBUG_VIEW=Debug View
+option.DEBUG_VIEW.comment=Raw surface buffers bypass color grading. Black means no recorded surface.
+value.DEBUG_VIEW.0=Normal Rendering
+value.DEBUG_VIEW.1=View-space Normals
+value.DEBUG_VIEW.2=Lightmap: Red Block / Green Sky
+value.DEBUG_VIEW.3=Directional NdotL
+option.LIGHTING_STRENGTH=Directional Lighting Strength
+option.LIGHTING_STRENGTH.comment=Zero restores Milestone 1 scene lighting.
+option.AMBIENT_LIGHT=Ambient Factor
+option.AMBIENT_LIGHT.comment=Lighting floor for sky-exposed surfaces. Caves retain original lightmap lighting.
+option.DIRECT_LIGHT=Direct Light Factor
+option.DIRECT_LIGHT.comment=Strength of the Lambert term; no shadows are calculated.

@@ -10,8 +10,12 @@ in vec2 lmcoord;
 in vec2 texcoord;
 in vec4 glcolor;
 
+#ifdef WRITE_SURFACE_DATA
+#include "/lib/gbuffer_write.glsl"
+#else
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
+#endif
 
 void main() {
 	color = texture(gtexture, texcoord) * glcolor;
@@ -20,4 +24,7 @@ void main() {
 	if (color.a < alphaTestRef) {
 		discard;
 	}
+#ifdef WRITE_SURFACE_DATA
+    writeSurfaceData(lmcoord);
+#endif
 }
