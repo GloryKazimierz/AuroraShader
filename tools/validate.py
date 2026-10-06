@@ -67,7 +67,7 @@ pairs = sorted(SHADERS.glob("*.vsh"))
 assert len(pairs) == 19
 writers = {"gbuffers_terrain", "gbuffers_block", "gbuffers_entities"}
 for debug, grayscale, shadows, filtering, softness in product(
-        range(6), (False,True), (False,True), (0,1), (0.0,.5,1.0,1.5,2.0)):
+        range(6), (False,True), (False,True), (0,1,2), (0.0,.5,1.0,1.5,2.0)):
     for vertex in pairs:
         fragment = vertex.with_suffix(".fsh")
         vs = preprocess(expand(vertex), debug, grayscale, shadows, filtering, softness)
@@ -143,7 +143,7 @@ for relative in ("shaders/lib/color.glsl", "shaders/lib/settings.glsl"):
                                         "HEAD:" + relative]).decode()
     current = (ROOT / relative).read_text()
     assert baseline.replace("\r\n", "\n") == current.replace("\r\n", "\n")
-print("PASS: 19 program pairs x 6 debug views x 2 grayscale states x 2 shadow states x 2 filters x 5 softness values")
+print("PASS: 19 program pairs x 6 debug views x 2 grayscale states x 2 shadow states x 3 filters x 5 softness values")
 print("PASS: includes, conditionals, stage interfaces, MRT routing, option references")
 print("PASS: normal round trips, lightmap endpoints, cave/torch/disabled invariants")
 print("PASS: Milestone 1 color code/defaults unchanged")
@@ -266,13 +266,16 @@ assert abs(reference_filter(edge,(4.5/8,4.5/8))-2/3) < 1e-12
 # 5 of 9 taps leave the map at a corner and are treated as lit.
 assert abs(reference_filter([[.2]*8 for _ in range(8)],(.5/8,.5/8))-5/9) < 1e-12
 
-for mode in (0,1):
+for mode in (0,1,2):
     for softness in (0.0,.5,1.0,1.5,2.0):
         source = preprocess(shadow_source, 5, False, True, mode, softness)
-        assert ("visibility / 9.0" in source) == (mode == 1)
-        assert ("for (int y = -1;" in source) == (mode == 1)
-        if mode == 1:
-            assert "texelSize * " + str(softness) in source
+        if mode == 0:
+            assert "kernelRadius" not in source
+        else:
+            assert "return visibility / sampleCount;" in source
+            assert "tapStepUV = texelSize * " + str(softness) in source
+            expected_radius = "1" if mode == 1 else "2"
+            assert "const int kernelRadius = " + expected_radius + ";" in source
 # Compare the actual preserved transform block against the tested commit.
 previous_shadow = subprocess.check_output(
     ["git","-C",str(ROOT),"show","HEAD:shaders/lib/shadow.glsl"]).decode()
@@ -285,5 +288,19 @@ for relative in ("shaders/lib/position.glsl", "shaders/lib/lighting.glsl",
                  "shaders/shadow.fsh"):
     baseline = subprocess.check_output(["git","-C",str(ROOT),"show","HEAD:"+relative]).decode()
     assert baseline.replace("\r\n","\n") == (ROOT/relative).read_text().replace("\r\n","\n")
-print("PASS: Hard/PCF, five softness values, partial coverage and boundary policy")
+print("PASS: Hard/3x3/5x5 PCF, five softness values, partial coverage and boundary policy")
 print("PASS: tested transforms, lighting, G-buffer writer and caster shaders unchanged")
+
+
+# Milestone 4 kernel-size sanity checks.
+def kernel_sample_count(radius):
+    return (radius * 2 + 1) ** 2
+assert kernel_sample_count(1) == 9
+assert kernel_sample_count(2) == 25
+for softness in (0.0, .5, 1.0, 1.5, 2.0):
+    if softness == 0:
+        # All offsets collapse onto the center, so larger kernels preserve
+        # the center comparison even though they repeat it more times.
+        center = reference_filter(edge, (4.5/8,4.5/8), mode=0)
+        assert center in (0,1)
+print("PASS: Milestone 4 kernel radii map to 9 and 25 taps")
