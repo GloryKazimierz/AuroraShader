@@ -1,5 +1,10 @@
 # MyShader
 
+Milestone 4 development is on `milestone-4-pcf-kernels`: it extends the tested
+Milestone 3B shadow path with a selectable 5x5 PCF kernel for quality/cost
+comparison. See [Milestone 4](docs/MILESTONE_4.md) and the
+[Shadow Mapping Study Guide](docs/SHADOW_MAPPING_STUDY_GUIDE.md).
+
 Milestone 3B adds Hard/3x3 PCF selection and shadow softness and has passed
 user-confirmed Minecraft runtime testing. See [Milestone 3B](docs/MILESTONE_3B.md).
 
