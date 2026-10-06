@@ -21,17 +21,26 @@ float filterShadow(vec3 shadowCoord) {
 #else
     // Actual map resolution determines UV texel size (currently 2048 x 2048).
     vec2 texelSize = 1.0 / vec2(mapSize);
-    // Softness 1 = one texel spacing/radius; zero collapses all taps to center.
-    vec2 radiusUV = texelSize * SHADOW_SOFTNESS;
+    // Softness controls spacing between taps in shadow-map texels.
+    // 3x3 reaches 1 * softness texels from center; 5x5 reaches 2 * softness.
+    vec2 tapStepUV = texelSize * SHADOW_SOFTNESS;
+#if SHADOW_FILTER == 1
+    const int kernelRadius = 1;
+#else
+    const int kernelRadius = 2;
+#endif
     float visibility = 0.0;
-    for (int y = -1; y <= 1; ++y) {
-        for (int x = -1; x <= 1; ++x) {
-            vec2 offsetUV = vec2(float(x), float(y)) * radiusUV;
+    float sampleCount = 0.0;
+    for (int y = -kernelRadius; y <= kernelRadius; ++y) {
+        for (int x = -kernelRadius; x <= kernelRadius; ++x) {
+            vec2 offsetUV = vec2(float(x), float(y)) * tapStepUV;
             visibility += compareShadow(shadowCoord.xy + offsetUV, shadowCoord.z, mapSize);
+            sampleCount += 1.0;
         }
     }
-    // Average nine binary COMPARISONS, not depths: mixed coverage yields gray.
-    return visibility / 9.0;
+    // Average binary comparison RESULTS, never depth values.
+    // 3x3 = 9 taps; 5x5 = 25 taps.
+    return visibility / sampleCount;
 #endif
 }
 float shadowVisibility(ivec2 pixel) {
