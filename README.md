@@ -17,6 +17,21 @@ Project and Git history: D:\MinecraftShaders\MyShader.
 The existing Minecraft junction is managed separately and must not be modified.
 Historical MyFirstShader and composite-tutorial packs remain untouched.
 
+## Learning materials
+
+The stable runtime-tested shader baseline on `main` remains Milestone 3B. The
+following documents are copied into `main` as study material and experiment
+notes; Milestone 4/5 rendering code remains on their dedicated branches until
+runtime testing is complete.
+
+- [Milestone 4: PCF kernel-size experiment](docs/MILESTONE_4.md)
+- [Milestone 4 benchmark template](docs/MILESTONE_4_BENCHMARK.md)
+- [Milestone 5: Poisson Disk PCF](docs/MILESTONE_5.md)
+- [Milestone 5 benchmark template](docs/MILESTONE_5_BENCHMARK.md)
+- [Milestone 5 learning notes](docs/MILESTONE_5_LEARNING_NOTES.md)
+- [Shadow Mapping Study Guide](docs/SHADOW_MAPPING_STUDY_GUIDE.md)
+- [Shadow Bias / Acne / Peter-Panning Preview](docs/SHADOW_BIAS_PREVIEW.md)
+
 ## Pipeline and scope
 
 1. Base-330 geometry still produces the same texture, vertex-color and lightmap
