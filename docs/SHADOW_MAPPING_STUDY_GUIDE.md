@@ -263,7 +263,7 @@ visibility -> direct lighting
 
 ## From Brute Force PCF to Better Sampling
 
-The current experiment deliberately uses a square grid so its cost and behavior
+The Milestone 4 experiment deliberately uses a square grid so its cost and behavior
 are easy to inspect. For an in-bounds receiver whose taps stay inside the map,
 Hard evaluates one comparison, 3x3 evaluates nine, and 5x5 evaluates twenty-five.
 Thus 5x5 has about 2.78 times the shadow-depth lookups of 3x3. This is a local
@@ -317,7 +317,8 @@ geometry retains coverage. This addresses resolution allocation and perspective
 aliasing, not physical softness, and introduces cascade-transition and stability
 concerns. [Microsoft's cascaded shadow-map guide](https://learn.microsoft.com/en-us/windows/win32/dxtecharts/cascaded-shadow-maps)
 
-These are study topics only; none is implemented in this milestone.
+Milestone 5 implements a fixed Poisson-style pattern. Rotation, PCSS,
+slope-scaled bias and cascades remain study topics, not implemented features.
 
 ## Interview notes: ten concise answers
 
@@ -347,16 +348,143 @@ These are study topics only; none is implemented in this milestone.
 10. **When are cascades useful?** In large scenes with directional sunlight, where
     one map cannot provide both detailed nearby shadows and sufficient far coverage.
 
-## 14. One-minute explanation of your implementation
+# Regular Grid vs Poisson Sampling
 
-> I first render a depth shadow map from the sun's viewpoint. During my deferred
-> lighting pass, I reconstruct each opaque receiver's view-space position from the
-> camera depth buffer, convert it into the coordinate system expected by the shadow
-> matrices, project it into the shadow map, and compare its depth against the stored
-> light depth. I apply the result only to the direct Lambert component, so ambient
-> and Minecraft block lighting remain visible. I started with hard shadows, then
-> implemented 3x3 PCF, and now I am comparing a 5x5 kernel to understand the
-> image-quality versus sampling-cost trade-off.
+Sample count and sample distribution answer different questions: how many
+comparisons are evaluated, and where those comparisons are placed. Moving the
+same number of samples changes which portions of a shadow edge contribute to the
+average, so equal counts do not imply equal images.
 
-If you can explain that paragraph naturally, you understand the important part of
-this milestone.
+### Grid PCF
+
+```text
+x x x
+x x x
+x x x
+```
+
+Advantages: simple, predictable, easy to implement, and a useful educational
+baseline. A 3x3 grid has nine taps; 5x5 has twenty-five.
+
+Disadvantages: repeated rows and columns can create recognizable rectangular
+structure. Increasing grid density while expanding the kernel quickly increases
+the sample count: an N-by-N grid uses N squared taps.
+
+### Poisson PCF
+
+Conceptual illustration, not the exact shader offsets:
+
+```text
+    x      x
+
+ x      x
+
+       x       x
+
+   x       x
+```
+
+Poisson disk sampling distributes points irregularly while maintaining a minimum
+separation, avoiding excessive clustering. The exclusion disk between neighbors
+and the overall filter footprint are separate ideas. [Bridson's paper](https://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph07-poissondisk.pdf)
+
+Milestone 5 uses eight fixed, separated offsets inside a unit disk with a
+zero centroid after rounding, minimum separation about 0.6600, and maximum
+radius about 0.98. It is a small Poisson-style pattern, not a runtime generator
+or proof of an ideal distribution. Each tap uses:
+
+```text
+offsetUV = poissonOffset * texelSize * SHADOW_SOFTNESS
+visibility = sum(compareShadow(center + offsetUV)) / 8
+```
+
+Advantages: a less regular pattern can hide structured artifacts and may give
+pleasing results with relatively few taps. Disadvantages: it remains an
+approximation with a fixed radius; it can still show noise, repeated artifacts,
+or shimmer, and does not produce physically correct area-light shadows.
+Irregular sampling changes how error appears; it does not remove that error.
+[NVIDIA's PCF sampling discussion](https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-17-efficient-soft-edged-shadows-using)
+
+This implementation has no randomization or rotation between pixels or frames.
+Its fixed pattern does not automatically decorrelate artifacts or improve motion
+stability. Camera/light movement and integer texel selection can still cause
+abrupt visibility changes, perceived as temporal shimmer.
+
+### Compare both footprint and count
+
+| Filter | Logical taps | Footprint at softness S, in shadow-map texels |
+|---|---:|---|
+| Hard | 1 | Center |
+| 3x3 PCF | 9 | Axis extent S; corner radius sqrt(2) * S |
+| 5x5 PCF | 25 | Axis extent 2 * S; corner radius sqrt(8) * S |
+| Poisson PCF | 8 | Radius at most S |
+
+Softness is grid spacing for 3x3/5x5 and a disk-radius multiplier for Poisson.
+The same slider value gives different footprints, so the default comparison
+changes more than distribution. Poisson may be narrower than the grids.
+
+The shared comparison uses `texelFetch` after integer conversion. Several
+fractional offsets can select the same texel, particularly with a small radius.
+Eight calls therefore need not mean eight unique depth texels. At softness zero
+all offsets collapse to the same center, preserving Hard's result.
+
+Eight taps cost less logical sampling work than twenty-five, but are not
+automatically faster for the whole frame. Cache reuse, repeated texels, compiler
+optimization, screen coverage, CPU limits and other passes affect measured cost.
+Use the blank Milestone 5 benchmark and inspect motion as well as still images.
+
+### Why this is not PCSS
+
+```text
+Poisson PCF:
+fixed filtering radius + irregular sample locations
+
+PCSS:
+blocker search + estimated blocker distance + variable penumbra radius
+```
+
+PCSS uses blocker/receiver separation and light size to estimate a filter radius,
+aiming for sharper contact and softer shadows farther from a blocker. It adds
+work and remains an approximation. Poisson PCF alone cannot infer contact
+hardening. Poisson offsets could be used within PCSS, but the sample pattern is
+not the penumbra model. [Original PCSS paper](https://developer.download.nvidia.com/shaderlibrary/docs/shadow_PCSS.pdf)
+
+### Milestone 5 interview preparation
+
+1. **What is Poisson Disk sampling?** An irregular distribution with a minimum
+   separation between samples; it reduces clustering without imposing grid rows.
+2. **Why can irregular samples reduce visible grid artifacts?** They break up
+   repeated alignments, making sampling error less obviously structured. A fixed
+   small pattern still has artifacts.
+3. **Is Poisson sampling automatically faster than grid PCF?** No. Count,
+   memory/cache behavior and the rest of the frame determine cost; measure it.
+4. **Why might 8 Poisson samples sometimes look competitive with 25 grid samples?**
+   Their distribution can hide structured errors with fewer taps. Quality is
+   scene-dependent, and this project's same-softness footprints differ.
+5. **What does PCF average?** Independent binary depth-comparison results, giving
+   fractional visibility. It does not average stored depths before comparing.
+6. **Why does changing sample distribution matter?** It changes which parts of
+   the visibility neighborhood contribute, and therefore the filter's error and
+   directional appearance, even at an equal count.
+7. **What is temporal shimmer?** Visible flicker or crawling when motion changes
+   discrete shadow samples between frames. Irregular positions alone do not fix it.
+8. **Why does Poisson PCF not create physically correct soft shadows?** Its radius
+   does not follow light size or blocker/receiver geometry; it filters one depth
+   map rather than evaluating visibility over an area light.
+9. **What would PCSS add on top of this?** A blocker search, average blocker-depth
+   estimate, and distance-dependent filter radius for approximate contact hardening.
+10. **What would temporal filtering potentially improve?** Reusing valid history
+    could reduce noise and flicker, but needs reprojection and rejection to avoid
+    ghosting. It is not implemented here.
+
+## Updated one-minute implementation explanation
+
+> I render a depth shadow map from the light. During deferred lighting I
+> reconstruct each opaque receiver from camera depth, transform it through view,
+> player-relative and light space, then compare its depth with the map. The
+> visibility scales only direct Lambert light, preserving ambient and block
+> lighting. Hard uses one comparison; grid PCF averages nine or twenty-five.
+> Milestone 5 adds eight fixed irregular disk offsets to study distribution
+> separately from count. Every tap uses the same bias and compares before
+> averaging. I retain fixed-radius filtering and test quality, cost and camera
+> motion rather than assuming Poisson is better or faster.

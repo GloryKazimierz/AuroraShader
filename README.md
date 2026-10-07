@@ -1,16 +1,38 @@
-# MyShader
+# AuroraShader
 
-Milestone 4 development is on `milestone-4-pcf-kernels`: it extends the tested
-Milestone 3B shadow path with a selectable 5x5 PCF kernel for quality/cost
-comparison. See [Milestone 4](docs/MILESTONE_4.md) and the
+Milestone 5 adds an eight-tap Poisson PCF mode on `milestone-5-poisson-pcf`.
+It explores **sample distribution**, rather than simply increasing kernel size:
+Hard / 3x3 / 5x5 / Poisson use 1 / 9 / 25 / 8 logical comparisons.
+The fixed disk shares the existing bias, softness control and Debug 5 visibility.
+The default remains 3x3. Same softness does not give identical filter footprints.
+Minecraft runtime testing and benchmark measurements are still pending.
+
+| Milestone | Feature |
+|---|---|
+| M1 | Color grading |
+| M2 | Deferred Lambert lighting |
+| M3A | Hard shadow mapping |
+| M3B | 3x3 PCF |
+| M4 | 3x3 vs 5x5 PCF experiment |
+| M5 | Poisson PCF |
+
+Read [Milestone 5](docs/MILESTONE_5.md), fill in the
+[Milestone 5 benchmark](docs/MILESTONE_5_BENCHMARK.md), or follow the
 [Shadow Mapping Study Guide](docs/SHADOW_MAPPING_STUDY_GUIDE.md).
+The earlier [Milestone 4](docs/MILESTONE_4.md) comparison remains available on its
+historical branch; no milestone is merged into main by this work.
+
+Current M5 checkout: `D:\MinecraftShaders\MyShader-pcf-kernels`. The original
+`MyShader` junction still resolves to the separate sky worktree, so it does not
+load M5. Follow the benchmark's test-profile setup to select the correct pack;
+this task has not created a test instance or changed a junction.
 
 Milestone 3B adds Hard/3x3 PCF selection and shadow softness and has passed
 user-confirmed Minecraft runtime testing. See [Milestone 3B](docs/MILESTONE_3B.md).
 
 Milestone 3A (basic hard shadows) has passed Minecraft runtime testing with Iris.
 See [Milestone 3A](docs/MILESTONE_3A.md) for the current pipeline, controls,
-limitations and acceptance checklist. Milestone 3A remains the runtime-tested baseline.
+limitations and acceptance checklist. Milestone 3B is the latest user-confirmed runtime-tested baseline.
 
 The sections below document the tested Milestone 2 baseline.
 

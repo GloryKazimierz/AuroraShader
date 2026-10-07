@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SHADERS = ROOT / "shaders"
 # Runtime-tested Milestone 3B: stable even after this branch is committed.
 BASELINE = "5aa154dbce823e954f63d25f91f3acbb9566c9c9"
+GRID_BASELINE = "220cf1b38e3e6d6cc65aa3ead0e8be671b10d148"
 
 def expand(path, chain=()):
     path = path.resolve()
@@ -69,7 +70,7 @@ pairs = sorted(SHADERS.glob("*.vsh"))
 assert len(pairs) == 19
 writers = {"gbuffers_terrain", "gbuffers_block", "gbuffers_entities"}
 for debug, grayscale, shadows, filtering, softness in product(
-        range(6), (False,True), (False,True), (0,1,2), (0.0,.5,1.0,1.5,2.0)):
+        range(6), (False,True), (False,True), (0,1,2,3), (0.0,.5,1.0,1.5,2.0)):
     for vertex in pairs:
         fragment = vertex.with_suffix(".fsh")
         vs = preprocess(expand(vertex), debug, grayscale, shadows, filtering, softness)
@@ -145,7 +146,7 @@ for relative in ("shaders/lib/color.glsl", "shaders/lib/settings.glsl"):
                                         BASELINE + ":" + relative]).decode()
     current = (ROOT / relative).read_text()
     assert baseline.replace("\r\n", "\n") == current.replace("\r\n", "\n")
-print("PASS: 19 program pairs x 6 debug views x 2 grayscale states x 2 shadow states x 3 filters x 5 softness values")
+print("PASS: 19 program pairs x 6 debug views x 2 grayscale states x 2 shadow states x 4 filters x 5 softness values")
 print("PASS: includes, conditionals, stage interfaces, MRT routing, option references")
 print("PASS: normal round trips, lightmap endpoints, cave/torch/disabled invariants")
 print("PASS: Milestone 1 color code/defaults unchanged")
@@ -241,12 +242,26 @@ print("PASS: perspective reconstruction and camera-pose-invariant light coordina
 # every out-of-map tap is lit and performs no fetch, but stays in the denominator.
 MODES = ((0, 0, 1), (1, 1, 9), (2, 2, 25))
 SOFTNESSES = (0.0, .5, 1.0, 1.5, 2.0)
+# Read actual literal offsets; every matched offset must belong to a comparison.
+poisson_source = preprocess(shadow_source,5,False,True,3)
+POISSON_OFFSETS = tuple((float(x),float(y)) for x,y in re.findall(
+    r"visibility \+= compareShadow\(shadowCoord\.xy \+ vec2\(\s*(-?\d+\.\d+),\s*(-?\d+\.\d+)\) \* tapStepUV, shadowCoord\.z, mapSize\);",
+    poisson_source))
+assert len(POISSON_OFFSETS) == 8
+assert len(set(POISSON_OFFSETS)) == 8
+assert all(x*x+y*y <= 1 for x,y in POISSON_OFFSETS)
+assert all(abs(sum(p[axis] for p in POISSON_OFFSETS)/8) < .001 for axis in (0,1))
+assert min(math.hypot(a[0]-b[0],a[1]-b[1]) for i,a in enumerate(POISSON_OFFSETS)
+           for b in POISSON_OFFSETS[i+1:]) > .6
+assert {(x > 0,y > 0) for x,y in POISSON_OFFSETS} == {(False,False),(False,True),(True,False),(True,True)}
 
 def reference_filter(grid, uv, current=.5, bias=.0002, mode=1, softness=1.0):
-    assert mode in (0, 1, 2)
+    assert mode in (0, 1, 2, 3)
     height, width = len(grid), len(grid[0])
     offsets = [(0, 0)] if mode == 0 else [
         (x, y) for y in range(-mode, mode+1) for x in range(-mode, mode+1)]
+    if mode == 3:
+        offsets = POISSON_OFFSETS
     lit, reads = 0.0, 0
     for x, y in offsets:
         u, v = uv[0]+x*softness/width, uv[1]+y*softness/height
@@ -348,10 +363,10 @@ for relative in ("shaders/lib/position.glsl", "shaders/lib/lighting.glsl",
 settings = (SHADERS/"lib/shadow_settings.glsl").read_text()
 assert re.search(r"^#define SHADOWS_ENABLED(?: //.*)?$",settings,re.M)
 assert re.search(r"^#define SHADOW_BIAS 0\.0002 //",settings,re.M)
-assert re.search(r"^#define SHADOW_FILTER 1 // \[0 1 2\]",settings,re.M)
+assert re.search(r"^#define SHADOW_FILTER 1 // \[0 1 2 3\]",settings,re.M)
 assert re.search(r"^#define SHADOW_SOFTNESS 1\.0 // \[0\.0 0\.5 1\.0 1\.5 2\.0\]",settings,re.M)
 language = (SHADERS/"lang/en_us.lang").read_text()
-for mode, label in ((0,"Hard"),(1,"3x3 PCF"),(2,"5x5 PCF")):
+for mode, label in ((0,"Hard"),(1,"3x3 PCF"),(2,"5x5 PCF"),(3,"Poisson PCF")):
     assert re.search(r"^value\.SHADOW_FILTER\."+str(mode)+"="+re.escape(label)+r"\s*$",language,re.M)
 for option in ("SHADOW_FILTER","SHADOW_SOFTNESS"):
     assert re.search(r"^option\."+option+r"=.+$",language,re.M)
@@ -361,4 +376,45 @@ print("PASS: Hard/3x3/5x5 have 1/9/25 logical taps; bounded fetch counts checked
 print("PASS: all-lit, all-shadowed, 1/3-2/3 and 2/5-3/5 edges, all four corners")
 print("PASS: all five softness values; zero equals Hard and Hard ignores softness")
 print("PASS: pinned Milestone 3B transforms, bounds, caster scope, lighting and debug 0-5 unchanged")
-print("PASS: three filter labels, UI references and defaults")
+print("PASS: four filter labels, UI references and defaults")
+
+# Poisson contract: eight explicit comparisons, average of visibility not depths.
+for softness in SOFTNESSES:
+    body = compact(function_body(preprocess(shadow_source,5,False,True,3,softness),"filterShadow"))
+    assert body.count("compareShadow(") == body.count("visibility+=") == 8
+    assert "floatvisibility=0.0;" in body and "returnvisibility/8.0;" in body
+    assert "vec2tapStepUV="+str(softness)+"/vec2(mapSize);" in body
+    assert "for(" not in body and "texelFetch" not in body
+    for grid, expected in ((lit_map,1),(dark_map,0)):
+        assert reference_filter(grid,(.5,.5),mode=3,softness=softness) == (expected,8,8)
+    for uv in probe_uvs:
+        value, taps, reads = reference_filter(edge,uv,mode=3,softness=softness)
+        assert 0 <= value <= 1 and taps == 8 and 0 <= reads <= 8
+        assert reference_filter(edge,uv,mode=3,softness=0)[0] == reference_filter(edge,uv,mode=0)[0]
+# Analytic tap counts at a vertical edge for the fixed pattern (not a copied sum).
+assert reference_filter(edge,(7.5/16,8.5/16),mode=3) == (.25,8,8)
+assert reference_filter(edge,(8.5/16,8.5/16),mode=3) == (.75,8,8)
+diagonal = [[.8 if x+y >= 16 else .2 for x in range(size)] for y in range(size)]
+assert reference_filter(diagonal,(8.5/16,8.5/16),mode=3) == (5/8,8,8)
+assert reference_filter(dark_map,(.5/16,.5/16),mode=3) == (.5,8,4)
+# Broader cases include non-square maps, fractional UVs, bias and every softness.
+pattern = [[.2 if (x+2*y)%3 else .8 for x in range(16)] for y in range(12)]
+for softness, u, v, bias in product(SOFTNESSES,(0,.013,.49,.5,.531,.999),
+                                   (0,.02,.41,.5,.731,.999),(0,.0002,.002)):
+    value, taps, reads = reference_filter(pattern,(u,v),mode=3,softness=softness,bias=bias)
+    assert 0 <= value <= 1 and taps == 8 and 0 <= reads <= 8
+    if softness == 0:
+        assert value == reference_filter(pattern,(u,v),mode=0,bias=bias)[0]
+# Prove each prior mode's preprocessed filter body is unchanged against M4.
+grid_settings = subprocess.check_output([
+    "git","-C",str(ROOT),"show",GRID_BASELINE+":shaders/lib/shadow_settings.glsl"]).decode()
+grid_shadow = subprocess.check_output([
+    "git","-C",str(ROOT),"show",GRID_BASELINE+":shaders/lib/shadow.glsl"]).decode()
+for mode, _, _ in MODES:
+    for softness in SOFTNESSES:
+        old = preprocess(grid_settings+grid_shadow,5,False,True,mode,softness)
+        new = preprocess(shadow_source,5,False,True,mode,softness)
+        assert compact(function_body(old,"filterShadow")) == compact(function_body(new,"filterShadow"))
+print("PASS: Poisson 8 separated disk taps, centered pattern, compare-then-average")
+print("PASS: Poisson lit/dark, straight/diagonal edge, boundary and zero-softness cases")
+print("PASS: Hard/3x3/5x5 preprocessed filter bodies unchanged against Milestone 4")

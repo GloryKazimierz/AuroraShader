@@ -18,6 +18,22 @@ float filterShadow(vec3 shadowCoord) {
     ivec2 mapSize = textureSize(shadowtex1, 0);
 #if SHADOW_FILTER == 0
     return compareShadow(shadowCoord.xy, shadowCoord.z, mapSize);
+#elif SHADOW_FILTER == 3
+    // Fixed Poisson-style disk in SHADOW-TEXEL space, centered at zero.
+    // Eight separated offsets, radius <= 1; softness scales this disk in texels.
+    // No arrays, rotation or per-frame randomness. texelFetch may repeat texels.
+    vec2 tapStepUV = SHADOW_SOFTNESS / vec2(mapSize);
+    float visibility = 0.0;
+    visibility += compareShadow(shadowCoord.xy + vec2(-0.6314, -0.5843) * tapStepUV, shadowCoord.z, mapSize);
+    visibility += compareShadow(shadowCoord.xy + vec2( 0.9208,  0.3354) * tapStepUV, shadowCoord.z, mapSize);
+    visibility += compareShadow(shadowCoord.xy + vec2(-0.4122,  0.8516) * tapStepUV, shadowCoord.z, mapSize);
+    visibility += compareShadow(shadowCoord.xy + vec2( 0.5840, -0.7758) * tapStepUV, shadowCoord.z, mapSize);
+    visibility += compareShadow(shadowCoord.xy + vec2( 0.0908,  0.0974) * tapStepUV, shadowCoord.z, mapSize);
+    visibility += compareShadow(shadowCoord.xy + vec2(-0.8603,  0.1847) * tapStepUV, shadowCoord.z, mapSize);
+    visibility += compareShadow(shadowCoord.xy + vec2( 0.4062,  0.8639) * tapStepUV, shadowCoord.z, mapSize);
+    visibility += compareShadow(shadowCoord.xy + vec2(-0.0979, -0.9729) * tapStepUV, shadowCoord.z, mapSize);
+    // Average eight binary visibility results, including out-of-map lit taps.
+    return visibility / 8.0;
 #else
     // Actual map resolution determines UV texel size (currently 2048 x 2048).
     vec2 texelSize = 1.0 / vec2(mapSize);
