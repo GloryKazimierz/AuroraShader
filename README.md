@@ -28,8 +28,30 @@ Chinese.
 的实验渲染代码继续保留在各自分支，直到完成 Minecraft 实机验证；学习资料则统一
 提供英文版和中文版。
 
+### Learning path / 学习路线
+
+```text
+M1  Color Grading
+ ↓
+M2  G-buffer + Deferred Lambert Lighting
+ ↓
+M3A Hard Shadow Mapping
+ ↓
+M3B 3x3 PCF
+ ↓
+M4  3x3 vs 5x5 PCF
+ ↓
+M5  Poisson PCF
+ ↓
+Next: Shadow Bias / Acne / Peter-Panning
+```
+
 | Topic | English | 中文 |
 |---|---|---|
+| Milestone 1: Color Grading | [English](docs/MILESTONE_1.md) | [中文](docs/MILESTONE_1.zh-CN.md) |
+| Milestone 2: Deferred Lambert Lighting | [English](docs/MILESTONE_2.md) | [中文](docs/MILESTONE_2.zh-CN.md) |
+| Milestone 3A: Hard Shadow Mapping | [English](docs/MILESTONE_3A.md) | [中文](docs/MILESTONE_3A.zh-CN.md) |
+| Milestone 3B: 3x3 PCF | [English](docs/MILESTONE_3B.md) | [中文](docs/MILESTONE_3B.zh-CN.md) |
 | Milestone 4: PCF kernel-size experiment | [English](docs/MILESTONE_4.md) | [中文](docs/MILESTONE_4.zh-CN.md) |
 | Milestone 4 benchmark | [English](docs/MILESTONE_4_BENCHMARK.md) | [中文](docs/MILESTONE_4_BENCHMARK.zh-CN.md) |
 | Milestone 5: Poisson Disk PCF | [English](docs/MILESTONE_5.md) | [中文](docs/MILESTONE_5.zh-CN.md) |
