@@ -17,20 +17,26 @@ Project and Git history: D:\MinecraftShaders\MyShader.
 The existing Minecraft junction is managed separately and must not be modified.
 Historical MyFirstShader and composite-tutorial packs remain untouched.
 
-## Learning materials
+## Learning materials / 学习资料
 
-The stable runtime-tested shader baseline on `main` remains Milestone 3B. The
-following documents are copied into `main` as study material and experiment
-notes; Milestone 4/5 rendering code remains on their dedicated branches until
-runtime testing is complete.
+The stable runtime-tested shader baseline on `main` remains Milestone 3B.
+Milestone 4/5 rendering code stays on its experimental branches until Minecraft
+runtime testing is complete. Learning documents are available in both English and
+Chinese.
 
-- [Milestone 4: PCF kernel-size experiment](docs/MILESTONE_4.md)
-- [Milestone 4 benchmark template](docs/MILESTONE_4_BENCHMARK.md)
-- [Milestone 5: Poisson Disk PCF](docs/MILESTONE_5.md)
-- [Milestone 5 benchmark template](docs/MILESTONE_5_BENCHMARK.md)
-- [Milestone 5 learning notes](docs/MILESTONE_5_LEARNING_NOTES.md)
-- [Shadow Mapping Study Guide](docs/SHADOW_MAPPING_STUDY_GUIDE.md)
-- [Shadow Bias / Acne / Peter-Panning Preview](docs/SHADOW_BIAS_PREVIEW.md)
+`main` 上稳定、已实机验证的 Shader 代码仍然停留在 Milestone 3B。Milestone 4/5
+的实验渲染代码继续保留在各自分支，直到完成 Minecraft 实机验证；学习资料则统一
+提供英文版和中文版。
+
+| Topic | English | 中文 |
+|---|---|---|
+| Milestone 4: PCF kernel-size experiment | [English](docs/MILESTONE_4.md) | [中文](docs/MILESTONE_4.zh-CN.md) |
+| Milestone 4 benchmark | [English](docs/MILESTONE_4_BENCHMARK.md) | [中文](docs/MILESTONE_4_BENCHMARK.zh-CN.md) |
+| Milestone 5: Poisson Disk PCF | [English](docs/MILESTONE_5.md) | [中文](docs/MILESTONE_5.zh-CN.md) |
+| Milestone 5 benchmark | [English](docs/MILESTONE_5_BENCHMARK.md) | [中文](docs/MILESTONE_5_BENCHMARK.zh-CN.md) |
+| Milestone 5 learning notes | [English](docs/MILESTONE_5_LEARNING_NOTES.md) | [中文](docs/MILESTONE_5_LEARNING_NOTES.zh-CN.md) |
+| Shadow Mapping Study Guide | [English](docs/SHADOW_MAPPING_STUDY_GUIDE.md) | [中文](docs/SHADOW_MAPPING_STUDY_GUIDE.zh-CN.md) |
+| Shadow Bias / Acne / Peter-Panning Preview | [English](docs/SHADOW_BIAS_PREVIEW.md) | [中文](docs/SHADOW_BIAS_PREVIEW.zh-CN.md) |
 
 ## Pipeline and scope
 
