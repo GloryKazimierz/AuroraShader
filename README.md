@@ -60,6 +60,47 @@ Next: Shadow Bias / Acne / Peter-Panning
 | Shadow Mapping Study Guide | [English](docs/SHADOW_MAPPING_STUDY_GUIDE.md) | [中文](docs/SHADOW_MAPPING_STUDY_GUIDE.zh-CN.md) |
 | Shadow Bias / Acne / Peter-Panning Preview | [English](docs/SHADOW_BIAS_PREVIEW.md) | [中文](docs/SHADOW_BIAS_PREVIEW.zh-CN.md) |
 
+## Graphics interview study path / 图形学面试学习路线
+
+Beyond the milestone notes, `docs/interview/` contains a bilingual interview-focused
+curriculum. Each chapter explains one major rendering topic through intuition,
+core math, failure modes, AuroraShader connections, and common interview questions.
+
+除了 Milestone 文档之外，`docs/interview/` 现在还有一套专门面向 Graphics /
+Rendering Engineer 面试的中英双语课程。每章都会从直觉、核心数学、常见错误、
+AuroraShader 对应实现和面试问法来解释一个主题。
+
+- [Full roadmap (English)](docs/interview/README.md) | [完整路线（中文）](docs/interview/README.zh-CN.md)
+- 01. [GPU Rendering Pipeline](docs/interview/01_RENDERING_PIPELINE_GPU.md) | [GPU 渲染管线](docs/interview/01_RENDERING_PIPELINE_GPU.zh-CN.md)
+- 02. [Coordinate Spaces & Matrices](docs/interview/02_COORDINATE_SPACES_MATRICES.md) | [坐标空间与矩阵](docs/interview/02_COORDINATE_SPACES_MATRICES.zh-CN.md)
+- 03. [Rasterization, Interpolation & Depth](docs/interview/03_RASTERIZATION_DEPTH_INTERPOLATION.md) | [光栅化、插值与深度](docs/interview/03_RASTERIZATION_DEPTH_INTERPOLATION.zh-CN.md)
+- 04. [Normals & Tangent Space](docs/interview/04_NORMALS_TANGENT_SPACE.md) | [法线与切线空间](docs/interview/04_NORMALS_TANGENT_SPACE.zh-CN.md)
+- 05. [Textures, Filtering & Mipmaps](docs/interview/05_TEXTURES_FILTERING_MIPMAPS.md) | [纹理采样与 Mipmap](docs/interview/05_TEXTURES_FILTERING_MIPMAPS.zh-CN.md)
+- 06. [Color, Gamma, HDR & Tone Mapping](docs/interview/06_COLOR_GAMMA_HDR_TONEMAPPING.md) | [颜色空间与 HDR](docs/interview/06_COLOR_GAMMA_HDR_TONEMAPPING.zh-CN.md)
+- 07. [Forward vs Deferred & G-buffer](docs/interview/07_FORWARD_DEFERRED_GBUFFER.md) | [前向/延迟渲染与 G-buffer](docs/interview/07_FORWARD_DEFERRED_GBUFFER.zh-CN.md)
+- 08. [Lighting, BRDF & PBR](docs/interview/08_LIGHTING_BRDF_PBR.md) | [光照、BRDF 与 PBR](docs/interview/08_LIGHTING_BRDF_PBR.zh-CN.md)
+- 09. [Advanced Shadow Mapping](docs/interview/09_SHADOWS_ADVANCED.md) | [阴影进阶](docs/interview/09_SHADOWS_ADVANCED.zh-CN.md)
+- 10. [GPU Performance & Profiling](docs/interview/10_GPU_PERFORMANCE_PROFILING.md) | [GPU 性能分析](docs/interview/10_GPU_PERFORMANCE_PROFILING.zh-CN.md)
+- 11. [GLSL & Graphics Debugging](docs/interview/11_GLSL_DEBUGGING.md) | [Shader / 图形调试](docs/interview/11_GLSL_DEBUGGING.zh-CN.md)
+- 12. [115-question Interview Bank](docs/interview/12_GRAPHICS_INTERVIEW_QUESTION_BANK.md) | [115 道面试题库](docs/interview/12_GRAPHICS_INTERVIEW_QUESTION_BANK.zh-CN.md)
+
+Recommended order / 推荐顺序:
+
+```text
+Pipeline
+→ Coordinate Spaces
+→ Rasterization / Depth
+→ Normals / Tangent Space
+→ Textures / Mipmaps
+→ Color / HDR
+→ Forward vs Deferred
+→ BRDF / PBR
+→ Advanced Shadows
+→ GPU Profiling
+→ Debugging
+→ Interview Question Bank
+```
+
 ## Pipeline and scope
 
 1. Base-330 geometry still produces the same texture, vertex-color and lightmap
