@@ -261,36 +261,91 @@ depth comparison -> visibility
 visibility -> direct lighting
 ```
 
-## 13. Interview questions you should be able to answer
+## From Brute Force PCF to Better Sampling
 
-### What is shadow mapping?
+The current experiment deliberately uses a square grid so its cost and behavior
+are easy to inspect. For an in-bounds receiver whose taps stay inside the map,
+Hard evaluates one comparison, 3x3 evaluates nine, and 5x5 evaluates twenty-five.
+Thus 5x5 has about 2.78 times the shadow-depth lookups of 3x3. This is a local
+sampling-cost comparison, not a prediction that the whole game becomes 2.78 times
+slower. Out-of-bounds taps return lit without fetching depth; compiler optimization
+and GPU caching also affect actual work.
 
-Render depth from the light, then compare a receiver's light-space depth with the
-stored depth to determine visibility.
+An N-by-N grid grows quadratically: 7x7 needs 49 taps, 9x9 needs 81, and 11x11 needs
+121. Increasing tap spacing instead preserves the count but leaves wider gaps.
+Neither approach creates missing geometric detail or estimates physical penumbra
+width. Larger grids can hide aliasing while blurring contact shadows and putting
+more pressure on texture sampling. The next learning question is therefore how
+to distribute a limited sample budget more effectively. [NVIDIA's discussion of
+PCF sampling and bandwidth](https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-17-efficient-soft-edged-shadows-using)
 
-### Why is shadow mapping view-independent?
+### Poisson disks, rotation, and noise
 
-The occlusion test is performed in the light's coordinate system, not from the
-camera's perspective.
+Poisson disk sampling places irregular samples while enforcing a minimum separation
+between them. Think of scattered points that cannot crowd too closely together:
+the pattern covers an area without obvious rows and columns. The word "disk"
+describes the exclusion neighborhood; a shadow filter can also choose a circular
+sampling footprint. [Bridson's Poisson disk paper](https://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph07-poissondisk.pdf)
 
-### What is PCF?
+Varying a kernel's rotation or sample locations between pixels can break up repeated
+grid-like bands. It redistributes approximation error into noise rather than
+eliminating that error. A carefully distributed small pattern can consequently
+look better than a similarly sized grid, but sparse samples can still look grainy.
+[NVIDIA's explanation of randomized PCF](https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-17-efficient-soft-edged-shadows-using)
 
-Multiple neighboring shadow comparisons averaged into a fractional visibility.
+An engineering consequence is that changing the pattern every frame can turn
+spatial noise into visible temporal shimmer. Even a fixed screen-space pattern
+changes its relationship to moving geometry. Stability must be evaluated while
+moving, not just in screenshots; randomization is not automatically an improvement.
 
-### Why does PCF soften an edge?
+### Three different problems beyond kernel size
 
-Near an edge, some taps are lit and some are blocked, so their average lies between
-0 and 1.
+**PCSS** searches for blockers, estimates their average distance, estimates the
+penumbra from blocker/receiver/light geometry, then performs PCF with a varying
+radius. It aims for sharper contact and broader distant shadows. It remains an
+approximation and adds blocker-search cost. [NVIDIA's original PCSS paper](https://developer.download.nvidia.com/shaderlibrary/docs/shadow_PCSS.pdf)
 
-### Why not just increase to a huge kernel?
+**Slope-scaled bias** changes the depth offset according to how quickly surface
+depth changes across the light's image. It helps slanted surfaces avoid false
+self-shadowing without applying one large offset everywhere. Excessive bias still
+detaches shadows; clamping and tuning remain necessary. This project retains its
+constant bias. [Microsoft's depth-bias explanation](https://learn.microsoft.com/en-us/windows/win32/direct3d11/d3d10-graphics-programming-guide-output-merger-stage-depth-bias)
 
-Sampling cost grows quickly, blur can become excessive, and fixed-radius PCF still
-does not produce physically correct contact hardening.
+**Cascaded shadow maps** split the camera's viewing range and give each interval
+its own shadow map. Near geometry receives denser shadow texels while distant
+geometry retains coverage. This addresses resolution allocation and perspective
+aliasing, not physical softness, and introduces cascade-transition and stability
+concerns. [Microsoft's cascaded shadow-map guide](https://learn.microsoft.com/en-us/windows/win32/dxtecharts/cascaded-shadow-maps)
 
-### What are shadow acne and peter-panning?
+These are study topics only; none is implemented in this milestone.
 
-Acne is false self-shadowing from depth precision/comparison error. Bias reduces it.
-Too much bias separates the shadow from the caster, producing peter-panning.
+## Interview notes: ten concise answers
+
+1. **How does shadow mapping work?** Render nearest depth from the light, project
+   each visible receiver into that map, and compare its depth to determine whether
+   another surface blocks the light.
+2. **What coordinate systems are involved?** Here: camera UV/depth, camera NDC,
+   reconstructed view space, Iris player-relative space, light view, light clip,
+   light NDC, then shadow UV/depth. The homogeneous divide matters; adding absolute
+   camera position would violate this pipeline's player-relative convention.
+3. **What causes shadow acne?** Precision and sampling mismatches can make a
+   surface fail its own visibility test. Bias supplies a tolerance.
+4. **What causes peter-panning?** Excessive bias makes a shadow appear separated
+   from its caster, particularly at contact points.
+5. **What does PCF average?** Binary depth-comparison outcomes, not stored depths;
+   the result is fractional visibility.
+6. **Why does a larger kernel soften shadows?** It mixes lit and blocked
+   comparisons across a wider neighborhood, widening the transition.
+7. **What is the 3x3 versus 5x5 cost?** Nine versus twenty-five in-bounds depth
+   lookups per filter evaluation, about 2.78 times as many; whole-frame timing
+   requires measurement.
+8. **Why isn't fixed-radius PCF physically correct?** Its footprint does not adapt
+   to blocker separation and light size, so it does not reproduce contact hardening.
+9. **Why might Poisson sampling need fewer samples?** Better distribution reduces
+   structured artifacts, potentially trading recognizable bands for less obvious
+   noise; quality and temporal stability are not guaranteed.
+10. **When are cascades useful?** In large scenes with directional sunlight, where
+    one map cannot provide both detailed nearby shadows and sufficient far coverage.
 
 ## 14. One-minute explanation of your implementation
 

@@ -7,6 +7,8 @@ import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 SHADERS = ROOT / "shaders"
+# Runtime-tested Milestone 3B: stable even after this branch is committed.
+BASELINE = "5aa154dbce823e954f63d25f91f3acbb9566c9c9"
 
 def expand(path, chain=()):
     path = path.resolve()
@@ -140,7 +142,7 @@ for ndotl in (0, .5, 1):
 # Milestone 1 grading implementation/defaults must be byte-content unchanged.
 for relative in ("shaders/lib/color.glsl", "shaders/lib/settings.glsl"):
     baseline = subprocess.check_output(["git", "-C", str(ROOT), "show",
-                                        "HEAD:" + relative]).decode()
+                                        BASELINE + ":" + relative]).decode()
     current = (ROOT / relative).read_text()
     assert baseline.replace("\r\n", "\n") == current.replace("\r\n", "\n")
 print("PASS: 19 program pairs x 6 debug views x 2 grayscale states x 2 shadow states x 3 filters x 5 softness values")
@@ -235,72 +237,128 @@ for anchor, angle in (((0,0,0),0), ((3,2,1),.3), ((-1,1,-2),-.2)):
 print("PASS: hard comparison, ambient/block preservation, depth-only caster scope")
 print("PASS: perspective reconstruction and camera-pose-invariant light coordinates")
 
-# PCF reference cases: one center comparison versus nine binary comparisons.
-def reference_filter(grid, uv, current=.5, bias=.0002, mode=1, softness=1.0):
-    size = len(grid)
-    def compare(u,v):
-        if u < 0 or v < 0 or u >= 1 or v >= 1:
-            return 1.0
-        return float(current-bias <= grid[int(v*size)][int(u*size)])
-    if mode == 0:
-        return compare(*uv)
-    return sum(compare(uv[0]+x*softness/size, uv[1]+y*softness/size)
-               for y in (-1,0,1) for x in (-1,0,1)) / 9.0
+# PCF numerical oracle. Counts logical comparisons separately from texture reads:
+# every out-of-map tap is lit and performs no fetch, but stays in the denominator.
+MODES = ((0, 0, 1), (1, 1, 9), (2, 2, 25))
+SOFTNESSES = (0.0, .5, 1.0, 1.5, 2.0)
 
-edge = [[.2 if x < 4 else .8 for x in range(8)] for y in range(8)]
-for softness in (0.0,.5,1.0,1.5,2.0):
-    for mode in (0,1):
-        assert reference_filter([[.8]*8 for _ in range(8)],(.5,.5),
-                                mode=mode,softness=softness) == 1
-        assert reference_filter([[.2]*8 for _ in range(8)],(.5,.5),
-                                mode=mode,softness=softness) == 0
-        for uv in ((.01,.01),(.4375,.5625),(.5625,.5625),(.99,.99)):
-            value = reference_filter(edge,uv,mode=mode,softness=softness)
+def reference_filter(grid, uv, current=.5, bias=.0002, mode=1, softness=1.0):
+    assert mode in (0, 1, 2)
+    height, width = len(grid), len(grid[0])
+    offsets = [(0, 0)] if mode == 0 else [
+        (x, y) for y in range(-mode, mode+1) for x in range(-mode, mode+1)]
+    lit, reads = 0.0, 0
+    for x, y in offsets:
+        u, v = uv[0]+x*softness/width, uv[1]+y*softness/height
+        if not (0 <= u < 1 and 0 <= v < 1):
+            lit += 1.0
+            continue
+        reads += 1
+        lit += float(current-bias <= grid[int(v*height)][int(u*width)])
+    return lit / len(offsets), len(offsets), reads
+
+# A wide map keeps the 5x5/softness-2 footprint inside for interior tests.
+size = 16
+lit_map = [[.8]*size for _ in range(size)]
+dark_map = [[.2]*size for _ in range(size)]
+edge = [[.2 if x < 8 else .8 for x in range(size)] for _ in range(size)]
+probe_uvs = ((.01,.01), (7.5/16,8.5/16), (8.5/16,8.5/16), (.99,.99))
+for mode, radius, count in MODES:
+    for softness in SOFTNESSES:
+        for grid, expected in ((lit_map,1), (dark_map,0)):
+            assert reference_filter(grid,(.5,.5),mode=mode,softness=softness) == (expected,count,count)
+        for uv in probe_uvs:
+            value, comparisons, reads = reference_filter(edge,uv,mode=mode,softness=softness)
+            assert comparisons == count and 0 <= reads <= count
             assert 0 <= value <= 1
             if mode == 0:
-                assert value == reference_filter(edge,uv,mode=0,softness=1)
-for uv in ((.01,.01),(.4375,.5625),(.5625,.5625),(.99,.99)):
-    assert reference_filter(edge,uv,softness=0) == reference_filter(edge,uv,mode=0)
-assert abs(reference_filter(edge,(3.5/8,4.5/8))-1/3) < 1e-12
-assert abs(reference_filter(edge,(4.5/8,4.5/8))-2/3) < 1e-12
-# 5 of 9 taps leave the map at a corner and are treated as lit.
-assert abs(reference_filter([[.2]*8 for _ in range(8)],(.5/8,.5/8))-5/9) < 1e-12
+                assert (value,comparisons,reads) == reference_filter(edge,uv,mode=0,softness=1)
+        for uv in probe_uvs:
+            assert reference_filter(edge,uv,mode=mode,softness=0)[0] == reference_filter(edge,uv,mode=0)[0]
+    # These independent analytic results distinguish compare-then-average from
+    # averaging depth first (which would produce only a binary edge result).
+    for uv, expected in (((7.5/16,8.5/16), radius/(2*radius+1)),
+                         ((8.5/16,8.5/16), (radius+1)/(2*radius+1))):
+        assert abs(reference_filter(edge,uv,mode=mode)[0]-expected) < 1e-12
+    # At every corner only (radius+1)^2 taps are in bounds: 1/1, 4/9, 9/25.
+    for uv in ((.5/16,.5/16), (15.5/16,.5/16), (.5/16,15.5/16), (15.5/16,15.5/16)):
+        value, comparisons, reads = reference_filter(dark_map,uv,mode=mode)
+        expected_reads = (radius+1)**2
+        assert (comparisons,reads) == (count,expected_reads)
+        assert abs(value-(count-expected_reads)/count) < 1e-12
+    # A straight map edge also treats taps beyond either axis as lit.
+    assert abs(reference_filter(dark_map,(.5/16,.5),mode=mode)[0]-radius/(2*radius+1)) < 1e-12
+for uv in ((-1e-6,.5),(1.0,.5),(.5,-1e-6),(.5,1.0)):
+    assert reference_filter(dark_map,uv,mode=0) == (1,1,0)
+assert reference_filter(dark_map,(0,0),mode=0) == (0,1,1)
 
-for mode in (0,1,2):
-    for softness in (0.0,.5,1.0,1.5,2.0):
-        source = preprocess(shadow_source, 5, False, True, mode, softness)
+# Tie the source's actual inclusive loop bounds and accumulation to the oracle.
+# These are structural contracts, not a GLSL interpreter/compiler.
+def function_body(source, name):
+    match = re.search(r"\b" + name + r"\([^)]*\)\s*\{", source)
+    assert match, "Missing function: " + name
+    start, depth = match.end(), 1
+    for index in range(start, len(source)):
+        depth += (source[index] == "{") - (source[index] == "}")
+        if depth == 0:
+            return source[start:index]
+    raise AssertionError("Unclosed function: " + name)
+
+def compact(source):
+    return re.sub(r"\s+", "", re.sub(r"/\*.*?\*/|//[^\n]*", "", source, flags=re.S))
+
+for mode, radius, count in MODES:
+    for softness in SOFTNESSES:
+        source = preprocess(shadow_source,5,False,True,mode,softness)
+        body = compact(function_body(source,"filterShadow"))
+        assert body.count("compareShadow(") == 1
+        assert "textureSize(shadowtex1,0)" in body
         if mode == 0:
-            assert "kernelRadius" not in source
+            assert "for(" not in body and "kernelRadius" not in body
+            assert "tapStepUV" not in body
+            assert "returncompareShadow(shadowCoord.xy,shadowCoord.z,mapSize);" in body
         else:
-            assert "return visibility / sampleCount;" in source
-            assert "tapStepUV = texelSize * " + str(softness) in source
-            expected_radius = "1" if mode == 1 else "2"
-            assert "const int kernelRadius = " + expected_radius + ";" in source
-# Compare the actual preserved transform block against the tested commit.
-previous_shadow = subprocess.check_output(
-    ["git","-C",str(ROOT),"show","HEAD:shaders/lib/shadow.glsl"]).decode()
-def transform_block(source):
-    return source.split("    float depth = texelFetch(depthtex1, pixel, 0).r;",1)[1].split(
-        "return 1.0;",3)[0:3]
-assert transform_block(previous_shadow) == transform_block(shadow_source)
+            actual_radius = int(re.search(r"constintkernelRadius=(\d+);",body)[1])
+            assert actual_radius == radius
+            assert (2*actual_radius+1)**2 == count
+            for axis in ('x','y'):
+                assert "for(int{0}=-kernelRadius;{0}<=kernelRadius;++{0})".format(axis) in body
+            assert body.count("for(") == 2
+            assert "vec2texelSize=1.0/vec2(mapSize);" in body
+            assert "tapStepUV=texelSize*"+str(softness)+";" in body
+            assert "offsetUV=vec2(float(x),float(y))*tapStepUV;" in body
+            assert "floatvisibility=0.0;" in body and "floatsampleCount=0.0;" in body
+            assert "visibility+=compareShadow(shadowCoord.xy+offsetUV,shadowCoord.z,mapSize);" in body
+            assert "sampleCount+=1.0;" in body
+            assert "returnvisibility/sampleCount;" in body
+            assert "texelFetch" not in body
+
+# Compare complete tested functions, not a prefix or the moving HEAD commit.
+previous_shadow = subprocess.check_output([
+    "git","-C",str(ROOT),"show",BASELINE+":shaders/lib/shadow.glsl"]).decode()
+for name in ("compareShadow","shadowVisibility","rawShadowDepth"):
+    assert compact(function_body(previous_shadow,name)) == compact(function_body(shadow_source,name)), name
 for relative in ("shaders/lib/position.glsl", "shaders/lib/lighting.glsl",
-                 "shaders/lib/gbuffer_write.glsl", "shaders/shadow.vsh",
-                 "shaders/shadow.fsh"):
-    baseline = subprocess.check_output(["git","-C",str(ROOT),"show","HEAD:"+relative]).decode()
-    assert baseline.replace("\r\n","\n") == (ROOT/relative).read_text().replace("\r\n","\n")
-print("PASS: Hard/3x3/5x5 PCF, five softness values, partial coverage and boundary policy")
-print("PASS: tested transforms, lighting, G-buffer writer and caster shaders unchanged")
-
-
-# Milestone 4 kernel-size sanity checks.
-def kernel_sample_count(radius):
-    return (radius * 2 + 1) ** 2
-assert kernel_sample_count(1) == 9
-assert kernel_sample_count(2) == 25
-for softness in (0.0, .5, 1.0, 1.5, 2.0):
-    if softness == 0:
-        # All offsets collapse onto the center, so larger kernels preserve
-        # the center comparison even though they repeat it more times.
-        center = reference_filter(edge, (4.5/8,4.5/8), mode=0)
-        assert center in (0,1)
-print("PASS: Milestone 4 kernel radii map to 9 and 25 taps")
+                 "shaders/lib/lighting_settings.glsl", "shaders/lib/gbuffer_write.glsl",
+                 "shaders/shadow.vsh", "shaders/shadow.fsh", "shaders/deferred.vsh",
+                 "shaders/deferred.fsh", "shaders/final.vsh", "shaders/final.fsh",
+                 "shaders/shaders.properties"):
+    baseline = subprocess.check_output(["git","-C",str(ROOT),"show",BASELINE+":"+relative]).decode()
+    assert baseline.replace("\r\n","\n") == (ROOT/relative).read_text().replace("\r\n","\n"), relative
+settings = (SHADERS/"lib/shadow_settings.glsl").read_text()
+assert re.search(r"^#define SHADOWS_ENABLED(?: //.*)?$",settings,re.M)
+assert re.search(r"^#define SHADOW_BIAS 0\.0002 //",settings,re.M)
+assert re.search(r"^#define SHADOW_FILTER 1 // \[0 1 2\]",settings,re.M)
+assert re.search(r"^#define SHADOW_SOFTNESS 1\.0 // \[0\.0 0\.5 1\.0 1\.5 2\.0\]",settings,re.M)
+language = (SHADERS/"lang/en_us.lang").read_text()
+for mode, label in ((0,"Hard"),(1,"3x3 PCF"),(2,"5x5 PCF")):
+    assert re.search(r"^value\.SHADOW_FILTER\."+str(mode)+"="+re.escape(label)+r"\s*$",language,re.M)
+for option in ("SHADOW_FILTER","SHADOW_SOFTNESS"):
+    assert re.search(r"^option\."+option+r"=.+$",language,re.M)
+    assert option in props.split("screen =",1)[1].splitlines()[0].split()
+assert "SHADOW_SOFTNESS" in props.split("sliders =",1)[1].splitlines()[0].split()
+print("PASS: Hard/3x3/5x5 have 1/9/25 logical taps; bounded fetch counts checked")
+print("PASS: all-lit, all-shadowed, 1/3-2/3 and 2/5-3/5 edges, all four corners")
+print("PASS: all five softness values; zero equals Hard and Hard ignores softness")
+print("PASS: pinned Milestone 3B transforms, bounds, caster scope, lighting and debug 0-5 unchanged")
+print("PASS: three filter labels, UI references and defaults")
