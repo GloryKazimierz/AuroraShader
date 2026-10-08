@@ -1,11 +1,14 @@
 # AuroraShader
 
-Milestone 5 adds an eight-tap Poisson PCF mode on `milestone-5-poisson-pcf`.
-It explores **sample distribution**, rather than simply increasing kernel size:
-Hard / 3x3 / 5x5 / Poisson use 1 / 9 / 25 / 8 logical comparisons.
-The fixed disk shares the existing bias, softness control and Debug 5 visibility.
-The default remains 3x3. Same softness does not give identical filter footprints.
-Minecraft runtime testing and benchmark measurements are still pending.
+Milestone 6 studies **shadow bias robustness** on `milestone-6-shadow-bias`.
+Constant mode preserves the M5 tolerance; Angle-Aware mode blends bounded receiver
+bias using compatible view-space normal/light directions. It is a normal-based
+heuristic, not hardware slope-scaled raster bias. Debug 6 previews effective bias.
+**The implementation is experimental until the user confirms Minecraft/Iris runtime testing.**
+
+Defaults remain Constant `0.0002`, 3x3 PCF and softness `1.0`; the initial
+Angle-Aware range is `0.0001` to `0.0005`. Hard / 3x3 / 5x5 / Poisson keep
+1 / 9 / 25 / 8 comparisons and their existing distributions.
 
 | Milestone | Feature |
 |---|---|
@@ -15,16 +18,21 @@ Minecraft runtime testing and benchmark measurements are still pending.
 | M3B | 3x3 PCF |
 | M4 | 3x3 vs 5x5 PCF experiment |
 | M5 | Poisson PCF |
+| M6 | Shadow Bias Robustness |
 
-Read [Milestone 5](docs/MILESTONE_5.md), fill in the
-[Milestone 5 benchmark](docs/MILESTONE_5_BENCHMARK.md), or follow the
-[Shadow Mapping Study Guide](docs/SHADOW_MAPPING_STUDY_GUIDE.md).
-The earlier [Milestone 4](docs/MILESTONE_4.md) comparison remains available on its
-historical branch; no milestone is merged into main by this work.
+Read [Milestone 6 (English)](docs/MILESTONE_6.md) /
+[中文说明](docs/MILESTONE_6.zh-CN.md), the
+[bias study guide](docs/SHADOW_BIAS_STUDY_GUIDE.md) /
+[中文学习指南](docs/SHADOW_BIAS_STUDY_GUIDE.zh-CN.md), and the
+[blank runtime worksheet](docs/MILESTONE_6_BENCHMARK.md) /
+[中文测试表](docs/MILESTONE_6_BENCHMARK.zh-CN.md).
+The [M5 Poisson experiment](docs/MILESTONE_5.md) and
+[shadow mapping study guide](docs/SHADOW_MAPPING_STUDY_GUIDE.md) remain available.
+This work does not merge into main or modify historical milestone branches.
 
-Current M5 checkout: `D:\MinecraftShaders\MyShader-pcf-kernels`. The original
+Current M6 checkout: `D:\MinecraftShaders\MyShader-pcf-kernels`. The original
 `MyShader` junction still resolves to the separate sky worktree, so it does not
-load M5. Follow the benchmark's test-profile setup to select the correct pack;
+load M6. Follow the benchmark's test-profile setup to select the correct pack;
 this task has not created a test instance or changed a junction.
 
 Milestone 3B adds Hard/3x3 PCF selection and shadow softness and has passed

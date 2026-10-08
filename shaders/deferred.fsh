@@ -28,8 +28,9 @@ void main() {
     color = scene;
     if (surface.a > 0.5) {
         vec2 levels = texelFetch(colortex2, pixel, 0).rg;
-        float visibility = shadowVisibility(pixel);
-        color.rgb = lightScene(scene.rgb, decodeNormal(surface.rgb), levels, visibility);
+        vec3 normalView = decodeNormal(surface.rgb);
+        float visibility = shadowVisibility(pixel, normalView, shadowLightPosition);
+        color.rgb = lightScene(scene.rgb, normalView, levels, visibility);
     }
     // Alpha is unchanged. Iris flips colortex0 after this fullscreen pass.
     // Most transparent geometry renders afterward using its original shading.

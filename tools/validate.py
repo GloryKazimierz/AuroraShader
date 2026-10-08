@@ -2,6 +2,7 @@
 from pathlib import Path
 import math
 from itertools import product
+from functools import lru_cache
 import re
 import subprocess
 
@@ -10,7 +11,9 @@ SHADERS = ROOT / "shaders"
 # Runtime-tested Milestone 3B: stable even after this branch is committed.
 BASELINE = "5aa154dbce823e954f63d25f91f3acbb9566c9c9"
 GRID_BASELINE = "220cf1b38e3e6d6cc65aa3ead0e8be671b10d148"
+BIAS_BASELINE = "0d4bd999d4e48fb62e30aa05e914c1531469cde1"
 
+@lru_cache(maxsize=None)
 def expand(path, chain=()):
     path = path.resolve()
     assert path not in chain, "Include cycle: " + str(path)
@@ -20,7 +23,7 @@ def expand(path, chain=()):
         return expand(SHADERS / match[1].lstrip("/"), chain + (path,))
     return re.sub(r'^#include "([^"]+)"\s*$', include, text, flags=re.M)
 
-def preprocess(text, debug, grayscale, shadows=True, filtering=1, softness=1.0):
+def preprocess(text, debug, grayscale, shadows=True, filtering=1, softness=1.0, bias_mode=0):
     macros = {}
     stack = []
     active = True
@@ -33,6 +36,8 @@ def preprocess(text, debug, grayscale, shadows=True, filtering=1, softness=1.0):
                 macros[parts[1]] = parts[2] if len(parts) > 2 else "1"
                 if parts[1] == "DEBUG_VIEW":
                     macros[parts[1]] = str(debug)
+                if parts[1] == "SHADOW_BIAS_MODE":
+                    macros[parts[1]] = str(bias_mode)
                 if parts[1] == "SHADOW_FILTER":
                     macros[parts[1]] = str(filtering)
                 if parts[1] == "SHADOWS_ENABLED" and not shadows:
@@ -69,12 +74,12 @@ def preprocess(text, debug, grayscale, shadows=True, filtering=1, softness=1.0):
 pairs = sorted(SHADERS.glob("*.vsh"))
 assert len(pairs) == 19
 writers = {"gbuffers_terrain", "gbuffers_block", "gbuffers_entities"}
-for debug, grayscale, shadows, filtering, softness in product(
-        range(6), (False,True), (False,True), (0,1,2,3), (0.0,.5,1.0,1.5,2.0)):
+for debug, grayscale, shadows, filtering, softness, bias_mode in product(
+        range(7), (False,True), (False,True), (0,1,2,3), (0.0,.5,1.0,1.5,2.0), (0,1)):
     for vertex in pairs:
         fragment = vertex.with_suffix(".fsh")
-        vs = preprocess(expand(vertex), debug, grayscale, shadows, filtering, softness)
-        fs = preprocess(expand(fragment), debug, grayscale, shadows, filtering, softness)
+        vs = preprocess(expand(vertex), debug, grayscale, shadows, filtering, softness, bias_mode)
+        fs = preprocess(expand(fragment), debug, grayscale, shadows, filtering, softness, bias_mode)
         for source in (vs, fs):
             assert source.startswith("#version 330 compatibility")
             assert source.count("void main()") == 1
@@ -146,11 +151,11 @@ for relative in ("shaders/lib/color.glsl", "shaders/lib/settings.glsl"):
                                         BASELINE + ":" + relative]).decode()
     current = (ROOT / relative).read_text()
     assert baseline.replace("\r\n", "\n") == current.replace("\r\n", "\n")
-print("PASS: 19 program pairs x 6 debug views x 2 grayscale states x 2 shadow states x 4 filters x 5 softness values")
+print("PASS: 19 program pairs x 7 debug views x 2 bias modes x 2 grayscale states x 2 shadow states x 4 filters x 5 softness values")
 print("PASS: includes, conditionals, stage interfaces, MRT routing, option references")
 print("PASS: normal round trips, lightmap endpoints, cave/torch/disabled invariants")
 print("PASS: Milestone 1 color code/defaults unchanged")
-print("LIMIT: structural/numerical checks only; no GLSL compiler or Iris runtime test")
+print("LIMIT: static structural/numerical validation is NOT Minecraft/Iris/GPU runtime validation")
 
 # Shadow contracts: single depth comparison, correct scope, no active format enums.
 shadow_source = expand(SHADERS / "lib/shadow.glsl")
@@ -159,7 +164,7 @@ assert "uniform sampler2D depthtex1;" in shadow_source
 for name in ("gbufferProjectionInverse", "gbufferModelViewInverse",
              "shadowModelView", "shadowProjection"):
     assert "uniform mat4 " + name + ";" in shadow_source
-assert "receiverDepth - SHADOW_BIAS <= storedDepth ? 1.0 : 0.0" in shadow_source
+assert "receiverDepth - effectiveBias <= storedDepth ? 1.0 : 0.0" in shadow_source
 assert "texelFetch(shadowtex1, shadowPixel, 0)" in shadow_source
 assert "greaterThanEqual(shadowCoord" in shadow_source
 assert "cameraPosition" not in re.sub(r"//[^\n]*", "", shadow_source)
@@ -245,7 +250,7 @@ SOFTNESSES = (0.0, .5, 1.0, 1.5, 2.0)
 # Read actual literal offsets; every matched offset must belong to a comparison.
 poisson_source = preprocess(shadow_source,5,False,True,3)
 POISSON_OFFSETS = tuple((float(x),float(y)) for x,y in re.findall(
-    r"visibility \+= compareShadow\(shadowCoord\.xy \+ vec2\(\s*(-?\d+\.\d+),\s*(-?\d+\.\d+)\) \* tapStepUV, shadowCoord\.z, mapSize\);",
+    r"visibility \+= compareShadow\(shadowCoord\.xy \+ vec2\(\s*(-?\d+\.\d+),\s*(-?\d+\.\d+)\) \* tapStepUV, shadowCoord\.z, effectiveBias, mapSize\);",
     poisson_source))
 assert len(POISSON_OFFSETS) == 8
 assert len(set(POISSON_OFFSETS)) == 8
@@ -325,7 +330,7 @@ def compact(source):
 for mode, radius, count in MODES:
     for softness in SOFTNESSES:
         source = preprocess(shadow_source,5,False,True,mode,softness)
-        body = compact(function_body(source,"filterShadow"))
+        body = compact(function_body(source,"filterShadow")).replace(",effectiveBias,", ",")
         assert body.count("compareShadow(") == 1
         assert "textureSize(shadowtex1,0)" in body
         if mode == 0:
@@ -351,13 +356,20 @@ for mode, radius, count in MODES:
 # Compare complete tested functions, not a prefix or the moving HEAD commit.
 previous_shadow = subprocess.check_output([
     "git","-C",str(ROOT),"show",BASELINE+":shaders/lib/shadow.glsl"]).decode()
+def legacy_shadow_body(source, name):
+    body = compact(function_body(source,name))
+    if name == "compareShadow":
+        return body.replace("effectiveBias", "SHADOW_BIAS")
+    if name == "shadowVisibility":
+        return body.replace("floateffectiveBias=effectiveShadowBias(normalView,lightDirectionView);", "").replace(
+            "filterShadow(shadowCoord,effectiveBias)", "filterShadow(shadowCoord)")
+    return body
 for name in ("compareShadow","shadowVisibility","rawShadowDepth"):
-    assert compact(function_body(previous_shadow,name)) == compact(function_body(shadow_source,name)), name
+    assert compact(function_body(previous_shadow,name)) == legacy_shadow_body(shadow_source,name), name
 for relative in ("shaders/lib/position.glsl", "shaders/lib/lighting.glsl",
-                 "shaders/lib/lighting_settings.glsl", "shaders/lib/gbuffer_write.glsl",
+                 "shaders/lib/gbuffer_write.glsl",
                  "shaders/shadow.vsh", "shaders/shadow.fsh", "shaders/deferred.vsh",
-                 "shaders/deferred.fsh", "shaders/final.vsh", "shaders/final.fsh",
-                 "shaders/shaders.properties"):
+                 "shaders/final.vsh"):
     baseline = subprocess.check_output(["git","-C",str(ROOT),"show",BASELINE+":"+relative]).decode()
     assert baseline.replace("\r\n","\n") == (ROOT/relative).read_text().replace("\r\n","\n"), relative
 settings = (SHADERS/"lib/shadow_settings.glsl").read_text()
@@ -414,7 +426,142 @@ for mode, _, _ in MODES:
     for softness in SOFTNESSES:
         old = preprocess(grid_settings+grid_shadow,5,False,True,mode,softness)
         new = preprocess(shadow_source,5,False,True,mode,softness)
-        assert compact(function_body(old,"filterShadow")) == compact(function_body(new,"filterShadow"))
+        assert compact(function_body(old,"filterShadow")) == compact(function_body(new,"filterShadow")).replace(",effectiveBias,", ",")
 print("PASS: Poisson 8 separated disk taps, centered pattern, compare-then-average")
 print("PASS: Poisson lit/dark, straight/diagonal edge, boundary and zero-softness cases")
-print("PASS: Hard/3x3/5x5 preprocessed filter bodies unchanged against Milestone 4")
+print("PASS: Hard/3x3/5x5 filter math preserved against Milestone 4 (shared bias parameter only)")
+
+# M6: guard the narrowly scoped API adaptation against the latest M5 baseline.
+def baseline_file(relative):
+    return subprocess.check_output(["git","-C",str(ROOT),"show",BIAS_BASELINE+":"+relative]).decode()
+legacy_shadow = baseline_file("shaders/lib/shadow.glsl")
+legacy_settings = baseline_file("shaders/lib/shadow_settings.glsl")
+for mode, softness, bias_mode in product(range(4),SOFTNESSES,(0,1)):
+    before = preprocess(legacy_settings+legacy_shadow,5,False,True,mode,softness)
+    after = preprocess(shadow_source,5,False,True,mode,softness,bias_mode)
+    old_body = compact(function_body(before,"filterShadow"))
+    new_body = compact(function_body(after,"filterShadow"))
+    assert old_body == new_body.replace(",effectiveBias,", ",")
+    # Reject per-tap recomputation or any alternate bias argument.
+    assert new_body.count(",effectiveBias,mapSize)") == (8 if mode == 3 else 1)
+receiver = compact(function_body(shadow_source,"shadowVisibility"))
+assert receiver.count("effectiveShadowBias(normalView,lightDirectionView)") == 1
+assert "returnfilterShadow(shadowCoord,effectiveBias);" in receiver
+# Deferred only decodes its existing view normal once and passes it with the
+# existing view-space celestial light. Lambert/ambient/block math stays pinned.
+deferred = compact(function_body((SHADERS/"deferred.fsh").read_text(),"main"))
+assert "shadowVisibility(pixel,normalView,shadowLightPosition)" in deferred
+restored = deferred.replace("vec3normalView=decodeNormal(surface.rgb);", "").replace(
+    "shadowVisibility(pixel,normalView,shadowLightPosition)", "shadowVisibility(pixel)").replace(
+    "lightScene(scene.rgb,normalView,levels,visibility)",
+    "lightScene(scene.rgb,decodeNormal(surface.rgb),levels,visibility)")
+assert restored == compact(function_body(baseline_file("shaders/deferred.fsh"),"main"))
+lighting_settings = (SHADERS/"lib/lighting_settings.glsl").read_text()
+assert compact(lighting_settings) == compact(baseline_file("shaders/lib/lighting_settings.glsl"))
+for debug in range(6):
+    old = preprocess(baseline_file("shaders/lib/lighting_settings.glsl")+baseline_file("shaders/final.fsh"),debug,False)
+    new = preprocess(lighting_settings+(SHADERS/"final.fsh").read_text(),debug,False)
+    assert compact(function_body(old,"main")) == compact(function_body(new,"main")).replace(
+        "shadowVisibility(pixel,normalView,shadowLightPosition)", "shadowVisibility(pixel)")
+restored_props = props.replace("SHADOW_BIAS SHADOW_BIAS_MODE SHADOW_BIAS_MIN SHADOW_BIAS_MAX SHADOW_FILTER",
+                              "SHADOW_BIAS SHADOW_FILTER").replace(
+    "SHADOW_BIAS SHADOW_BIAS_MIN SHADOW_BIAS_MAX LIGHTING_STRENGTH", "SHADOW_BIAS LIGHTING_STRENGTH")
+assert restored_props == baseline_file("shaders/shaders.properties").replace("\r\n","\n")
+
+bias_source = (SHADERS/"lib/shadow_bias.glsl").read_text()
+constant_source = preprocess(settings+bias_source,0,False,bias_mode=0)
+assert compact(function_body(constant_source,"effectiveShadowBias")) == "returnSHADOW_BIAS;"
+angle_source = preprocess(settings+bias_source,0,False,bias_mode=1)
+assert compact(function_body(angle_source,"effectiveShadowBias")) == (
+    "vec2bounds=shadowBiasBounds();floatangleFactor=1.0-shadowBiasNdotL(normalView,lightDirectionView);"
+    "returnclamp(mix(bounds.x,bounds.y,angleFactor),bounds.x,bounds.y);")
+assert "return clamp(dot(normalUnit, lightUnit), 0.0, 1.0);" in bias_source
+for term in ("isnan(normalView)","isinf(normalView)","isnan(lightDirectionView)","isinf(lightDirectionView)",
+             "normalScale <= 1e-6 || lightScale <= 1e-6", "normalize(normalView / normalScale)",
+             "normalize(lightDirectionView / lightScale)", "if (span <= 1e-8) return 0.0;"):
+    assert term in bias_source
+assert compact(function_body(bias_source,"shadowBiasBounds")) == (
+    "returnclamp(vec2(min(SHADOW_BIAS_MIN,SHADOW_BIAS_MAX),max(SHADOW_BIAS_MIN,SHADOW_BIAS_MAX)),0.0,0.002);")
+
+def clamp(x,lo,hi):
+    return min(hi,max(lo,x))
+def bias_bounds(lo,hi):
+    return clamp(min(lo,hi),0,.002),clamp(max(lo,hi),0,.002)
+def receiver_ndotl(normal,light):
+    if not all(math.isfinite(v) for v in normal+light):
+        return 0.0
+    ns,ls = max(map(abs,normal)),max(map(abs,light))
+    if ns <= 1e-6 or ls <= 1e-6:
+        return 0.0
+    n,l = norm([v/ns for v in normal]),norm([v/ls for v in light])
+    return clamp(sum(a*b for a,b in zip(n,l)),0,1)
+def receiver_bias(ndotl,mode=1,constant=.0002,lo=.0001,hi=.0005):
+    if mode == 0:
+        return constant
+    lo,hi = bias_bounds(lo,hi)
+    return clamp(lo+(hi-lo)*(1-clamp(ndotl,0,1)),lo,hi)
+def debug_bias(bias,lo,hi):
+    lo,hi = bias_bounds(lo,hi)
+    return 0 if hi-lo <= 1e-8 else clamp((bias-lo)/(hi-lo),0,1)
+BIAS_VALUES = (0,.00005,.0001,.0002,.0005,.001,.002)
+for lo,hi in product(BIAS_VALUES,repeat=2):
+    minimum,maximum = bias_bounds(lo,hi)
+    results = [receiver_bias(n,lo=lo,hi=hi) for n in (1,.75,.5,.25,0)]
+    assert all(math.isfinite(x) and minimum <= x <= maximum for x in results)
+    assert results == sorted(results)
+    assert abs(results[0]-minimum) < 1e-12 and abs(results[-1]-maximum) < 1e-12
+    for result in results:
+        assert math.isfinite(debug_bias(result,lo,hi)) and 0 <= debug_bias(result,lo,hi) <= 1
+    if lo == hi:
+        assert debug_bias(lo,lo,hi) == 0
+assert bias_bounds(-.001,.1) == (0,.002)
+assert receiver_bias(-1) == receiver_bias(0)
+assert receiver_bias(2) == receiver_bias(1)
+assert abs(debug_bias(.0002,.0001,.0005)-.25) < 1e-12
+# Directions use the same space, remain normalized, and have finite fallbacks.
+for n,expected in (((0,1,0),1),((1,0,0),0),((0,-1,0),0),((0,0,0),0),
+                   ((0,1e30,0),1),((0,1e-30,0),0),((float('nan'),0,0),0),
+                   ((float('inf'),0,0),0)):
+    value = receiver_ndotl(n,(0,100,0))
+    assert math.isfinite(value) and value == expected
+    assert math.isfinite(receiver_bias(value))
+for bad_light in ((0,0,0),(float('inf'),0,0),(0,float('nan'),0)):
+    assert receiver_ndotl((0,1,0),bad_light) == 0
+n,l = norm((1,2,3)),norm((-2,3,1))
+for angle in (-2,-.3,0,.5,2):
+    rotated_n = tuple(mv(yaw(angle),list(n)+[0])[:3])
+    rotated_l = tuple(mv(yaw(angle),list(l)+[0])[:3])
+    assert abs(receiver_ndotl(rotated_n,rotated_l)-receiver_ndotl(n,l)) < 1e-12
+# Comparison-sensitive depths and both signs of the edge avoid trivial tests.
+for mode,softness,constant in product(range(4),SOFTNESSES,BIAS_VALUES):
+    for uv in probe_uvs:
+        for depth in (.2,.20005,.2002,.8,.8002):
+            for facing in (1,.75,.5,.25,0):
+                value = receiver_bias(facing,mode=0,constant=constant)
+                assert reference_filter(edge,uv,current=depth,bias=value,mode=mode,softness=softness) == reference_filter(
+                    edge,uv,current=depth,bias=constant,mode=mode,softness=softness)
+                angled = receiver_bias(facing)
+                visibility = reference_filter(edge,uv,current=depth,bias=angled,mode=mode,softness=softness)[0]
+                assert 0 <= visibility <= 1
+                if softness == 0:
+                    assert visibility == reference_filter(edge,uv,current=depth,bias=angled,mode=0)[0]
+for option,default in (("SHADOW_BIAS_MODE","0"),("SHADOW_BIAS_MIN","0.0001"),("SHADOW_BIAS_MAX","0.0005")):
+    assert re.search(r"^#define "+option+" "+re.escape(default)+r" //",settings,re.M)
+    assert re.search(r"^option\."+option+r"=.+$",language,re.M)
+    assert option in props.split("screen =",1)[1].splitlines()[0].split()
+assert "#define SHADOW_BIAS_MODE 0 // [0 1]" in settings
+assert "value.SHADOW_BIAS_MODE.0=Constant" in language
+assert "value.SHADOW_BIAS_MODE.1=Angle-Aware" in language
+assert "[0 1 2 3 4 5 6]" in lighting_settings
+assert "value.DEBUG_VIEW.6=Effective Shadow Bias" in language
+for mode in (0,1):
+    debug_source = preprocess(expand(SHADERS/"final.fsh"),6,False,bias_mode=mode)
+    debug_main = compact(function_body(debug_source,"main"))
+    assert "gradeColor" not in debug_main
+    assert "vec3debugColor=vec3(0.0);" in debug_main and "surface.a>0.5" in debug_main
+    assert "texelFetch(depthtex1,pixel,0).r<1.0" in debug_main
+    assert "shadowBiasDebug(effectiveShadowBias(normalView,shadowLightPosition))" in debug_main
+print("PASS: M6 shared bias for 1/9/25/8 taps; constant mode exactly preserves M5 filter/receiver math")
+print("PASS: angle bias bounds, monotonicity, reversed/equal bounds, invalid vectors and camera rotation")
+print("PASS: legacy direct/ambient/block lighting and debug 0-5 preserved; safe ungraded debug 6")
+print("LIMIT: static structural/numerical validation is NOT Minecraft/Iris/GPU runtime validation")

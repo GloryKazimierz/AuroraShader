@@ -28,7 +28,7 @@ value.DEBUG_VIEW.4=Raw Shadow Depth
 option.SHADOWS_ENABLED=Shadows Enabled
 option.SHADOWS_ENABLED.comment=Apply cast shadows to direct light. Off restores Milestone 2 lighting; the map remains available in debug 4.
 option.SHADOW_BIAS=Shadow Bias
-option.SHADOW_BIAS.comment=Normalized depth offset. Increase to reduce acne; too much detaches shadows.
+option.SHADOW_BIAS.comment=Constant mode only. Normalized depth offset. Increase to reduce acne; too much detaches shadows.
 
 option.SHADOW_FILTER=Shadow Filtering
 value.SHADOW_FILTER.0=Hard
@@ -39,3 +39,13 @@ option.SHADOW_FILTER.comment=Hard: 1 tap. 3x3: 9. 5x5: 25. Poisson: 8 irregular 
 option.SHADOW_SOFTNESS=Shadow Softness
 option.SHADOW_SOFTNESS.comment=Grid tap spacing or Poisson disk radius multiplier in texels. Same value gives different footprints. Default 1; zero matches Hard. Ignored in Hard mode.
 value.DEBUG_VIEW.5=Shadow Visibility (Filtered)
+
+option.SHADOW_BIAS_MODE=Shadow Bias Mode
+option.SHADOW_BIAS_MODE.comment=Constant uses Shadow Bias everywhere. Angle-Aware uses more tolerance at grazing light angles; a receiver heuristic, not raster slope bias.
+value.SHADOW_BIAS_MODE.0=Constant
+value.SHADOW_BIAS_MODE.1=Angle-Aware
+option.SHADOW_BIAS_MIN=Angle-Aware Min Bias
+option.SHADOW_BIAS_MIN.comment=Tolerance when facing the light. Only used by Angle-Aware; reversed bounds are sorted.
+option.SHADOW_BIAS_MAX=Angle-Aware Max Bias
+option.SHADOW_BIAS_MAX.comment=Tolerance at grazing angles. Excess can detach shadows or leak light. Only used by Angle-Aware.
+value.DEBUG_VIEW.6=Effective Shadow Bias

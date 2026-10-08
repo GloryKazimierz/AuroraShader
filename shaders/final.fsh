@@ -30,7 +30,12 @@ void main() {
 #elif DEBUG_VIEW == 3
         debugColor = vec3(diffuseTerm(normalView));
 #elif DEBUG_VIEW == 5
-        debugColor = vec3(shadowVisibility(pixel));
+        debugColor = vec3(shadowVisibility(pixel, normalView, shadowLightPosition));
+#elif DEBUG_VIEW == 6
+        // Invalid metadata/sky is black. Valid but degenerate normals use max bias.
+        if (texelFetch(depthtex1, pixel, 0).r < 1.0) {
+            debugColor = vec3(shadowBiasDebug(effectiveShadowBias(normalView, shadowLightPosition)));
+        }
 #endif
     }
     color = vec4(debugColor, 1.0);
