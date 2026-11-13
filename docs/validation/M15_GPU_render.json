@@ -1,0 +1,1100 @@
+{
+  "schema": 1,
+  "started_utc": "2026-11-13T07:57:32.886598+00:00",
+  "suite": "render",
+  "shader_sha256": "f750a7ae27b40729ffe45624bf4ade728d0eaf2b73695561454c0ed1cf799c1a",
+  "scope": "Native OpenGL synthetic inputs only: no Iris patcher, Minecraft world, render-order/texture-binding integration, screenshots or performance measurement.",
+  "ok": true,
+  "gl": {
+    "vendor": "Intel",
+    "renderer": "Intel(R) Iris(R) Xe Graphics",
+    "version": "3.3.0 - Build 31.0.101.3962",
+    "glsl_version": "3.30 - Build 31.0.101.3962",
+    "major": 3,
+    "minor": 3,
+    "profile_mask": 2,
+    "profile": "compatibility",
+    "max_texture_size": 16384,
+    "max_texture_units": 32
+  },
+  "build": {
+    "compiler": "g++.exe",
+    "flags": [
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-static"
+    ],
+    "diagnostics": ""
+  },
+  "controls": {
+    "comparisons": [
+      {
+        "label": "copy-RGBA32F",
+        "channels": 24,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "copy-RGBA16F",
+        "channels": 24,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "two-samplers",
+        "channels": 24,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "matrix-and-coverage",
+        "channels": 60,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "discard-preserves-clear",
+        "channels": 24,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      }
+    ],
+    "rejected": [
+      "existing output without modification",
+      "invalid GLSL",
+      "truncated raw texture",
+      "uniform type mismatch",
+      "varying link mismatch",
+      "misspelled inactive sampler",
+      "unwritten zero target"
+    ]
+  },
+  "bloom": {
+    "graphs": 9,
+    "passes_per_graph": 4,
+    "comparisons": [
+      {
+        "label": "bloom-7x5-t1.0-k0.5-s0.08-extract",
+        "channels": 24,
+        "max_absolute_error": 0.00048828125,
+        "max_tolerance_fraction": 0.4989780928658108,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-7x5-t1.0-k0.5-s0.08-horizontal",
+        "channels": 24,
+        "max_absolute_error": 0.0009765625,
+        "max_tolerance_fraction": 0.49948852375167835,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-7x5-t1.0-k0.5-s0.08-vertical",
+        "channels": 24,
+        "max_absolute_error": 0.0009765625,
+        "max_tolerance_fraction": 0.49948852375167835,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-7x5-t1.0-k0.5-s0.08-combine",
+        "channels": 140,
+        "max_absolute_error": 0.00390625,
+        "max_tolerance_fraction": 0.4998720327596135,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-7x5-t1.0-k0.5-s0.08-chain",
+        "channels": 140,
+        "max_absolute_error": 0.00390625,
+        "max_tolerance_fraction": 0.7262037553448597,
+        "tolerance": {
+          "half_ulps": 4,
+          "absolute": 4e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-7x5-t0.5-k0.0-s0.2-extract",
+        "channels": 24,
+        "max_absolute_error": 0.0009765625,
+        "max_tolerance_fraction": 0.49948852375167835,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-7x5-t0.5-k0.0-s0.2-horizontal",
+        "channels": 24,
+        "max_absolute_error": 0.001953125,
+        "max_tolerance_fraction": 0.49974413100492543,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-7x5-t0.5-k0.0-s0.2-vertical",
+        "channels": 24,
+        "max_absolute_error": 0.0009765625,
+        "max_tolerance_fraction": 0.49948852375167835,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-7x5-t0.5-k0.0-s0.2-combine",
+        "channels": 140,
+        "max_absolute_error": 0.0078125,
+        "max_tolerance_fraction": 0.49993600819095163,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-7x5-t0.5-k0.0-s0.2-chain",
+        "channels": 140,
+        "max_absolute_error": 0.0078125,
+        "max_tolerance_fraction": 0.7038711033695717,
+        "tolerance": {
+          "half_ulps": 4,
+          "absolute": 4e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-7x5-t2.0-k1.0-s0.08-extract",
+        "channels": 24,
+        "max_absolute_error": 0.00048828125,
+        "max_tolerance_fraction": 0.4989780928658108,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-7x5-t2.0-k1.0-s0.08-horizontal",
+        "channels": 24,
+        "max_absolute_error": 0.00048828125,
+        "max_tolerance_fraction": 0.4989780928658108,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-7x5-t2.0-k1.0-s0.08-vertical",
+        "channels": 24,
+        "max_absolute_error": 0.00048828125,
+        "max_tolerance_fraction": 0.4989780928658108,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-7x5-t2.0-k1.0-s0.08-combine",
+        "channels": 140,
+        "max_absolute_error": 0.0078125,
+        "max_tolerance_fraction": 0.49993600819095163,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-7x5-t2.0-k1.0-s0.08-chain",
+        "channels": 140,
+        "max_absolute_error": 0.0078125,
+        "max_tolerance_fraction": 0.8841170146551236,
+        "tolerance": {
+          "half_ulps": 4,
+          "absolute": 4e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-3x3-t1.0-k0.5-s0.08-extract",
+        "channels": 4,
+        "max_absolute_error": 0.000244140625,
+        "max_tolerance_fraction": 0.49796035438842495,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-3x3-t1.0-k0.5-s0.08-horizontal",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-3x3-t1.0-k0.5-s0.08-vertical",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-3x3-t1.0-k0.5-s0.08-combine",
+        "channels": 36,
+        "max_absolute_error": 0.0078125,
+        "max_tolerance_fraction": 0.49993600819095163,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-3x3-t1.0-k0.5-s0.08-chain",
+        "channels": 36,
+        "max_absolute_error": 0.0078125,
+        "max_tolerance_fraction": 0.48413583689657314,
+        "tolerance": {
+          "half_ulps": 4,
+          "absolute": 4e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-3x3-t0.5-k0.0-s0.2-extract",
+        "channels": 4,
+        "max_absolute_error": 0.0009765625,
+        "max_tolerance_fraction": 0.49948852375167835,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-3x3-t0.5-k0.0-s0.2-horizontal",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-3x3-t0.5-k0.0-s0.2-vertical",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-3x3-t0.5-k0.0-s0.2-combine",
+        "channels": 36,
+        "max_absolute_error": 0.0078125,
+        "max_tolerance_fraction": 0.49993600819095163,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-3x3-t0.5-k0.0-s0.2-chain",
+        "channels": 36,
+        "max_absolute_error": 0.0078125,
+        "max_tolerance_fraction": 0.48413583689657314,
+        "tolerance": {
+          "half_ulps": 4,
+          "absolute": 4e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-3x3-t2.0-k1.0-s0.08-extract",
+        "channels": 4,
+        "max_absolute_error": 0.000244140625,
+        "max_tolerance_fraction": 0.49796035438842495,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-3x3-t2.0-k1.0-s0.08-horizontal",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-3x3-t2.0-k1.0-s0.08-vertical",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-3x3-t2.0-k1.0-s0.08-combine",
+        "channels": 36,
+        "max_absolute_error": 0.0078125,
+        "max_tolerance_fraction": 0.49993600819095163,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-3x3-t2.0-k1.0-s0.08-chain",
+        "channels": 36,
+        "max_absolute_error": 0.0078125,
+        "max_tolerance_fraction": 0.24996800409547582,
+        "tolerance": {
+          "half_ulps": 4,
+          "absolute": 4e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-8x6-t1.0-k0.5-s0.08-extract",
+        "channels": 48,
+        "max_absolute_error": 0.0001220703125,
+        "max_tolerance_fraction": 0.49593728178759605,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-8x6-t1.0-k0.5-s0.08-horizontal",
+        "channels": 48,
+        "max_absolute_error": 0.0009765625,
+        "max_tolerance_fraction": 0.49948852375167835,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-8x6-t1.0-k0.5-s0.08-vertical",
+        "channels": 48,
+        "max_absolute_error": 0.0009765625,
+        "max_tolerance_fraction": 0.49948852375167835,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-8x6-t1.0-k0.5-s0.08-combine",
+        "channels": 192,
+        "max_absolute_error": 0.0078125,
+        "max_tolerance_fraction": 0.49993600819095163,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-8x6-t1.0-k0.5-s0.08-chain",
+        "channels": 192,
+        "max_absolute_error": 0.0078125,
+        "max_tolerance_fraction": 0.6630877609913427,
+        "tolerance": {
+          "half_ulps": 4,
+          "absolute": 4e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-8x6-t0.5-k0.0-s0.2-extract",
+        "channels": 48,
+        "max_absolute_error": 0.000244140625,
+        "max_tolerance_fraction": 0.49796035438842495,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-8x6-t0.5-k0.0-s0.2-horizontal",
+        "channels": 48,
+        "max_absolute_error": 0.0009765625,
+        "max_tolerance_fraction": 0.49948852375167835,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-8x6-t0.5-k0.0-s0.2-vertical",
+        "channels": 48,
+        "max_absolute_error": 0.0009765625,
+        "max_tolerance_fraction": 0.49948852375167835,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-8x6-t0.5-k0.0-s0.2-combine",
+        "channels": 192,
+        "max_absolute_error": 0.00390625,
+        "max_tolerance_fraction": 0.4998720327596135,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-8x6-t0.5-k0.0-s0.2-chain",
+        "channels": 192,
+        "max_absolute_error": 0.00390625,
+        "max_tolerance_fraction": 0.6630877609913427,
+        "tolerance": {
+          "half_ulps": 4,
+          "absolute": 4e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-8x6-t2.0-k1.0-s0.08-extract",
+        "channels": 48,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-8x6-t2.0-k1.0-s0.08-horizontal",
+        "channels": 48,
+        "max_absolute_error": 0.0009765625,
+        "max_tolerance_fraction": 0.49948852375167835,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-8x6-t2.0-k1.0-s0.08-vertical",
+        "channels": 48,
+        "max_absolute_error": 0.00048828125,
+        "max_tolerance_fraction": 0.4989780928658108,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-8x6-t2.0-k1.0-s0.08-combine",
+        "channels": 192,
+        "max_absolute_error": 0.001953125,
+        "max_tolerance_fraction": 0.49974413100492543,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 2e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-8x6-t2.0-k1.0-s0.08-chain",
+        "channels": 192,
+        "max_absolute_error": 0.001953125,
+        "max_tolerance_fraction": 0.7038711033695717,
+        "tolerance": {
+          "half_ulps": 4,
+          "absolute": 4e-06,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-bypass-BLOOM_ENABLED",
+        "channels": 8,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-bypass-BLOOM_STRENGTH",
+        "channels": 8,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-bypass-SCENE_COLOR_MODE",
+        "channels": 8,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "bloom-bypass-DEBUG_VIEW",
+        "channels": 8,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      }
+    ],
+    "storage": "RGBA16F inputs and every intermediate; float32 readback; bottom row first"
+  },
+  "water": {
+    "cases": 35,
+    "normal_samples": 735,
+    "comparisons": [
+      {
+        "label": "water-0",
+        "channels": 84,
+        "max_absolute_error": 7.549069303003364e-08,
+        "max_tolerance_fraction": 0.0012581782171672273,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-1",
+        "channels": 84,
+        "max_absolute_error": 1.303207163884379e-07,
+        "max_tolerance_fraction": 0.002172011939807298,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-2",
+        "channels": 84,
+        "max_absolute_error": 5.856629359257681e-08,
+        "max_tolerance_fraction": 0.0009761048932096135,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-3",
+        "channels": 84,
+        "max_absolute_error": 5.404270519981935e-08,
+        "max_tolerance_fraction": 0.0009007117533303225,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-4",
+        "channels": 84,
+        "max_absolute_error": 5.419335278918774e-07,
+        "max_tolerance_fraction": 0.009032225464864624,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-5",
+        "channels": 84,
+        "max_absolute_error": 6.072520752908872e-08,
+        "max_tolerance_fraction": 0.0010120867921514787,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-6",
+        "channels": 84,
+        "max_absolute_error": 4.4426772549677196e-07,
+        "max_tolerance_fraction": 0.007404462091612865,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-7",
+        "channels": 84,
+        "max_absolute_error": 2.9396569758760246e-07,
+        "max_tolerance_fraction": 0.004899428293126708,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-8",
+        "channels": 84,
+        "max_absolute_error": 4.292031691270626e-07,
+        "max_tolerance_fraction": 0.007153386152117709,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-9",
+        "channels": 84,
+        "max_absolute_error": 7.549069303003364e-08,
+        "max_tolerance_fraction": 0.0012581782171672273,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-10",
+        "channels": 84,
+        "max_absolute_error": 1.303207163884379e-07,
+        "max_tolerance_fraction": 0.002172011939807298,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-11",
+        "channels": 84,
+        "max_absolute_error": 5.856629359257681e-08,
+        "max_tolerance_fraction": 0.0009761048932096135,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-12",
+        "channels": 84,
+        "max_absolute_error": 4.4426772549677196e-07,
+        "max_tolerance_fraction": 0.007404462091612865,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-13",
+        "channels": 84,
+        "max_absolute_error": 2.9396569758760246e-07,
+        "max_tolerance_fraction": 0.004899428293126708,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-14",
+        "channels": 84,
+        "max_absolute_error": 4.292031691270626e-07,
+        "max_tolerance_fraction": 0.007153386152117709,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-15",
+        "channels": 84,
+        "max_absolute_error": 3.00130958848753e-07,
+        "max_tolerance_fraction": 0.005002182647479217,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-16",
+        "channels": 84,
+        "max_absolute_error": 2.9806479999016505e-07,
+        "max_tolerance_fraction": 0.004967746666502751,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-17",
+        "channels": 84,
+        "max_absolute_error": 3.3477928023783327e-07,
+        "max_tolerance_fraction": 0.005579654670630554,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-18",
+        "channels": 84,
+        "max_absolute_error": 3.00130958848753e-07,
+        "max_tolerance_fraction": 0.005002182647479217,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-19",
+        "channels": 84,
+        "max_absolute_error": 3.142236161320783e-07,
+        "max_tolerance_fraction": 0.005237060268867971,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-20",
+        "channels": 84,
+        "max_absolute_error": 3.2380559513225937e-07,
+        "max_tolerance_fraction": 0.00539675991887099,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-21",
+        "channels": 84,
+        "max_absolute_error": 3.00130958848753e-07,
+        "max_tolerance_fraction": 0.005002182647479217,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-22",
+        "channels": 84,
+        "max_absolute_error": 3.0985023389239197e-07,
+        "max_tolerance_fraction": 0.0051641705648731995,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-23",
+        "channels": 84,
+        "max_absolute_error": 3.231620819763026e-07,
+        "max_tolerance_fraction": 0.005386034699605043,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-24",
+        "channels": 84,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-25",
+        "channels": 84,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-26",
+        "channels": 84,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-27",
+        "channels": 84,
+        "max_absolute_error": 3.91025051227345e-08,
+        "max_tolerance_fraction": 0.0006517084187122416,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-28",
+        "channels": 84,
+        "max_absolute_error": 9.806739647774676e-08,
+        "max_tolerance_fraction": 0.0016344566079624459,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-29",
+        "channels": 84,
+        "max_absolute_error": 3.00130958848753e-07,
+        "max_tolerance_fraction": 0.005002182647479217,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-30",
+        "channels": 84,
+        "max_absolute_error": 3.00130958848753e-07,
+        "max_tolerance_fraction": 0.005002182647479217,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-31",
+        "channels": 84,
+        "max_absolute_error": 3.00130958848753e-07,
+        "max_tolerance_fraction": 0.005002182647479217,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-32",
+        "channels": 84,
+        "max_absolute_error": 1.0773193008344062e-07,
+        "max_tolerance_fraction": 0.0017955321680573435,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-33",
+        "channels": 84,
+        "max_absolute_error": 7.618374157566943e-08,
+        "max_tolerance_fraction": 0.0012697290262611571,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "water-34",
+        "channels": 84,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0,
+          "relative": 0.0
+        }
+      }
+    ],
+    "input": "Actual shared helper called by synthetic fragment wrapper; real water geometry/rasterization absent"
+  },
+  "final": {
+    "cases": 5,
+    "comparisons": [
+      {
+        "label": "final-{'TONE_MAPPING': 1, 'TONEMAP_KNEE': 0.6, 'EXPOSURE': 0.0, 'GRAYSCALE': False}",
+        "channels": 28,
+        "max_absolute_error": 4.6225317362758034e-07,
+        "max_tolerance_fraction": 0.02009858935309901,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 3e-06,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "final-{'TONE_MAPPING': 1, 'TONEMAP_KNEE': 0.4, 'EXPOSURE': -2.0, 'GRAYSCALE': False}",
+        "channels": 28,
+        "max_absolute_error": 1.6587783979726822e-07,
+        "max_tolerance_fraction": 0.010725861157550096,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 3e-06,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "final-{'TONE_MAPPING': 1, 'TONEMAP_KNEE': 0.8, 'EXPOSURE': 2.0, 'GRAYSCALE': False}",
+        "channels": 28,
+        "max_absolute_error": 4.36270921944093e-07,
+        "max_tolerance_fraction": 0.018971896625854575,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 3e-06,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "final-{'TONE_MAPPING': 0, 'TONEMAP_KNEE': 0.6, 'EXPOSURE': 0.0, 'GRAYSCALE': False}",
+        "channels": 28,
+        "max_absolute_error": 1.753437092189003e-07,
+        "max_tolerance_fraction": 0.009902429899765796,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 3e-06,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "final-{'TONE_MAPPING': 1, 'TONEMAP_KNEE': 0.6, 'EXPOSURE': 0.0, 'GRAYSCALE': True}",
+        "channels": 28,
+        "max_absolute_error": 1.4984338003731779e-07,
+        "max_tolerance_fraction": 0.008573295347597435,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 3e-06,
+          "relative": 2e-05
+        }
+      }
+    ],
+    "input": "Actual final program with synthetic linear scene, neutral grading except requested grayscale"
+  },
+  "finished_utc": "2026-11-13T07:59:23.450213+00:00"
+}

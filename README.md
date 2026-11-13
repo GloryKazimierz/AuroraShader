@@ -5,8 +5,24 @@ sunsets, indigo nights, and optional teal/violet aurora ribbons. The goal is
 a coherent, playable visual style with configurable performance, developed in
 small documented stages.
 
-**Current development: Milestone 14 — Stable Water Reflection Waves**
-on `codex/milestone-14-water-waves`, based on M13 commit `fd394d3`.
+**Current development: Milestone 15 — Native GPU Validation**
+on `codex/milestone-15-gpu-validation`, based on M14 commit `e8007b2`.
+An optional Windows OpenGL tool now runs the existing shader-option matrix and
+selected numerical rendering fixtures on the actual driver. It creates a hidden
+context and private framebuffer targets; generated files and compiler temporary
+files stay beside the project on D: and are cleaned after the run.
+
+Recorded on Intel Iris Xe / OpenGL 3.3 compatibility: all 1,272 program-pair
+configurations linked successfully; synthetic bloom, water-wave normals and final
+display checks passed. Harness controls also verify correct binding, complete
+pixel writes and expected failure handling. Shader source is unchanged from M14.
+These checks do not run Iris's patcher, Minecraft scenes or a performance benchmark.
+See [M15 English notes](docs/MILESTONE_15.md) /
+[M15 中文原理与学习说明](docs/MILESTONE_15.zh-CN.md),
+[driver compile record](docs/validation/M15_GPU_compile.json) and
+[synthetic rendering record](docs/validation/M15_GPU_render.json).
+
+**Water reflection motion (M14):**
 Three gentle analytic waves now vary the normal used for classified water's sky
 reflection and Fresnel weight. The pattern follows world coordinates, with safe
 negative/large camera anchors and periodic spatial/time phases. Original face
@@ -169,6 +185,16 @@ The optional compiler check needs an installed `glslangValidator`; it does not
 download tools or invoke Minecraft. Generated compiler inputs stay on the project
 drive in a verified temporary directory and are removed after the check.
 
+Windows native GPU checks additionally need an installed MinGW `g++`:
+
+```text
+python -B tools/validate_gpu.py --cxx C:/msys64/ucrt64/bin/g++.exe
+```
+
+Use `--suite probe`, `compile` or `render` for a subset, or `--report` with a new
+project-relative JSON filename to retain evidence. The default is all checks.
+Reports are never overwritten; CPU/offline checks remain independently available.
+
 Defaults remain Constant `0.0002`, 3x3 PCF and softness `1.0`; the initial
 Angle-Aware range is `0.0001` to `0.0005`. Hard / 3x3 / 5x5 / Poisson keep
 1 / 9 / 25 / 8 comparisons and their existing distributions.
@@ -190,6 +216,7 @@ Angle-Aware range is `0.0001` to `0.0005`. Hard / 3x3 / 5x5 / Poisson keep
 | M12 | Native cloud day/night tint and per-fragment atmosphere |
 | M13 | Classified water color and bounded analytic sky reflection |
 | M14 | Periodic world-anchored wave normals for water reflection |
+| M15 | Native OpenGL driver compilation and synthetic rendering checks |
 
 Read [Milestone 6 (English)](docs/MILESTONE_6.md) /
 [中文说明](docs/MILESTONE_6.zh-CN.md), the
@@ -201,7 +228,7 @@ The [M5 Poisson experiment](docs/MILESTONE_5.md) and
 [shadow mapping study guide](docs/SHADOW_MAPPING_STUDY_GUIDE.md) remain available.
 This work does not merge into main or modify historical milestone branches.
 
-Current M14 checkout: `D:\MinecraftShaders\MyShader-pcf-kernels`. The original
+Current M15 checkout: `D:\MinecraftShaders\MyShader-pcf-kernels`. The original
 `MyShader` junction still resolves to the separate sky worktree, so it does not
 load this development branch. Follow the benchmark's test-profile setup to select the correct pack;
 this task has not created a test instance or changed a junction.

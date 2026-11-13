@@ -42,9 +42,10 @@ rather than turning every surface into a uniform color wash.
 | M11 | World-oriented, night/weather-gated procedural sky aurora | Offline checks recorded; runtime confirmation remains pending |
 | M12 | Native cloud color and source-depth fog with explicit blend scope | Offline checks recorded; runtime confirmation remains pending |
 | M13 | Water-fluid classification, bounded tint and analytic sky-color reflection | Offline checks recorded; runtime confirmation remains pending |
-| M14 | World-anchored analytic water normals for moving sky reflections | Implementation branch; executed checks belong in the milestone report |
+| M14 | World-anchored analytic water normals for moving sky reflections | Offline checks recorded; runtime confirmation remains pending |
+| M15 | Native-driver shader validation and synthetic GPU rendering checks | Native driver checks recorded; Minecraft/Iris confirmation remains pending |
 
-M6–M13 remain available as historical branches. M14 builds on M13 without
+M6–M14 remain available as historical branches. M15 builds on M14 without
 upgrading any runtime status merely because development continues.
 
 ## Sequence of work
@@ -86,12 +87,16 @@ Each step should ship a small, reviewable increment with its own learning notes.
    world-anchored positions. Keep geometry, alpha, depth, tint and fog unchanged;
    preserve the original surface eligibility before perturbing reflection/Fresnel.
    Document periodic space/time and the limits of normal-only motion.
-9. **Water depth and transparency — next research priority.** Establish reliable
+9. **Native GPU validation (M15).** Add a hidden Windows OpenGL harness to compile
+   and link shader variants on the active driver and compare selected synthetic
+   framebuffer results with CPU references. Keep compiler, GPU and Minecraft/Iris
+   evidence separate; add no graphics feature or performance claim.
+10. **Water depth and transparency — next research priority.** Establish reliable
    depth, sorting and composition contracts before selecting the next transmission
    feature. A future opaque-scene copy needs its own suitable attachment; gbuffer
    `colortex0`–`colortex3` reads are atlas aliases, not the composed scene. This
    remains research/planning, not implemented water-depth transmission.
-10. **Completeness.** Explore distinct dimension palettes, vegetation motion,
+11. **Completeness.** Explore distinct dimension palettes, vegetation motion,
    performance profiles and broad compatibility. Maintain clear gameplay silhouettes
    and stable temporal behavior.
 
@@ -106,7 +111,8 @@ acceptance after every milestone. The working loop is:
 
 1. Pick a bounded change and record its intended visual result.
 2. Implement it with explicit settings and a useful baseline/fallback.
-3. Run relevant structural, numerical and available GLSL checks; review the diff.
+3. Run relevant structural, numerical, available GLSL and native-driver checks;
+   review the diff. Keep synthetic GPU coverage distinct from Minecraft runtime.
 4. Update English and Chinese explanations, known limits and runtime questions.
 5. Commit the coherent change and push its development branch to GitHub.
 6. Continue with the next independent step; carry unresolved runtime observations
@@ -141,6 +147,7 @@ runtime success. No performance improvement is claimed without measurement.
 
 - [Complementary's stated product priorities](https://www.complementary.dev/)
 - [Iris rendering program order](https://shaders.properties/current/reference/programs/overview/)
+- [M15 native GPU validation learning notes](MILESTONE_15.md)
 - [M14 analytic water-normal learning notes](MILESTONE_14.md)
 - [M13 water foundation learning notes](MILESTONE_13.md)
 - [M12 native cloud atmosphere learning notes](MILESTONE_12.md)
