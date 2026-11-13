@@ -1,3 +1,5 @@
+#ifndef AURORA_CELESTIAL_INCLUDED
+#define AURORA_CELESTIAL_INCLUDED
 // VIEW-space directions: the dot product is invariant under camera rotation.
 // sunPosition always describes the SUN; shadowLightPosition switches to the moon.
 uniform vec3 sunPosition;
@@ -29,3 +31,4 @@ vec2 celestialPhases() {
     // Smooth geometric weights at both sunrise/sunset; no ticking time switch.
     return vec2(day, twilight);
 }
+#endif

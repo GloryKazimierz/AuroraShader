@@ -3,6 +3,7 @@
 #include "/lib/lighting.glsl"
 #include "/lib/shadow.glsl"
 #include "/lib/celestial_lighting.glsl"
+#include "/lib/fog.glsl"
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
@@ -33,6 +34,12 @@ void main() {
         float visibility = shadowVisibility(pixel, normalView, shadowLightPosition);
         color.rgb = lightScene(scene.rgb, normalView, levels, visibility);
         color.rgb = applyCelestialPalette(color.rgb, normalView, levels, visibility);
+        // Fog is added AFTER direct/ambient lighting, so shadows cannot darken its color.
+        float surfaceDepth = texelFetch(depthtex1, pixel, 0).r;
+        if (surfaceDepth < 1.0) {
+            vec2 screenUV = (vec2(pixel) + 0.5) / vec2(textureSize(depthtex1, 0));
+            color.rgb = applyAtmosphericFog(color.rgb, reconstructViewPosition(screenUV, surfaceDepth));
+        }
     }
     // Alpha is unchanged. Iris flips colortex0 after this fullscreen pass.
     // Most transparent geometry renders afterward using its original shading.

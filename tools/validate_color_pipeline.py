@@ -3,6 +3,7 @@ import math
 import re
 import struct
 import subprocess
+from validate_fog import historical_source, restore_fog_plumbing
 from functools import lru_cache
 from itertools import product
 from validate_atmosphere import decode, encode, clamp
@@ -26,7 +27,7 @@ def shoulder(rgb, knee=.6, mapping=1):
 def validate_color_pipeline(root, expand, preprocess, compact, function_body):
     shaders = root/'shaders'
     def read(relative):
-        return (shaders/relative).read_text(encoding='utf-8')
+        return historical_source(relative, (shaders/relative).read_text(encoding='utf-8'))
     @lru_cache(maxsize=None)
     def prior(relative):
         return subprocess.check_output(['git','-C',str(root),'show',M7_BASELINE+':shaders/'+relative]).decode()
@@ -35,8 +36,8 @@ def validate_color_pipeline(root, expand, preprocess, compact, function_body):
         return re.sub(r'^#include "([^"]+)"\s*$',
                       lambda m: old_expand(m[1].lstrip('/')), prior(relative), flags=re.M)
     def processed(relative, mode, debug=0, grayscale=False, **options):
-        return preprocess(expand(shaders/relative), debug, grayscale,
-                          overrides=dict(SCENE_COLOR_MODE=mode, **options))
+        return restore_fog_plumbing(preprocess(expand(shaders/relative), debug, grayscale,
+                          overrides=dict(SCENE_COLOR_MODE=mode, **options)))
     def body(source, name):
         return compact(function_body(source,name))
 

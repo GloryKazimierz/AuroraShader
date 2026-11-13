@@ -2,6 +2,7 @@
 import math
 import re
 import subprocess
+from validate_fog import historical_source, restore_fog_plumbing
 from itertools import product
 
 M6_BASELINE = "5479a1c3b2b579e965cdb43681422abcb45b6b79"
@@ -97,7 +98,7 @@ def apply_tint(scene, tint, block, sky, strength=.6, lighting=1, env=1):
 def validate_atmosphere(root, expand, preprocess, compact, function_body):
     shaders = root / 'shaders'
     def read(relative):
-        return (shaders/relative).read_text(encoding='utf-8')
+        return historical_source(relative, (shaders/relative).read_text(encoding='utf-8'))
     def prior(relative):
         return subprocess.check_output(['git','-C',str(root),'show',M6_BASELINE+':shaders/'+relative]).decode()
     settings = read('lib/atmosphere_settings.glsl')

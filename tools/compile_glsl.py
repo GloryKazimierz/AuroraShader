@@ -57,6 +57,20 @@ def configurations():
         yield 'final', dict(SCENE_COLOR_MODE=1, TONE_MAPPING=mapping, TONEMAP_KNEE=knee,
                             EXPOSURE=exposure, GRAYSCALE=grayscale)
 
+    # M9: every pair with fog explicitly enabled/disabled in both scene modes.
+    for mode, fog in product((0, 1), repeat=2):
+        for path in sorted(SHADERS.glob('*.vsh')):
+            yield path.stem, dict(SCENE_COLOR_MODE=mode, FOG_ENABLED=fog)
+    # Compile control extremes on each fogged path, avoiding the unrelated shadow
+    # Cartesian product already covered above. Runtime blend states are uniforms.
+    for program in ('deferred', 'gbuffers_water', 'gbuffers_weather',
+                    'gbuffers_textured', 'gbuffers_textured_lit'):
+        for density, start, base, falloff, rain in product((0.0, .02), (0.0, 64.0),
+                                                         (32.0, 128.0), (16.0, 128.0), (0.0, 2.0)):
+            yield program, dict(SCENE_COLOR_MODE=1, FOG_ENABLED=1, FOG_DENSITY=density,
+                                FOG_START=start, FOG_BASE_HEIGHT=base,
+                                FOG_HEIGHT_FALLOFF=falloff, FOG_RAIN_BOOST=rain)
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--compiler', help='Path to installed glslangValidator')

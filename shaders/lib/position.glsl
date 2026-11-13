@@ -1,3 +1,5 @@
+#ifndef AURORA_POSITION_INCLUDED
+#define AURORA_POSITION_INCLUDED
 // Iris provides these inverse matrices; no extra position buffer is needed.
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferModelViewInverse;
@@ -16,3 +18,4 @@ vec3 viewToPlayerPosition(vec3 viewPosition) {
     // shadowModelView expects this same player-relative space.
     return (gbufferModelViewInverse * vec4(viewPosition, 1.0)).xyz;
 }
+#endif

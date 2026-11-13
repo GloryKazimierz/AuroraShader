@@ -1,5 +1,8 @@
 // M8 keeps baked Minecraft shading, then converts RGB for scene composition.
 #include "/lib/scene_color.glsl"
+#ifdef APPLY_LATE_FOG
+#include "/lib/fog.glsl"
+#endif
 
 uniform sampler2D lightmap;
 uniform sampler2D gtexture;
@@ -25,6 +28,12 @@ void main() {
 	}
     // RGB only: alpha coverage, discard and surface-data attachments stay unchanged.
     color.rgb = sceneFromDisplay(color.rgb);
+#ifdef APPLY_LATE_FOG
+    // Reconstruct this foreground fragment, not the already composed background.
+    vec2 fogUV = gl_FragCoord.xy / vec2(viewWidth, viewHeight);
+    vec3 fogView = reconstructViewPosition(fogUV, gl_FragCoord.z);
+    color.rgb = applyLateAtmosphericFog(color.rgb, fogView);
+#endif
 #ifdef WRITE_SURFACE_DATA
     writeSurfaceData(lmcoord);
 #endif

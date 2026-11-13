@@ -36,9 +36,10 @@ turning every surface into a uniform color wash.
 | M5 | Eight-tap Poisson PCF | Automated checks; runtime confirmation not recorded here |
 | M6 | Constant versus angle-aware receiver bias | Automated checks; runtime confirmation remains pending |
 | M7 | Fantasy day/night sky and celestial light palette | Offline checks recorded; runtime confirmation remains pending |
-| M8 | Linear scene composition, HDR storage and final highlight mapping | Implementation branch; executed checks recorded in the milestone report |
+| M8 | Linear scene composition, HDR storage and final highlight mapping | Offline checks recorded; runtime confirmation remains pending |
+| M9 | Distance/height/weather fog with explicit opaque and late-blend scope | Implementation branch; executed checks belong in the milestone report |
 
-M6 and M7 remain available as historical branches. M8 builds on M7 without
+M6–M8 remain available as historical branches. M9 builds on M8 without
 upgrading any runtime status merely because development continues.
 
 ## Sequence of work
@@ -55,10 +56,11 @@ Each step should ship a small, reviewable increment with its own learning notes.
    baked Minecraft input product as a documented bridge, and initialize background
    colors explicitly. Future material work can migrate input operations further;
    this foundation is not a complete physical/PBR renderer.
-3. **Atmosphere with geometry — next priority.** Add distance/height fog and weather transitions;
-   treat opaque and translucent surfaces consistently. Sky horizon coloring in
-   M7 is not geometry fog. Coordinate the palette before adding volumetric light.
-4. **Clouds and controlled glow.** Develop clouds, emissive accents and bloom in
+3. **Atmosphere with geometry (M9).** Add bounded distance/height/weather fog after
+   recorded surface lighting and before known late-source blending. Keep unsupported
+   draw/blend paths explicit; expand that coverage as their contracts are verified.
+   This is a simple fog model, not shadowed volumetric scattering.
+4. **Clouds and controlled glow — next priority.** Develop clouds, emissive accents and bloom in
    separate increments. Keep each independently configurable; test bright skies,
    caves and nighttime settlements. Add volumetric effects only with an explicit
    performance budget and a useful lower-cost fallback.
@@ -115,6 +117,7 @@ runtime success. No performance improvement is claimed without measurement.
 
 - [Complementary's stated product priorities](https://www.complementary.dev/)
 - [Iris rendering program order](https://shaders.properties/current/reference/programs/overview/)
+- [M9 fog and composition learning notes](MILESTONE_9.md)
 - [M8 scene color and HDR learning notes](MILESTONE_8.md)
 - [M7 implementation and learning notes](MILESTONE_7.md)
 - [M6 shadow-bias experiment](MILESTONE_6.md)

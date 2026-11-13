@@ -1,3 +1,5 @@
+#ifndef AURORA_SKY_PALETTE_INCLUDED
+#define AURORA_SKY_PALETTE_INCLUDED
 #include "/lib/atmosphere_settings.glsl"
 #include "/lib/scene_color.glsl"
 #include "/lib/celestial.glsl"
@@ -34,3 +36,4 @@ vec3 applyAuroraSky(vec3 rayView, vec3 baseline, vec3 vanillaFog) {
     return sceneFromLinear(linearSky);
 #endif
 }
+#endif

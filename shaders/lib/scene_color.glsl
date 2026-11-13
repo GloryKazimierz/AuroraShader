@@ -1,3 +1,5 @@
+#ifndef AURORA_SCENE_COLOR_INCLUDED
+#define AURORA_SCENE_COLOR_INCLUDED
 #include "/lib/pipeline_settings.glsl"
 #include "/lib/color_space.glsl"
 
@@ -15,3 +17,4 @@ vec3 sceneFromLinear(vec3 linearColor) {
     return max(linearColor, vec3(0.0));
 #endif
 }
+#endif

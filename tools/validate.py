@@ -5,6 +5,7 @@ from itertools import product
 from functools import lru_cache
 import re
 import subprocess
+from validate_fog import historical_source, restore_fog_plumbing
 
 ROOT = Path(__file__).resolve().parents[1]
 SHADERS = ROOT / "shaders"
@@ -47,8 +48,10 @@ def preprocess(text, debug, grayscale, shadows=True, filtering=1, softness=1.0, 
             continue
         if stripped.startswith("//#define GRAYSCALE") and grayscale and active:
             macros["GRAYSCALE"] = "1"
-        if stripped.startswith("#ifdef "):
+        if stripped.startswith(("#ifdef ", "#ifndef ")):
             cond = stripped.split()[1] in macros
+            if stripped.startswith("#ifndef "):
+                cond = not cond
             stack.append([active, cond])
             active = active and cond
         elif stripped.startswith("#if ") or stripped.startswith("#elif "):
@@ -394,7 +397,7 @@ for relative in ("shaders/lib/position.glsl", "shaders/lib/lighting.glsl",
                  "shaders/shadow.vsh", "shaders/shadow.fsh", "shaders/deferred.vsh",
                  "shaders/final.vsh"):
     baseline = subprocess.check_output(["git","-C",str(ROOT),"show",BASELINE+":"+relative]).decode()
-    assert baseline.replace("\r\n","\n") == (ROOT/relative).read_text().replace("\r\n","\n"), relative
+    assert baseline.replace("\r\n","\n") == historical_source(relative, (ROOT/relative).read_text()), relative
 settings = (SHADERS/"lib/shadow_settings.glsl").read_text()
 assert re.search(r"^#define SHADOWS_ENABLED(?: //.*)?$",settings,re.M)
 assert re.search(r"^#define SHADOW_BIAS 0\.0002 //",settings,re.M)
@@ -472,7 +475,7 @@ assert receiver.count("effectiveShadowBias(normalView,lightDirectionView)") == 1
 assert "returnfilterShadow(shadowCoord,effectiveBias);" in receiver
 # Deferred only decodes its existing view normal once and passes it with the
 # existing view-space celestial light. Lambert/ambient/block math stays pinned.
-deferred = compact(function_body((SHADERS/"deferred.fsh").read_text(),"main"))
+deferred = compact(function_body(restore_fog_plumbing((SHADERS/"deferred.fsh").read_text()),"main"))
 assert "shadowVisibility(pixel,normalView,shadowLightPosition)" in deferred
 # M7 adds one palette call after the unchanged M6 lighting computation.
 restored = deferred.replace("color.rgb=applyCelestialPalette(color.rgb,normalView,levels,visibility);", "").replace(
@@ -488,10 +491,11 @@ for debug in range(6):
     new = preprocess(lighting_settings+(SHADERS/"final.fsh").read_text(),debug,False)
     assert compact(function_body(old,"main")) == compact(function_body(new,"main")).replace(
         "shadowVisibility(pixel,normalView,shadowLightPosition)", "shadowVisibility(pixel)")
-# Remove only the explicit M8 then M7 additions before the complete M5 contract.
+# Remove only the exact M9, then M8/M7 additions before the complete M5 contract.
+pre_m9_props = historical_source("shaders.properties", props)
 m8_properties_suffix = "\n# M8 scene storage/compositing and display mapping.\nscreen.COLOR_PIPELINE = SCENE_COLOR_MODE TONE_MAPPING TONEMAP_KNEE EXPOSURE\nscreen.COLOR_PIPELINE.columns = 2\n"
-assert props.endswith(m8_properties_suffix)
-pre_m8_props = props[:-len(m8_properties_suffix)].replace("screen = [COLOR_PIPELINE] ", "screen = ").replace(
+assert pre_m9_props.endswith(m8_properties_suffix)
+pre_m8_props = pre_m9_props[:-len(m8_properties_suffix)].replace("screen = [COLOR_PIPELINE] ", "screen = ").replace(
     "sliders = TONEMAP_KNEE ", "sliders = ")
 m7_properties_suffix = "\n# M7 fantasy styling; legacy controls retain their existing names.\nscreen.ATMOSPHERE = SKY_STYLE SKY_BLEND SUNSET_GLOW NIGHT_BRIGHTNESS LIGHT_PALETTE LIGHT_PALETTE_STRENGTH\nscreen.ATMOSPHERE.columns = 2\n"
 assert pre_m8_props.endswith(m7_properties_suffix)
@@ -607,3 +611,7 @@ validate_atmosphere(ROOT, expand, preprocess, compact, function_body)
 # M8 preserves prior experiments in legacy mode and adds scene-linear contracts.
 from validate_color_pipeline import validate_color_pipeline
 validate_color_pipeline(ROOT, expand, preprocess, compact, function_body)
+
+# M9 adds bounded fog and blending contracts without replacing prior baselines.
+from validate_fog import validate_fog
+validate_fog(ROOT, expand, preprocess, compact, function_body)

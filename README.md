@@ -5,8 +5,25 @@ sunsets, indigo nights, and eventually a distinctive optional aurora. The goal i
 a coherent, playable visual style with configurable performance, developed in
 small documented stages.
 
-**Current development: Milestone 8 — Linear/HDR Scene Composition**
-on `codex/milestone-8-hdr-color`, based on M7 commit `0b46bcb`.
+**Current development: Milestone 9 — Distance, Height and Weather Fog**
+on `codex/milestone-9-atmospheric-fog`, based on M8 commit `7ac62da`.
+Recorded opaque surfaces receive fog after deferred lighting. Known late terrain,
+weather and particle sources receive fog before their original framebuffer blend.
+The fog uses bounded height-dependent density, a clear near range, rain strength,
+and the existing Aurora sky palette. It is an analytic atmosphere approximation,
+not volumetric shadowing or physical multiple scattering.
+
+The **Distance and Height Fog** page controls density, clear distance, reference
+height, height scale and rain increase. Fog requires the linear scene mode;
+`FOG_ENABLED=0` disables it. The default density is 0.006 per block, clear distance
+24 blocks, reference height 64, height scale 64 and rain increase 1.
+Camera skylight access, fluids, vision effects and dimension properties limit the
+new fog. Hands, sky, clouds, glint/eye overlays and unresolved late entity paths
+are outside this first fog scope. Unknown blend modes retain their source color.
+See [M9 English learning notes](docs/MILESTONE_9.md) /
+[M9 中文原理与学习说明](docs/MILESTONE_9.zh-CN.md).
+
+**Scene color foundation (M8):**
 The default scene path stores linear RGB in RGBA16F, composites geometry and
 transparency in that space, and applies exposure, highlight mapping and display
 encoding once in final. A prepare pass initializes background fog color correctly.
@@ -73,6 +90,7 @@ Angle-Aware range is `0.0001` to `0.0005`. Hard / 3x3 / 5x5 / Poisson keep
 | M6 | Shadow Bias Robustness |
 | M7 | Fantasy day/night sky and celestial light palette |
 | M8 | Linear/HDR scene composition, exposure and soft highlight mapping |
+| M9 | Distance/height/rain fog with explicit opaque and late-source composition |
 
 Read [Milestone 6 (English)](docs/MILESTONE_6.md) /
 [中文说明](docs/MILESTONE_6.zh-CN.md), the
@@ -84,7 +102,7 @@ The [M5 Poisson experiment](docs/MILESTONE_5.md) and
 [shadow mapping study guide](docs/SHADOW_MAPPING_STUDY_GUIDE.md) remain available.
 This work does not merge into main or modify historical milestone branches.
 
-Current M8 checkout: `D:\MinecraftShaders\MyShader-pcf-kernels`. The original
+Current M9 checkout: `D:\MinecraftShaders\MyShader-pcf-kernels`. The original
 `MyShader` junction still resolves to the separate sky worktree, so it does not
 load this development branch. Follow the benchmark's test-profile setup to select the correct pack;
 this task has not created a test instance or changed a junction.
