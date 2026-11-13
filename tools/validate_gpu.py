@@ -168,9 +168,9 @@ class Runner:
         return image
 
 
-def driver_compile(runner):
+def driver_compile(runner, selected=None):
     entries = []
-    configs = list(configurations())
+    configs = list(configurations() if selected is None else selected)
     for index, (program, options) in enumerate(configs):
         pair = runner.pair(program, options)
         entries.append('{} {} {}'.format(quote('{}-{}'.format(index, program)), *map(quote, pair)))
@@ -180,7 +180,8 @@ def driver_compile(runner):
     result = runner.call('--compile-batch', manifest)
     require(result.get('compiled') == result.get('case_count') == len(configs), 'Driver compile count differs')
     return dict(configurations=len(configs), program_pairs=len(list(SHADERS.glob('*.vsh'))),
-                input='Actual expanded pack pairs with the existing offline option matrix; Iris transforms absent')
+                input=('Actual expanded pack pairs with the existing offline option matrix; Iris transforms absent' if selected is None
+                       else 'Actual expanded pack pairs with parsed quality profiles; Iris transforms absent'))
 
 
 def harness_controls(runner):
@@ -398,7 +399,7 @@ def shader_digest():
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--cxx',help='Installed MinGW g++ compiler; no download')
-    parser.add_argument('--suite',choices=('all','probe','compile','render','depth'),default='all')
+    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles'),default='all')
     parser.add_argument('--report',help='New JSON report path under the project; existing files are never overwritten')
     args=parser.parse_args()
     require(os.name=='nt','This optional WGL runner requires Windows; no GPU checks performed')
@@ -425,8 +426,13 @@ def main():
                         ('gdi generic','llvmpipe','softpipe','swrast','software rasterizer')),
                 'Software renderer detected; not recording hardware GPU success')
         print('Driver: {} / {} / {}'.format(runner.gl['vendor'],runner.gl['renderer'],runner.gl['version']),flush=True)
-        if args.suite in ('all','compile'):
-            report['driver_compile']=driver_compile(runner)
+        if args.suite in ('all','compile','profiles'):
+            selected=None
+            if args.suite=='profiles':
+                from validate_settings_profiles import load_profiles, profile_configurations
+                report['quality_profiles']=load_profiles(ROOT)
+                selected=profile_configurations(ROOT)
+            report['driver_compile']=driver_compile(runner,selected)
             print('PASS: native driver program matrix',flush=True)
         if args.suite in ('all','render','depth'):
             from validate_gpu_depth import depth_tests

@@ -9,6 +9,7 @@ import struct
 import subprocess
 from functools import lru_cache
 from itertools import product
+from validate_settings_profiles import restore_settings_profiles_source
 
 M15_BASELINE = 'bc811801441709143cbb2ef33a2db3dadc597ee7'
 LUMA = (.2126, .7152, .0722)
@@ -30,6 +31,7 @@ def restore_water_depth_source(relative,source):
     relative=relative.replace('\\','/')
     if relative.startswith('shaders/'):
         relative=relative[len('shaders/'):]
+    source=restore_settings_profiles_source(relative,source)
     if relative == 'lib/water.glsl':
         include='#include "/lib/water_depth.glsl"\n'
         assert source.count(include) == source.count(NEW_EARLY_RETURN) == source.count(DEPTH_CALL) == 1
@@ -373,7 +375,7 @@ def validate_water_depth(root,expand,preprocess,compact,function_body):
     assert len(list(shaders.glob('*.vsh'))) == len(list(shaders.glob('*.fsh'))) == 24
     assert restore_water_depth_source('lang/en_us.lang',read('lang/en_us.lang')).startswith(prior('lang/en_us.lang'))
     new_files=set(str(path.relative_to(root)).replace('\\','/') for path in shaders.rglob('*') if path.is_file())-set(old_files)
-    assert new_files == {'shaders/lib/water_depth.glsl','shaders/lib/water_depth_settings.glsl'},new_files
+    assert new_files == {'shaders/lib/water_depth.glsl','shaders/lib/water_depth_settings.glsl','shaders/lang/zh_cn.lang'},new_files
     source=read('lib/water_depth.glsl')
     assert source.startswith('#ifndef AURORA_WATER_DEPTH_INCLUDED\n#define AURORA_WATER_DEPTH_INCLUDED\n')
     assert source.endswith('#endif\n')

@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "started_utc": "2026-11-13T08:38:23.815048+00:00",
+  "suite": "profiles",
+  "shader_sha256": "a520f552055bfd3624fdda168aee0c72daf506cbc207a083bbd9ab830b58ac8e",
+  "scope": "Native OpenGL synthetic inputs only: no Iris patcher, Minecraft world, render-order/texture-binding integration, screenshots or performance measurement.",
+  "ok": true,
+  "gl": {
+    "vendor": "Intel",
+    "renderer": "Intel(R) Iris(R) Xe Graphics",
+    "version": "3.3.0 - Build 31.0.101.3962",
+    "glsl_version": "3.30 - Build 31.0.101.3962",
+    "major": 3,
+    "minor": 3,
+    "profile_mask": 2,
+    "profile": "compatibility",
+    "max_texture_size": 16384,
+    "max_texture_units": 32
+  },
+  "build": {
+    "compiler": "g++.exe",
+    "flags": [
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-static"
+    ],
+    "diagnostics": ""
+  },
+  "quality_profiles": {
+    "BALANCED": {
+      "SHADOWS_ENABLED": true,
+      "SHADOW_FILTER": "1",
+      "BLOOM_ENABLED": "1",
+      "AURORA_ENABLED": "1",
+      "WATER_WAVES": "1",
+      "WATER_DEPTH_TINT": "1"
+    },
+    "LIGHT": {
+      "SHADOWS_ENABLED": true,
+      "SHADOW_FILTER": "0",
+      "BLOOM_ENABLED": "0",
+      "AURORA_ENABLED": "0",
+      "WATER_WAVES": "0",
+      "WATER_DEPTH_TINT": "0"
+    },
+    "SOFT_SHADOWS": {
+      "SHADOWS_ENABLED": true,
+      "SHADOW_FILTER": "2",
+      "BLOOM_ENABLED": "1",
+      "AURORA_ENABLED": "1",
+      "WATER_WAVES": "1",
+      "WATER_DEPTH_TINT": "1"
+    }
+  },
+  "driver_compile": {
+    "configurations": 72,
+    "program_pairs": 24,
+    "input": "Actual expanded pack pairs with parsed quality profiles; Iris transforms absent"
+  },
+  "finished_utc": "2026-11-13T08:38:38.675593+00:00"
+}

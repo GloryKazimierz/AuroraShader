@@ -163,3 +163,11 @@ option.WATER_DEPTH_STRENGTH=Water Depth Color Strength
 option.WATER_DEPTH_STRENGTH.comment=Controls the added depth color independently of base Water Color and Sky Reflection. Zero preserves the existing source exactly.
 option.WATER_DEPTH_SCALE=Water Depth Color Scale
 option.WATER_DEPTH_SCALE.comment=Vertical distance in blocks controlling how quickly the color builds up. Background height is an approximation, not actual water volume.
+
+screen.SHADOWS=Shadows
+screen.COLOR=Color Grading
+screen.ADVANCED=Advanced and Debug
+profile.BALANCED=Balanced (Default)
+profile.LIGHT=Light
+profile.SOFT_SHADOWS=Soft Shadows
+profile.comment=Changes shadows, bloom, aurora and water effects while keeping your color, fog and advanced settings. Light uses hard shadows and turns off bloom, aurora, water waves and depth color.

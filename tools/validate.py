@@ -8,6 +8,7 @@ import subprocess
 from validate_fog import historical_source, restore_fog_plumbing
 from validate_bloom import BLOOM_PROGRAMS, BLOOM_TARGETS
 from validate_water import stage_variables
+from validate_settings_profiles import restore_settings_profiles_source
 
 ROOT = Path(__file__).resolve().parents[1]
 SHADERS = ROOT / "shaders"
@@ -126,8 +127,11 @@ for debug, grayscale, shadows, filtering, softness, bias_mode in product(
         if vertex.stem == "final" and debug:
             assert "gradeColor(scene.rgb)" not in fs
 
-props = (SHADERS / "shaders.properties").read_text()
-all_source = "\n".join(p.read_text() for p in SHADERS.rglob("*") if p.is_file())
+# Historical UI placement checks use only the exact restored M16 menu.
+# M17 validates the actual menu graph and profile selector separately below.
+raw_props = (SHADERS / "shaders.properties").read_text(encoding="utf-8")
+props = restore_settings_profiles_source("shaders.properties", raw_props)
+all_source = "\n".join(p.read_text(encoding="utf-8") for p in SHADERS.rglob("*") if p.is_file())
 options = set(re.findall(r"^\s*(?://)?#define (\w+)", all_source, re.M))
 # Validate nested option screens as a graph, including missing screens and cycles.
 screens = {}
@@ -502,7 +506,7 @@ for debug in range(6):
     assert compact(function_body(old,"main")) == compact(function_body(new,"main")).replace(
         "shadowVisibility(pixel,normalView,shadowLightPosition)", "shadowVisibility(pixel)")
 # Remove only the exact M9, then M8/M7 additions before the complete M5 contract.
-pre_m9_props = historical_source("shaders.properties", props)
+pre_m9_props = historical_source("shaders.properties", raw_props)
 m8_properties_suffix = "\n# M8 scene storage/compositing and display mapping.\nscreen.COLOR_PIPELINE = SCENE_COLOR_MODE TONE_MAPPING TONEMAP_KNEE EXPOSURE\nscreen.COLOR_PIPELINE.columns = 2\n"
 assert pre_m9_props.endswith(m8_properties_suffix)
 pre_m8_props = pre_m9_props[:-len(m8_properties_suffix)].replace("screen = [COLOR_PIPELINE] ", "screen = ").replace(
@@ -649,3 +653,7 @@ validate_water_waves(ROOT, expand, preprocess, compact, function_body)
 # M16 measures same-ray world depth without changing alpha, waves or reflection.
 from validate_water_depth import validate_water_depth
 validate_water_depth(ROOT, expand, preprocess, compact, function_body)
+
+# M17 preserves shader defaults and groups every control exactly once.
+from validate_settings_profiles import validate_settings_profiles
+validate_settings_profiles(ROOT)

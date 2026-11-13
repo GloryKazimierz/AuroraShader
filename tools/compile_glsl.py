@@ -132,14 +132,23 @@ def configurations():
                                     WATER_DEPTH_TINT=depth_color, WATER_WAVES=waves,
                                     FOG_ENABLED=fog, WATER_REFLECTION_STRENGTH=.75)
 
+    # M17 adds actual profile selections without replacing prior configurations.
+    from validate_settings_profiles import profile_configurations
+    yield from profile_configurations(ROOT)
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--compiler', help='Path to installed glslangValidator')
+    parser.add_argument('--profiles-only', action='store_true', help='Compile only the 72 actual M17 profile/program pairs')
     args = parser.parse_args()
     compiler = args.compiler or shutil.which('glslangValidator')
     if not compiler:
         raise SystemExit('glslangValidator unavailable; install separately or pass --compiler. No runtime validation performed.')
-    configs = list(configurations())
+    if args.profiles_only:
+        from validate_settings_profiles import profile_configurations
+        configs = list(profile_configurations(ROOT))
+    else:
+        configs = list(configurations())
     # Generated source stays on the same drive as the project and out of Git.
     scratch_parent = ROOT.parent.resolve()
     scratch = Path(tempfile.mkdtemp(prefix='aurora-glsl-', dir=str(scratch_parent))).resolve()
