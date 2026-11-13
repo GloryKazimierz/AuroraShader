@@ -4,6 +4,7 @@ import re
 import subprocess
 from validate_fog import historical_source, restore_fog_plumbing
 from itertools import product
+from validate_aurora import restore_aurora_plumbing
 
 M6_BASELINE = "5479a1c3b2b579e965cdb43681422abcb45b6b79"
 
@@ -125,7 +126,7 @@ def validate_atmosphere(root, expand, preprocess, compact, function_body):
     # Disabled branches return the original color before any transfer functions.
     for style, palette in product((0,1), repeat=2):
         overrides = {'SKY_STYLE':style, 'LIGHT_PALETTE':palette, 'SCENE_COLOR_MODE':0}
-        sky_source = preprocess(expand(shaders/'gbuffers_skybasic.fsh'),0,False,overrides=overrides)
+        sky_source = restore_aurora_plumbing(preprocess(expand(shaders/'gbuffers_skybasic.fsh'),0,False,overrides=overrides))
         deferred_source = preprocess(expand(shaders/'deferred.fsh'),0,False,overrides=overrides)
         if style == 0:
             assert compact(function_body(sky_source,'sceneFromDisplay')) == 'returndisplayColor;'

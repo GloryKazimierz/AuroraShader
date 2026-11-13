@@ -18,11 +18,11 @@ The proposed visual vocabulary is:
 | Dawn/dusk | Coral/gold near the sun, violet away from it | Preserve cloud and horizon detail |
 | Night | Indigo sky, cool moonlight, warm local lights | Terrain and silhouettes remain usable |
 | Weather | Muted palettes with coherent transitions | Rain should not leave a clear sunny backdrop |
-| Signature night | A future teal/green aurora treatment | Optional and restrained enough for normal play |
+| Signature night | M11 teal/violet sky-only aurora | Optional and restrained enough for normal play |
 
-An aurora is a future candidate, not a feature already implemented. Rich color
-should be concentrated in lighting, atmosphere and emissive accents, rather than
-turning every surface into a uniform color wash.
+M11 introduces a bounded sky-only aurora; its runtime appearance remains unconfirmed.
+Rich color should be concentrated in lighting, atmosphere and emissive accents,
+rather than turning every surface into a uniform color wash.
 
 ## What exists
 
@@ -38,9 +38,10 @@ turning every surface into a uniform color wash.
 | M7 | Fantasy day/night sky and celestial light palette | Offline checks recorded; runtime confirmation remains pending |
 | M8 | Linear scene composition, HDR storage and final highlight mapping | Offline checks recorded; runtime confirmation remains pending |
 | M9 | Distance/height/weather fog with explicit opaque and late-blend scope | Offline checks recorded; runtime confirmation remains pending |
-| M10 | Controlled linear HDR bright-pixel bloom at half resolution | Implementation branch; executed checks belong in the milestone report |
+| M10 | Controlled linear HDR bright-pixel bloom at half resolution | Offline checks recorded; runtime confirmation remains pending |
+| M11 | World-oriented, night/weather-gated procedural sky aurora | Implementation branch; executed checks belong in the milestone report |
 
-M6–M9 remain available as historical branches. M10 builds on M9 without
+M6–M10 remain available as historical branches. M11 builds on M10 without
 upgrading any runtime status merely because development continues.
 
 ## Sequence of work
@@ -65,13 +66,14 @@ Each step should ship a small, reviewable increment with its own learning notes.
    area averaging, blur with a fixed separable kernel and add before final display
    mapping. This is not material emission; sky and held items can contribute. Keep
    its pass/storage cost explicit, including when the effect is off.
-5. **Distinctive night identity — next priority.** Evaluate a bounded, sky-only
-   teal/violet aurora as the next independent milestone. Its architecture is under
-   review; this remains proposed work, not an implemented feature. Preserve clear
-   silhouettes and useful night visibility.
-6. **Clouds and atmosphere detail.** Develop clouds and weather refinements in
-   separate increments. Volumetric effects need an explicit performance budget and
-   a useful lower-cost fallback; first retain coherent sky/fog composition.
+5. **Distinctive night identity (M11).** Add bounded teal/violet ribbons only to
+   the ordinary upper sky. Use world-oriented directions, periodic motion and
+   night/weather/environment gates. Keep native celestial-body/star paths and
+   geometry fog separate; this is not physical auroral scattering or a light source.
+6. **Cloud composition — next priority.** Establish explicit overlap between clouds,
+   celestial bodies, aurora and the existing sky/fog palette before extending cloud
+   rendering. Develop weather refinements in separate increments. Volumetric effects
+   still need a performance budget and a useful lower-cost fallback.
 7. **Water and material response.** Add water color, transmission, waves and
    reflection incrementally. Evaluate screen-space reflections, emission data and
    material conventions when the scene buffers and transparency handling support them.
@@ -125,6 +127,7 @@ runtime success. No performance improvement is claimed without measurement.
 
 - [Complementary's stated product priorities](https://www.complementary.dev/)
 - [Iris rendering program order](https://shaders.properties/current/reference/programs/overview/)
+- [M11 procedural sky aurora learning notes](MILESTONE_11.md)
 - [M10 controlled bloom learning notes](MILESTONE_10.md)
 - [M9 fog and composition learning notes](MILESTONE_9.md)
 - [M8 scene color and HDR learning notes](MILESTONE_8.md)

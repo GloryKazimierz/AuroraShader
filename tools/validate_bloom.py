@@ -5,6 +5,7 @@ import struct
 import subprocess
 from functools import lru_cache
 from itertools import product
+from validate_aurora import restore_aurora_source
 
 HALF_MAX = 65504.0
 KERNEL = tuple(math.factorial(8)/(math.factorial(i)*math.factorial(8-i)*256) for i in range(9))
@@ -115,7 +116,7 @@ def close(a, b, tolerance=1e-10):
 def validate_bloom(root, expand, preprocess, compact, function_body):
     shaders = root/'shaders'
     def read(relative):
-        return (shaders/relative).read_text(encoding='utf-8')
+        return restore_aurora_source(relative, (shaders/relative).read_text(encoding='utf-8'))
     @lru_cache(maxsize=None)
     def prior(relative):
         return subprocess.check_output(['git','-C',str(root),'show',M9_BASELINE+':shaders/'+relative]).decode().replace('\r\n','\n')

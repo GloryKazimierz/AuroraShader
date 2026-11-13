@@ -34,7 +34,7 @@ def configure(source, overrides):
             line = ('//#define ' + key) if value is False else '#define ' + key + ' ' + str(value)
         lines.append(line)
     # Distinct compile-only placeholders. Iris provides actual stage constants at runtime.
-    lines[1:1] = ['#define MC_RENDER_STAGE_STARS 5', '#define MC_RENDER_STAGE_VOID 6']
+    lines[1:1] = ['#define MC_RENDER_STAGE_SKY 4', '#define MC_RENDER_STAGE_STARS 5', '#define MC_RENDER_STAGE_VOID 6']
     return '\n'.join(lines) + '\n'
 
 def configurations():
@@ -80,6 +80,14 @@ def configurations():
         for strength, threshold, knee in product((0.0, .2), (.5, 1.0, 1.5, 2.0), (0.0, .25, .5, 1.0)):
             yield program, dict(SCENE_COLOR_MODE=1, BLOOM_ENABLED=1, BLOOM_STRENGTH=strength,
                                 BLOOM_THRESHOLD=threshold, BLOOM_SOFT_KNEE=knee)
+
+    # M11: every compile-time aurora gate and every exposed intensity/speed choice.
+    for mode, enabled, style, debug in product((0, 1), (0, 1), (0, 1), range(7)):
+        yield 'gbuffers_skybasic', dict(SCENE_COLOR_MODE=mode, AURORA_ENABLED=enabled,
+                                      SKY_STYLE=style, DEBUG_VIEW=debug)
+    for intensity, speed, blend in product((0.0, .3, .6, 1.0), (0, 1, 2), (0.0, 1.0)):
+        yield 'gbuffers_skybasic', dict(SCENE_COLOR_MODE=1, AURORA_ENABLED=1,
+                                      AURORA_INTENSITY=intensity, AURORA_SPEED=speed, SKY_BLEND=blend)
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)

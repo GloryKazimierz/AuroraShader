@@ -629,3 +629,7 @@ validate_fog(ROOT, expand, preprocess, compact, function_body)
 # M10 preserves M9 shaders and adds the four bloom passes.
 from validate_bloom import validate_bloom
 validate_bloom(ROOT, expand, preprocess, compact, function_body)
+
+# M11 preserves previous passes and adds sky-only procedural night ribbons.
+from validate_aurora import validate_aurora
+validate_aurora(ROOT, expand, preprocess, compact, function_body)

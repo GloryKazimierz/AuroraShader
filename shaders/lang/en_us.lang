@@ -107,3 +107,16 @@ option.BLOOM_THRESHOLD=Bloom Threshold
 option.BLOOM_THRESHOLD.comment=Peak scene-linear RGB before exposure. Bright sky and held items can contribute; this is not a material emission mask.
 option.BLOOM_SOFT_KNEE=Bloom Soft Transition
 option.BLOOM_SOFT_KNEE.comment=Fraction of threshold used for the transition half-width. Zero gives a hard threshold; larger values admit some lower highlights.
+
+screen.AURORA=Aurora Night Ribbons
+option.AURORA_ENABLED=Night Aurora
+value.AURORA_ENABLED.0=Off
+value.AURORA_ENABLED.1=On
+option.AURORA_ENABLED.comment=Teal and violet sky ribbons toward north on clear nights. Requires Aurora Sky and linear scene mode; does not illuminate terrain.
+option.AURORA_INTENSITY=Aurora Intensity
+option.AURORA_INTENSITY.comment=Linear light added to the upper sky only. Zero preserves the original sky; also fades with Sky Blend, rain and vision effects.
+option.AURORA_SPEED=Aurora Motion
+value.AURORA_SPEED.0=Frozen
+value.AURORA_SPEED.1=Normal
+value.AURORA_SPEED.2=Double
+option.AURORA_SPEED.comment=Periodic 200-second motion at normal speed. Frozen uses the fixed zero phase, not the current frame.

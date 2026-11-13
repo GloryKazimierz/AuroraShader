@@ -9,6 +9,7 @@ import subprocess
 from functools import lru_cache
 from itertools import product
 from validate_bloom import BLOOM_PROGRAMS, restore_bloom_properties
+from validate_aurora import restore_aurora_source
 
 M8_BASELINE = '7ac62da5bada1ab0fd0eb6c66cb27222d6ed3586'
 GUARDED = ('pipeline_settings', 'color_space', 'scene_color', 'atmosphere_settings',
@@ -53,7 +54,7 @@ def historical_source(relative, source):
     relative = relative.replace('\\', '/')
     if relative.startswith('shaders/'):
         relative = relative[len('shaders/'):]
-    source = source.replace('\r\n', '\n')
+    source = restore_aurora_source(relative, source.replace('\r\n', '\n'))
     for name in GUARDED:
         if relative == 'lib/' + name + '.glsl':
             guard = 'AURORA_' + name.upper() + '_INCLUDED'

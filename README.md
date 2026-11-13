@@ -1,12 +1,31 @@
 # AuroraShader
 
 AuroraShader is growing into a rich fantasy shader pack: azure days, coral/gold
-sunsets, indigo nights, and eventually a distinctive optional aurora. The goal is
+sunsets, indigo nights, and optional teal/violet aurora ribbons. The goal is
 a coherent, playable visual style with configurable performance, developed in
 small documented stages.
 
-**Current development: Milestone 10 — Controlled HDR Bloom**
-on `codex/milestone-10-bloom`, based on M9 commit `3c5a2ab`.
+**Current development: Milestone 11 — Aurora Night Ribbons**
+on `codex/milestone-11-aurora`, based on M10 commit `9e9bbc0`.
+Optional teal cores and violet trails animate toward the northern night sky. They
+use world-oriented directions, fade with daylight/rain/vision effects, and are
+restricted to Iris's upper sky background. The original star/sun/moon paths, fog
+palette, terrain lighting and bloom algorithm are unchanged.
+
+The **Aurora Night Ribbons** page exposes enable, intensity and motion: defaults
+are on, 0.6 and normal. Normal motion loops every 200 seconds; double is 100;
+Frozen uses a fixed zero phase. Integer harmonics also join across Iris's
+3600-second timer reset. Legacy scene/sky modes, debug views and zero intensity
+bypass the effect. No extra texture, attachment or program pair is added.
+
+This is a bounded artistic sky pattern, with no physical aurora volume, positional
+parallax or terrain illumination. Runtime appearance and cost remain unmeasured.
+A [CPU mathematical preview](docs/images/aurora-math-preview.png) isolates the
+ribbon shape on a synthetic background; it is not a Minecraft screenshot.
+See [M11 English learning notes](docs/MILESTONE_11.md) /
+[M11 中文原理与学习说明](docs/MILESTONE_11.zh-CN.md).
+
+**Controlled glow foundation (M10):**
 Bright scene pixels are extracted before area downsampling, softened with two
 separable 9-tap filters at half resolution, and added before final exposure and
 tone mapping. The **Controlled Bloom** page exposes enable, strength, threshold
@@ -108,6 +127,7 @@ Angle-Aware range is `0.0001` to `0.0005`. Hard / 3x3 / 5x5 / Poisson keep
 | M8 | Linear/HDR scene composition, exposure and soft highlight mapping |
 | M9 | Distance/height/rain fog with explicit opaque and late-source composition |
 | M10 | Half-resolution HDR bright-pixel bloom with separable filtering |
+| M11 | Bounded world-oriented teal/violet night-sky ribbons |
 
 Read [Milestone 6 (English)](docs/MILESTONE_6.md) /
 [中文说明](docs/MILESTONE_6.zh-CN.md), the
@@ -119,7 +139,7 @@ The [M5 Poisson experiment](docs/MILESTONE_5.md) and
 [shadow mapping study guide](docs/SHADOW_MAPPING_STUDY_GUIDE.md) remain available.
 This work does not merge into main or modify historical milestone branches.
 
-Current M10 checkout: `D:\MinecraftShaders\MyShader-pcf-kernels`. The original
+Current M11 checkout: `D:\MinecraftShaders\MyShader-pcf-kernels`. The original
 `MyShader` junction still resolves to the separate sky worktree, so it does not
 load this development branch. Follow the benchmark's test-profile setup to select the correct pack;
 this task has not created a test instance or changed a junction.

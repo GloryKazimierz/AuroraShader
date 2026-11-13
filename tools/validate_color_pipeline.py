@@ -8,6 +8,7 @@ from functools import lru_cache
 from itertools import product
 from validate_atmosphere import decode, encode, clamp
 from validate_bloom import BLOOM_PROGRAMS
+from validate_aurora import restore_aurora_plumbing
 
 M7_BASELINE = '0b46bcb663363df21e0b45a89c26b427afe04eeb'
 
@@ -37,8 +38,8 @@ def validate_color_pipeline(root, expand, preprocess, compact, function_body):
         return re.sub(r'^#include "([^"]+)"\s*$',
                       lambda m: old_expand(m[1].lstrip('/')), prior(relative), flags=re.M)
     def processed(relative, mode, debug=0, grayscale=False, **options):
-        return restore_fog_plumbing(preprocess(expand(shaders/relative), debug, grayscale,
-                          overrides=dict(SCENE_COLOR_MODE=mode, **options)))
+        return restore_aurora_plumbing(restore_fog_plumbing(preprocess(expand(shaders/relative), debug, grayscale,
+                          overrides=dict(SCENE_COLOR_MODE=mode, **options))))
     def body(source, name):
         return compact(function_body(source,name))
 
