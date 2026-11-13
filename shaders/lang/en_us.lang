@@ -95,3 +95,15 @@ option.FOG_HEIGHT_FALLOFF=Fog Height Scale
 option.FOG_HEIGHT_FALLOFF.comment=Larger values let dense fog extend higher above the reference height.
 option.FOG_RAIN_BOOST=Rain Fog Increase
 option.FOG_RAIN_BOOST.comment=Extra density in rain. One doubles clear-weather density at full rain strength.
+
+screen.BLOOM=Controlled Bloom
+option.BLOOM_ENABLED=Bloom
+value.BLOOM_ENABLED.0=Off
+value.BLOOM_ENABLED.1=On
+option.BLOOM_ENABLED.comment=Soft highlight spread in linear scene mode; bypassed in debug views. The four passes remain allocated when off.
+option.BLOOM_STRENGTH=Bloom Strength
+option.BLOOM_STRENGTH.comment=Amount added before final exposure and tone mapping. Zero preserves the original scene exactly.
+option.BLOOM_THRESHOLD=Bloom Threshold
+option.BLOOM_THRESHOLD.comment=Peak scene-linear RGB before exposure. Bright sky and held items can contribute; this is not a material emission mask.
+option.BLOOM_SOFT_KNEE=Bloom Soft Transition
+option.BLOOM_SOFT_KNEE.comment=Fraction of threshold used for the transition half-width. Zero gives a hard threshold; larger values admit some lower highlights.

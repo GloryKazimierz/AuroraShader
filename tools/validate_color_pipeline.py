@@ -7,6 +7,7 @@ from validate_fog import historical_source, restore_fog_plumbing
 from functools import lru_cache
 from itertools import product
 from validate_atmosphere import decode, encode, clamp
+from validate_bloom import BLOOM_PROGRAMS
 
 M7_BASELINE = '0b46bcb663363df21e0b45a89c26b427afe04eeb'
 
@@ -67,7 +68,8 @@ def validate_color_pipeline(root, expand, preprocess, compact, function_body):
         assert 'sceneFromDisplay(color.a)' not in source and 'sceneFromDisplay(glcolor.a)' not in source
     # Every original geometry category must reach one converted producer.
     programs=sorted(shaders.glob('*.vsh'))
-    assert len(programs) == 20
+    assert len(programs) == 24
+    assert len([p for p in programs if p.stem not in BLOOM_PROGRAMS]) == 20
     for mode in (0,1):
         for vertex in programs:
             fragment=vertex.with_suffix('.fsh')

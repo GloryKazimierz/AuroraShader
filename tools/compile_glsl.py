@@ -71,6 +71,16 @@ def configurations():
                                 FOG_START=start, FOG_BASE_HEIGHT=base,
                                 FOG_HEIGHT_FALLOFF=falloff, FOG_RAIN_BOOST=rain)
 
+    # M10: active and bypass code in every scene/debug combination on all passes.
+    for program in ('composite', 'composite1', 'composite2', 'composite3'):
+        for mode, enabled, debug in product((0, 1), (0, 1), range(7)):
+            yield program, dict(SCENE_COLOR_MODE=mode, BLOOM_ENABLED=enabled, DEBUG_VIEW=debug)
+        # Every threshold/knee choice with zero and maximum intensity; intermediate
+        # strengths use identical shader paths and are covered numerically.
+        for strength, threshold, knee in product((0.0, .2), (.5, 1.0, 1.5, 2.0), (0.0, .25, .5, 1.0)):
+            yield program, dict(SCENE_COLOR_MODE=1, BLOOM_ENABLED=1, BLOOM_STRENGTH=strength,
+                                BLOOM_THRESHOLD=threshold, BLOOM_SOFT_KNEE=knee)
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--compiler', help='Path to installed glslangValidator')

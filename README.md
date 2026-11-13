@@ -5,8 +5,24 @@ sunsets, indigo nights, and eventually a distinctive optional aurora. The goal i
 a coherent, playable visual style with configurable performance, developed in
 small documented stages.
 
-**Current development: Milestone 9 — Distance, Height and Weather Fog**
-on `codex/milestone-9-atmospheric-fog`, based on M8 commit `7ac62da`.
+**Current development: Milestone 10 — Controlled HDR Bloom**
+on `codex/milestone-10-bloom`, based on M9 commit `3c5a2ab`.
+Bright scene pixels are extracted before area downsampling, softened with two
+separable 9-tap filters at half resolution, and added before final exposure and
+tone mapping. The **Controlled Bloom** page exposes enable, strength, threshold
+and soft transition. Defaults are on, 0.08, 1.0 and 0.5 respectively.
+
+Bloom preserves scene alpha and bypasses legacy mode, debug views, off and zero
+strength. It selects bright RGB, not material emissiveness, so sky and held items
+can contribute. The fixed small kernel is the first controlled glow step, not a
+multi-scale cinematic bloom. Two half-resolution RGBA16F scratch attachments and
+four fullscreen passes are added; disabling the effect does not yet remove that
+allocation/pass cost. Both viewport dimensions must be at least two pixels.
+Appearance and GPU cost remain unmeasured in Minecraft/Iris.
+See [M10 English learning notes](docs/MILESTONE_10.md) /
+[M10 中文原理与学习说明](docs/MILESTONE_10.zh-CN.md).
+
+**Atmosphere foundation (M9):**
 Recorded opaque surfaces receive fog after deferred lighting. Known late terrain,
 weather and particle sources receive fog before their original framebuffer blend.
 The fog uses bounded height-dependent density, a clear near range, rain strength,
@@ -91,6 +107,7 @@ Angle-Aware range is `0.0001` to `0.0005`. Hard / 3x3 / 5x5 / Poisson keep
 | M7 | Fantasy day/night sky and celestial light palette |
 | M8 | Linear/HDR scene composition, exposure and soft highlight mapping |
 | M9 | Distance/height/rain fog with explicit opaque and late-source composition |
+| M10 | Half-resolution HDR bright-pixel bloom with separable filtering |
 
 Read [Milestone 6 (English)](docs/MILESTONE_6.md) /
 [中文说明](docs/MILESTONE_6.zh-CN.md), the
@@ -102,7 +119,7 @@ The [M5 Poisson experiment](docs/MILESTONE_5.md) and
 [shadow mapping study guide](docs/SHADOW_MAPPING_STUDY_GUIDE.md) remain available.
 This work does not merge into main or modify historical milestone branches.
 
-Current M9 checkout: `D:\MinecraftShaders\MyShader-pcf-kernels`. The original
+Current M10 checkout: `D:\MinecraftShaders\MyShader-pcf-kernels`. The original
 `MyShader` junction still resolves to the separate sky worktree, so it does not
 load this development branch. Follow the benchmark's test-profile setup to select the correct pack;
 this task has not created a test instance or changed a junction.

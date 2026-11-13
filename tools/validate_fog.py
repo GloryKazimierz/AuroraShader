@@ -8,6 +8,7 @@ import re
 import subprocess
 from functools import lru_cache
 from itertools import product
+from validate_bloom import BLOOM_PROGRAMS, restore_bloom_properties
 
 M8_BASELINE = '7ac62da5bada1ab0fd0eb6c66cb27222d6ed3586'
 GUARDED = ('pipeline_settings', 'color_space', 'scene_color', 'atmosphere_settings',
@@ -68,6 +69,7 @@ def historical_source(relative, source):
     if relative in tuple(name + '.fsh' for name in LATE_PROGRAMS):
         source = remove_once(source, '#define APPLY_LATE_FOG\n')
     if relative == 'shaders.properties':
+        source = restore_bloom_properties(source)
         assert source.endswith(FOG_PROPERTIES)
         source = source[:-len(FOG_PROPERTIES)]
         source = source.replace('screen = [FOG] ', 'screen = ', 1).replace(
@@ -149,7 +151,10 @@ def validate_fog(root, expand, preprocess, compact, function_body):
         if relative.endswith(('.glsl', '.vsh', '.fsh')) or relative == 'shaders.properties':
             assert historical_source(relative, read(relative)) == prior(relative), relative
             pinned += 1
-    assert len(list(shaders.glob('*.vsh'))) == len(list(shaders.glob('*.fsh'))) == 20
+    for extension in ('vsh','fsh'):
+        programs = list(shaders.glob('*.'+extension))
+        assert len(programs) == 24
+        assert len([p for p in programs if p.stem not in BLOOM_PROGRAMS]) == 20
     fog = read('lib/fog.glsl')
     fog_compact = compact(fog)
     for token in (

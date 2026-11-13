@@ -37,9 +37,10 @@ turning every surface into a uniform color wash.
 | M6 | Constant versus angle-aware receiver bias | Automated checks; runtime confirmation remains pending |
 | M7 | Fantasy day/night sky and celestial light palette | Offline checks recorded; runtime confirmation remains pending |
 | M8 | Linear scene composition, HDR storage and final highlight mapping | Offline checks recorded; runtime confirmation remains pending |
-| M9 | Distance/height/weather fog with explicit opaque and late-blend scope | Implementation branch; executed checks belong in the milestone report |
+| M9 | Distance/height/weather fog with explicit opaque and late-blend scope | Offline checks recorded; runtime confirmation remains pending |
+| M10 | Controlled linear HDR bright-pixel bloom at half resolution | Implementation branch; executed checks belong in the milestone report |
 
-M6–M8 remain available as historical branches. M9 builds on M8 without
+M6–M9 remain available as historical branches. M10 builds on M9 without
 upgrading any runtime status merely because development continues.
 
 ## Sequence of work
@@ -60,16 +61,23 @@ Each step should ship a small, reviewable increment with its own learning notes.
    recorded surface lighting and before known late-source blending. Keep unsupported
    draw/blend paths explicit; expand that coverage as their contracts are verified.
    This is a simple fog model, not shadowed volumetric scattering.
-4. **Clouds and controlled glow — next priority.** Develop clouds, emissive accents and bloom in
-   separate increments. Keep each independently configurable; test bright skies,
-   caves and nighttime settlements. Add volumetric effects only with an explicit
-   performance budget and a useful lower-cost fallback.
-5. **Water and material response.** Add water color, transmission, waves and
-   reflection incrementally. Evaluate screen-space reflections and material
-   conventions when the scene buffers and transparency handling can support them.
-6. **Aurora signature and completeness.** Explore optional aurora/night phenomena,
-   distinct dimension palettes, vegetation motion, performance profiles and broad
-   compatibility. Maintain clear gameplay silhouettes and stable temporal behavior.
+4. **Controlled glow (M10).** Extract bright linear scene pixels before half-resolution
+   area averaging, blur with a fixed separable kernel and add before final display
+   mapping. This is not material emission; sky and held items can contribute. Keep
+   its pass/storage cost explicit, including when the effect is off.
+5. **Distinctive night identity — next priority.** Evaluate a bounded, sky-only
+   teal/violet aurora as the next independent milestone. Its architecture is under
+   review; this remains proposed work, not an implemented feature. Preserve clear
+   silhouettes and useful night visibility.
+6. **Clouds and atmosphere detail.** Develop clouds and weather refinements in
+   separate increments. Volumetric effects need an explicit performance budget and
+   a useful lower-cost fallback; first retain coherent sky/fog composition.
+7. **Water and material response.** Add water color, transmission, waves and
+   reflection incrementally. Evaluate screen-space reflections, emission data and
+   material conventions when the scene buffers and transparency handling support them.
+8. **Completeness.** Explore distinct dimension palettes, vegetation motion,
+   performance profiles and broad compatibility. Maintain clear gameplay silhouettes
+   and stable temporal behavior.
 
 Shadow improvements such as receiver-plane depth correction remain available
 when observed artifacts justify them. A larger menu of shadow algorithms is not
@@ -117,6 +125,7 @@ runtime success. No performance improvement is claimed without measurement.
 
 - [Complementary's stated product priorities](https://www.complementary.dev/)
 - [Iris rendering program order](https://shaders.properties/current/reference/programs/overview/)
+- [M10 controlled bloom learning notes](MILESTONE_10.md)
 - [M9 fog and composition learning notes](MILESTONE_9.md)
 - [M8 scene color and HDR learning notes](MILESTONE_8.md)
 - [M7 implementation and learning notes](MILESTONE_7.md)

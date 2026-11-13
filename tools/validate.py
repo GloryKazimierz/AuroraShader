@@ -6,6 +6,7 @@ from functools import lru_cache
 import re
 import subprocess
 from validate_fog import historical_source, restore_fog_plumbing
+from validate_bloom import BLOOM_PROGRAMS, BLOOM_TARGETS
 
 ROOT = Path(__file__).resolve().parents[1]
 SHADERS = ROOT / "shaders"
@@ -55,9 +56,16 @@ def preprocess(text, debug, grayscale, shadows=True, filtering=1, softness=1.0, 
             stack.append([active, cond])
             active = active and cond
         elif stripped.startswith("#if ") or stripped.startswith("#elif "):
-            match = re.fullmatch(r"#(?:if|elif) (\w+) == (\d+)", stripped)
-            assert match, "Unsupported conditional: " + stripped
-            cond = macros.get(match[1], "0") == match[2]
+            # A deliberately narrow expression grammar: equality/inequality
+            # clauses joined by OR. Never evaluate source as Python code.
+            clauses = stripped.split(" ", 1)[1].split("||")
+            conditions = []
+            for clause in clauses:
+                match = re.fullmatch(r"(\w+)\s+(==|!=)\s+(\d+)", clause.strip())
+                assert match, "Unsupported conditional: " + stripped
+                equal = macros.get(match[1], "0") == match[3]
+                conditions.append(equal if match[2] == "==" else not equal)
+            cond = any(conditions)
             if stripped.startswith("#if "):
                 stack.append([active, cond])
                 active = active and cond
@@ -77,7 +85,8 @@ def preprocess(text, debug, grayscale, shadows=True, filtering=1, softness=1.0, 
     return "\n".join(result).replace("SHADOW_SOFTNESS", str(softness))
 
 pairs = sorted(SHADERS.glob("*.vsh"))
-assert len(pairs) == 20
+assert len(pairs) == 24
+assert len([p for p in pairs if p.stem not in BLOOM_PROGRAMS]) == 20
 writers = {"gbuffers_terrain", "gbuffers_block", "gbuffers_entities"}
 for debug, grayscale, shadows, filtering, softness, bias_mode in product(
         range(7), (False,True), (False,True), (0,1,2,3), (0.0,.5,1.0,1.5,2.0), (0,1)):
@@ -109,7 +118,8 @@ for debug, grayscale, shadows, filtering, softness, bias_mode in product(
             assert not targets
         else:
             assert len(targets) == 1
-            assert list(map(int, targets[0].split(","))) == expected
+            expected_targets = [BLOOM_TARGETS[vertex.stem]] if vertex.stem in BLOOM_TARGETS else expected
+            assert list(map(int, targets[0].split(","))) == expected_targets
         if vertex.stem in writers:
             assert "writeSurfaceData(lmcoord);" in fs
             assert "gl_NormalMatrix * gl_Normal" in vs
@@ -177,7 +187,7 @@ for relative in ("shaders/lib/color.glsl", "shaders/lib/settings.glsl"):
         assert strip(preprocess(baseline, 0, False)) == strip(legacy)
     else:
         assert baseline.replace("\r\n", "\n") == current.replace("\r\n", "\n")
-print("PASS: 20 program pairs x 7 debug views x 2 bias modes x 2 grayscale states x 2 shadow states x 4 filters x 5 softness values")
+print("PASS: 24 program pairs (20 original + 4 bloom) x 7 debug views x 2 bias modes x 2 grayscale states x 2 shadow states x 4 filters x 5 softness values")
 print("PASS: includes, conditionals, stage interfaces, MRT routing, option references")
 print("PASS: normal round trips, lightmap endpoints, cave/torch/disabled invariants")
 print("PASS: Milestone 1 legacy grading code/defaults preserved; HDR exposure tested separately")
@@ -615,3 +625,7 @@ validate_color_pipeline(ROOT, expand, preprocess, compact, function_body)
 # M9 adds bounded fog and blending contracts without replacing prior baselines.
 from validate_fog import validate_fog
 validate_fog(ROOT, expand, preprocess, compact, function_body)
+
+# M10 preserves M9 shaders and adds the four bloom passes.
+from validate_bloom import validate_bloom
+validate_bloom(ROOT, expand, preprocess, compact, function_body)
