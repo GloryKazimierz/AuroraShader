@@ -38,18 +38,24 @@ def configure(source, overrides):
     return '\n'.join(lines) + '\n'
 
 def configurations():
-    for path in sorted(SHADERS.glob('*.vsh')):
-        yield path.stem, {}
-    for style, blend, sunset, night in product((0, 1), (0.0, 1.0), (0.0, 1.5), (0.5, 2.0)):
-        yield 'gbuffers_skybasic', dict(SKY_STYLE=style, SKY_BLEND=blend,
-                                       SUNSET_GLOW=sunset, NIGHT_BRIGHTNESS=night)
-    for palette, bias, filtering, shadows, strength in product((0, 1), (0, 1), range(4), (False, True), (0.0, 1.0)):
-        yield 'deferred', dict(LIGHT_PALETTE=palette, SHADOW_BIAS_MODE=bias,
-                               SHADOW_FILTER=filtering, SHADOWS_ENABLED=shadows,
-                               LIGHTING_STRENGTH=strength)
-    for debug, filtering, bias in product(range(7), range(4), (0, 1)):
-        yield 'final', dict(DEBUG_VIEW=debug, SHADOW_FILTER=filtering, SHADOW_BIAS_MODE=bias)
-    yield 'final', dict(GRAYSCALE=True)
+    # Every geometry category, prepare and fullscreen path in both storage modes.
+    for mode in (0, 1):
+        for path in sorted(SHADERS.glob('*.vsh')):
+            yield path.stem, dict(SCENE_COLOR_MODE=mode)
+        for style, blend, sunset, night in product((0, 1), (0.0, 1.0), (0.0, 1.5), (0.5, 2.0)):
+            yield 'gbuffers_skybasic', dict(SCENE_COLOR_MODE=mode, SKY_STYLE=style, SKY_BLEND=blend,
+                                           SUNSET_GLOW=sunset, NIGHT_BRIGHTNESS=night)
+        for palette, bias, filtering, shadows, strength in product((0, 1), (0, 1), range(4), (False, True), (0.0, 1.0)):
+            yield 'deferred', dict(SCENE_COLOR_MODE=mode, LIGHT_PALETTE=palette, SHADOW_BIAS_MODE=bias,
+                                   SHADOW_FILTER=filtering, SHADOWS_ENABLED=shadows,
+                                   LIGHTING_STRENGTH=strength)
+        for debug, filtering, bias in product(range(7), range(4), (0, 1)):
+            yield 'final', dict(SCENE_COLOR_MODE=mode, DEBUG_VIEW=debug,
+                                SHADOW_FILTER=filtering, SHADOW_BIAS_MODE=bias)
+        yield 'final', dict(SCENE_COLOR_MODE=mode, GRAYSCALE=True)
+    for mapping, knee, exposure, grayscale in product((0, 1), (.4, .6, .8), (-2.0, 0.0, 2.0), (False, True)):
+        yield 'final', dict(SCENE_COLOR_MODE=1, TONE_MAPPING=mapping, TONEMAP_KNEE=knee,
+                            EXPOSURE=exposure, GRAYSCALE=grayscale)
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)

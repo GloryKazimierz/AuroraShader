@@ -107,30 +107,32 @@ def validate_atmosphere(root, expand, preprocess, compact, function_body):
     color = read('lib/color_space.glsl')
     geometry = read('lib/geometry/sky_fragment.glsl')
     # Preserve full sensitive implementations, not just selected expressions.
-    for relative in ('lib/lighting.glsl','lib/color.glsl','lib/settings.glsl',
+    for relative in ('lib/lighting.glsl','lib/settings.glsl',
                      'lib/shadow.glsl','lib/shadow_bias.glsl','lib/shadow_settings.glsl',
-                     'lib/position.glsl','lib/gbuffer_write.glsl','final.fsh',
+                     'lib/position.glsl','lib/gbuffer_write.glsl',
                      'shadow.vsh','shadow.fsh','gbuffers_skytextured.vsh','gbuffers_skytextured.fsh',
-                     'lib/geometry/textured_fragment.glsl','lib/geometry/textured_vertex.glsl'):
+                     'lib/geometry/textured_vertex.glsl'):
         assert read(relative).replace('\r\n','\n') == prior(relative).replace('\r\n','\n'), relative
     for function in ('fogify','calcSkyColor','screenToView'):
         assert compact(function_body(geometry,function)) == compact(function_body(prior('lib/geometry/sky_fragment.glsl'),function))
     restored = read('deferred.fsh').replace('#include "/lib/celestial_lighting.glsl"\n','').replace(
         '        color.rgb = applyCelestialPalette(color.rgb, normalView, levels, visibility);\n','')
     assert compact(restored) == compact(prior('deferred.fsh'))
-    assert 'if(renderStage==MC_RENDER_STAGE_STARS){color=glcolor;}' in compact(geometry)
+    assert 'if(renderStage==MC_RENDER_STAGE_STARS){color=vec4(sceneFromDisplay(glcolor.rgb),glcolor.a);}' in compact(geometry)
     assert 'floatvoidWeight=clamp(SKY_BLEND,0.0,1.0)*celestialEnvironmentWeight();' in compact(geometry)
     assert 'color=mix(vec4(calcSkyColor(normalize(pos)),1.0),glcolor,voidWeight);' in compact(geometry)
     # Disabled branches return the original color before any transfer functions.
     for style, palette in product((0,1), repeat=2):
-        overrides = {'SKY_STYLE':style, 'LIGHT_PALETTE':palette}
+        overrides = {'SKY_STYLE':style, 'LIGHT_PALETTE':palette, 'SCENE_COLOR_MODE':0}
         sky_source = preprocess(expand(shaders/'gbuffers_skybasic.fsh'),0,False,overrides=overrides)
         deferred_source = preprocess(expand(shaders/'deferred.fsh'),0,False,overrides=overrides)
         if style == 0:
-            assert compact(function_body(sky_source,'applyAuroraSky')) == 'returnbaseline;'
+            assert compact(function_body(sky_source,'sceneFromDisplay')) == 'returndisplayColor;'
+            assert compact(function_body(sky_source,'applyAuroraSky')) == 'returnsceneFromDisplay(baseline);'
             old_main = compact(function_body(prior('lib/geometry/sky_fragment.glsl'),'main'))
             new_main = compact(function_body(sky_source,'main')).replace(
-                'applyAuroraSky(normalize(pos),calcSkyColor(normalize(pos)),fogColor)', 'calcSkyColor(normalize(pos))')
+                'applyAuroraSky(normalize(pos),calcSkyColor(normalize(pos)),fogColor)', 'calcSkyColor(normalize(pos))').replace(
+                'vec4(sceneFromDisplay(glcolor.rgb),glcolor.a)', 'glcolor')
             assert new_main == old_main
         if palette == 0:
             assert compact(function_body(deferred_source,'applyCelestialPalette')) == 'returnlitScene;'
@@ -143,7 +145,7 @@ def validate_atmosphere(root, expand, preprocess, compact, function_body):
         assert token in compact(celestial), token
     assert 'shadowLightPosition' not in re.sub(r'//[^\n]*','',celestial)
     for token in ('horizon*pow(towardSun,4.0)*SUNSET_GLOW', '0.22*horizon*horizon',
-                  '0.85*phases.z', 'if(weight<=0.0)returnbaseline;'):
+                  '0.85*phases.z', 'if(weight<=0.0)returnsceneFromDisplay(baseline);'):
         assert token in compact(sky), token
     for token in ('DIRECT_LIGHT*diffuseTerm(normalView)*visibility',
                   'AMBIENT_LIGHT*ambient+directAmount*direct',
@@ -229,7 +231,7 @@ def validate_atmosphere(root, expand, preprocess, compact, function_body):
         assert re.search(r'^option\.'+name+r'=.+$',labels,re.M)
     assert 'value.SKY_STYLE.0=Base-330' in labels and 'value.SKY_STYLE.1=Aurora Fantasy' in labels
     assert 'value.LIGHT_PALETTE.0=Neutral M6' in labels and 'value.LIGHT_PALETTE.1=Aurora' in labels
-    print('PASS: M7 opt-out restores M6 sky/lighting; shadow, celestial textures and final/debug code pinned')
+    print('PASS: M7 opt-out in legacy pipeline restores M6 sky/lighting; unchanged shadow/data paths pinned')
     print('PASS: M7 sRGB transfer, continuous day/twilight weights, camera invariance and environment fallbacks')
     print('PASS: M7 {} bounded sky cases; directional twilight and cave/block/ambient protection'.format(sky_cases))
     print('PASS: M7 nested option screens, defaults and language labels')

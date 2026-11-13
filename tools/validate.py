@@ -74,7 +74,7 @@ def preprocess(text, debug, grayscale, shadows=True, filtering=1, softness=1.0, 
     return "\n".join(result).replace("SHADOW_SOFTNESS", str(softness))
 
 pairs = sorted(SHADERS.glob("*.vsh"))
-assert len(pairs) == 19
+assert len(pairs) == 20
 writers = {"gbuffers_terrain", "gbuffers_block", "gbuffers_entities"}
 for debug, grayscale, shadows, filtering, softness, bias_mode in product(
         range(7), (False,True), (False,True), (0,1,2,3), (0.0,.5,1.0,1.5,2.0), (0,1)):
@@ -163,16 +163,21 @@ for ndotl in (0, .5, 1):
         factor = 1 + (.65 + .55*ndotl - 1)*sky*(1-block)*strength
         assert factor == 1
 
-# Milestone 1 grading implementation/defaults must be byte-content unchanged.
+# M8 retains the complete M1 grading code in the legacy pipeline; defaults stay pinned.
 for relative in ("shaders/lib/color.glsl", "shaders/lib/settings.glsl"):
     baseline = subprocess.check_output(["git", "-C", str(ROOT), "show",
                                         BASELINE + ":" + relative]).decode()
     current = (ROOT / relative).read_text()
-    assert baseline.replace("\r\n", "\n") == current.replace("\r\n", "\n")
-print("PASS: 19 program pairs x 7 debug views x 2 bias modes x 2 grayscale states x 2 shadow states x 4 filters x 5 softness values")
+    if relative.endswith("color.glsl"):
+        legacy = preprocess("#define SCENE_COLOR_MODE 0\n" + current, 0, False)
+        strip = lambda value: re.sub(r"\s+", "", re.sub(r"/\*.*?\*/|//[^\n]*", "", value, flags=re.S))
+        assert strip(preprocess(baseline, 0, False)) == strip(legacy)
+    else:
+        assert baseline.replace("\r\n", "\n") == current.replace("\r\n", "\n")
+print("PASS: 20 program pairs x 7 debug views x 2 bias modes x 2 grayscale states x 2 shadow states x 4 filters x 5 softness values")
 print("PASS: includes, conditionals, stage interfaces, MRT routing, option references")
 print("PASS: normal round trips, lightmap endpoints, cave/torch/disabled invariants")
-print("PASS: Milestone 1 color code/defaults unchanged")
+print("PASS: Milestone 1 legacy grading code/defaults preserved; HDR exposure tested separately")
 print("LIMIT: static structural/numerical validation is NOT Minecraft/Iris/GPU runtime validation")
 
 # Shadow contracts: single depth comparison, correct scope, no active format enums.
@@ -483,10 +488,14 @@ for debug in range(6):
     new = preprocess(lighting_settings+(SHADERS/"final.fsh").read_text(),debug,False)
     assert compact(function_body(old,"main")) == compact(function_body(new,"main")).replace(
         "shadowVisibility(pixel,normalView,shadowLightPosition)", "shadowVisibility(pixel)")
-# Remove only the M7 additions before checking the complete M5 property contract.
+# Remove only the explicit M8 then M7 additions before the complete M5 contract.
+m8_properties_suffix = "\n# M8 scene storage/compositing and display mapping.\nscreen.COLOR_PIPELINE = SCENE_COLOR_MODE TONE_MAPPING TONEMAP_KNEE EXPOSURE\nscreen.COLOR_PIPELINE.columns = 2\n"
+assert props.endswith(m8_properties_suffix)
+pre_m8_props = props[:-len(m8_properties_suffix)].replace("screen = [COLOR_PIPELINE] ", "screen = ").replace(
+    "sliders = TONEMAP_KNEE ", "sliders = ")
 m7_properties_suffix = "\n# M7 fantasy styling; legacy controls retain their existing names.\nscreen.ATMOSPHERE = SKY_STYLE SKY_BLEND SUNSET_GLOW NIGHT_BRIGHTNESS LIGHT_PALETTE LIGHT_PALETTE_STRENGTH\nscreen.ATMOSPHERE.columns = 2\n"
-assert props.endswith(m7_properties_suffix)
-pre_m7_props = props[:-len(m7_properties_suffix)].replace("screen = [ATMOSPHERE] ", "screen = ").replace(
+assert pre_m8_props.endswith(m7_properties_suffix)
+pre_m7_props = pre_m8_props[:-len(m7_properties_suffix)].replace("screen = [ATMOSPHERE] ", "screen = ").replace(
     "sliders = SKY_BLEND SUNSET_GLOW NIGHT_BRIGHTNESS LIGHT_PALETTE_STRENGTH ", "sliders = ")
 restored_props = pre_m7_props.replace("SHADOW_BIAS SHADOW_BIAS_MODE SHADOW_BIAS_MIN SHADOW_BIAS_MAX SHADOW_FILTER",
                               "SHADOW_BIAS SHADOW_FILTER").replace(
@@ -594,3 +603,7 @@ print("LIMIT: static structural/numerical validation is NOT Minecraft/Iris/GPU r
 # M7 extends the contracts above; it does not replace their historical baselines.
 from validate_atmosphere import validate_atmosphere
 validate_atmosphere(ROOT, expand, preprocess, compact, function_body)
+
+# M8 preserves prior experiments in legacy mode and adds scene-linear contracts.
+from validate_color_pipeline import validate_color_pipeline
+validate_color_pipeline(ROOT, expand, preprocess, compact, function_body)

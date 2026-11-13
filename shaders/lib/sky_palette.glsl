@@ -1,5 +1,5 @@
 #include "/lib/atmosphere_settings.glsl"
-#include "/lib/color_space.glsl"
+#include "/lib/scene_color.glsl"
 #include "/lib/celestial.glsl"
 
 vec3 auroraSkyLinear(vec3 rayView, vec3 vanillaFog) {
@@ -26,11 +26,11 @@ vec3 auroraSkyLinear(vec3 rayView, vec3 vanillaFog) {
 }
 vec3 applyAuroraSky(vec3 rayView, vec3 baseline, vec3 vanillaFog) {
 #if SKY_STYLE == 0
-    return baseline;
+    return sceneFromDisplay(baseline);
 #else
     float weight = clamp(SKY_BLEND, 0.0, 1.0) * celestialEnvironmentWeight();
-    if (weight <= 0.0) return baseline; // Exact disabled/fluid/dimension bypass.
+    if (weight <= 0.0) return sceneFromDisplay(baseline); // Exact disabled/fluid/dimension bypass.
     vec3 linearSky = mix(srgbToLinear(baseline), auroraSkyLinear(rayView, vanillaFog), weight);
-    return clamp(linearToSrgb(linearSky), 0.0, 1.0);
+    return sceneFromLinear(linearSky);
 #endif
 }

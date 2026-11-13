@@ -35,10 +35,11 @@ turning every surface into a uniform color wash.
 | M4 | 3x3 versus 5x5 filter experiment | Automated checks; runtime confirmation not recorded here |
 | M5 | Eight-tap Poisson PCF | Automated checks; runtime confirmation not recorded here |
 | M6 | Constant versus angle-aware receiver bias | Automated checks; runtime confirmation remains pending |
-| M7 | Fantasy day/night sky and celestial light palette | Implementation branch; validation status belongs in the change report |
+| M7 | Fantasy day/night sky and celestial light palette | Offline checks recorded; runtime confirmation remains pending |
+| M8 | Linear scene composition, HDR storage and final highlight mapping | Implementation branch; executed checks recorded in the milestone report |
 
-M6 remains available as a historical branch. M7 builds on its implementation,
-without upgrading its runtime status merely because development continues.
+M6 and M7 remain available as historical branches. M8 builds on M7 without
+upgrading any runtime status merely because development continues.
 
 ## Sequence of work
 
@@ -49,11 +50,12 @@ Each step should ship a small, reviewable increment with its own learning notes.
    palettes, sun-facing warmth and protected local lighting. Keep original
    stars, sun and moon rendering. Introduce explicit sRGB transfer helpers for
    palette interpolation while documenting the existing LDR scene limitations.
-2. **Scene color foundation.** Design a consistent linear-light/HDR path,
-   tone mapping and exposure. Audit all writers, blending, translucent surfaces
-   and display encoding together. A floating-point buffer alone is not an HDR
-   lighting pipeline. Avoid losing bright details before tone mapping.
-3. **Atmosphere with geometry.** Add distance/height fog and weather transitions;
+2. **Scene color foundation (M8).** Implement linear scene composition, RGBA16F
+   storage and one final exposure/highlight mapping/encoding sequence. Retain the
+   baked Minecraft input product as a documented bridge, and initialize background
+   colors explicitly. Future material work can migrate input operations further;
+   this foundation is not a complete physical/PBR renderer.
+3. **Atmosphere with geometry — next priority.** Add distance/height fog and weather transitions;
    treat opaque and translucent surfaces consistently. Sky horizon coloring in
    M7 is not geometry fog. Coordinate the palette before adding volumetric light.
 4. **Clouds and controlled glow.** Develop clouds, emissive accents and bloom in
@@ -89,10 +91,11 @@ mean merging it into `main` or declaring a release. Preserve historical branches
 the original learning projects, and the user's existing Minecraft junction.
 Project files remain on D:.
 
-Work continues during active development sessions. This agreement does not create
-an unattended background service after a session ends. The recorded branch,
-commit and next step allow the next session to resume without another design
-approval round.
+The user explicitly activated a continuing development goal with `/goal nonstop`.
+Keep advancing coherent stages and carrying their code, tests and explanations
+together. Do not stop for routine milestone acceptance or silently mark the broad
+product goal complete after one feature. Recorded commits and next steps preserve
+continuity across development turns; runtime evidence remains a separate record.
 
 ## Knowledge that travels with the code
 
@@ -112,5 +115,6 @@ runtime success. No performance improvement is claimed without measurement.
 
 - [Complementary's stated product priorities](https://www.complementary.dev/)
 - [Iris rendering program order](https://shaders.properties/current/reference/programs/overview/)
+- [M8 scene color and HDR learning notes](MILESTONE_8.md)
 - [M7 implementation and learning notes](MILESTONE_7.md)
 - [M6 shadow-bias experiment](MILESTONE_6.md)

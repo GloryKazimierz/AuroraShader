@@ -67,3 +67,15 @@ value.LIGHT_PALETTE.1=Aurora
 option.LIGHT_PALETTE.comment=Warm sunlight and cool ambient/moonlight. Cave and block-light protection remain.
 option.LIGHT_PALETTE_STRENGTH=Light Color Strength
 option.LIGHT_PALETTE_STRENGTH.comment=Zero preserves the M6 lighting result. Strong block light reduces the tint.
+
+screen.COLOR_PIPELINE=Scene Color and Highlights
+option.SCENE_COLOR_MODE=Scene Color Pipeline
+value.SCENE_COLOR_MODE.0=M7 Display / LDR
+value.SCENE_COLOR_MODE.1=Linear / HDR Composition
+option.SCENE_COLOR_MODE.comment=Linear mode uses RGBA16F, linear blending and final tone mapping. Baked Minecraft lightmap shading is retained.
+option.TONE_MAPPING=Highlight Mapping
+value.TONE_MAPPING.0=Clip
+value.TONE_MAPPING.1=Soft Shoulder
+option.TONE_MAPPING.comment=HDR mode only. Soft Shoulder compresses bright colors while preserving linear RGB ratios before grading.
+option.TONEMAP_KNEE=Highlight Shoulder Start
+option.TONEMAP_KNEE.comment=HDR mode only. Linear intensity below this value is unchanged; higher values are compressed smoothly.

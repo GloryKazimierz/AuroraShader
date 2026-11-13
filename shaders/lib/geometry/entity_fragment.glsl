@@ -1,4 +1,5 @@
-// Shared Base-330 fragment stage. Geometry writes scene color before final.
+// M8 keeps baked Minecraft shading, then converts RGB for scene composition.
+#include "/lib/scene_color.glsl"
 
 uniform sampler2D lightmap;
 uniform sampler2D gtexture;
@@ -24,6 +25,8 @@ void main() {
 	if (color.a < alphaTestRef) {
 		discard;
 	}
+    // RGB only: alpha coverage, discard and surface-data attachments stay unchanged.
+    color.rgb = sceneFromDisplay(color.rgb);
 #ifdef WRITE_SURFACE_DATA
     writeSurfaceData(lmcoord);
 #endif

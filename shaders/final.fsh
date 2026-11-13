@@ -1,5 +1,7 @@
 #version 330 compatibility
 #include "/lib/settings.glsl"
+#include "/lib/scene_color.glsl"
+#include "/lib/tone_mapping.glsl"
 #include "/lib/color.glsl"
 #include "/lib/lighting_settings.glsl"
 #include "/lib/lighting.glsl"
@@ -14,7 +16,14 @@ layout(location = 0) out vec4 color;
 void main() {
 #if DEBUG_VIEW == 0
     vec4 scene = texture(colortex0, texcoord);
+#if SCENE_COLOR_MODE == 0
     color = vec4(gradeColor(scene.rgb), scene.a);
+#else
+    // Exposure in linear light, one tone map, one display encode. Debug skips all three.
+    vec3 exposed = max(scene.rgb, vec3(0.0)) * exp2(EXPOSURE);
+    vec3 displayColor = linearToSrgb(toneMapScene(exposed));
+    color = vec4(gradeColor(displayColor), scene.a);
+#endif
 #elif DEBUG_VIEW == 4
     color = vec4(vec3(rawShadowDepth(texcoord)), 1.0);
 #else

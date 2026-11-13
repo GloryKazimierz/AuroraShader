@@ -1,5 +1,5 @@
 #include "/lib/atmosphere_settings.glsl"
-#include "/lib/color_space.glsl"
+#include "/lib/scene_color.glsl"
 #include "/lib/celestial.glsl"
 
 vec3 applyCelestialPalette(vec3 litScene, vec3 normalView, vec2 lightLevels, float visibility) {
@@ -23,8 +23,12 @@ vec3 applyCelestialPalette(vec3 litScene, vec3 normalView, vec2 lightLevels, flo
     float directAmount = DIRECT_LIGHT * diffuseTerm(normalView) * visibility;
     float total = max(AMBIENT_LIGHT + directAmount, 1e-6);
     vec3 tint = (AMBIENT_LIGHT * ambient + directAmount * direct) / total;
-    // The original M6 scalar/lightmap result is retained, then tinted locally in linear space.
-    // This is an artistic bridge, NOT independent albedo relighting or an HDR conversion.
+#if SCENE_COLOR_MODE == 0
+    // M7 display-space path: local decode/tint/encode bridge.
     return linearToSrgb(srgbToLinear(litScene) * mix(vec3(1.0), tint, weight));
+#else
+    // Scene is already linear: no second decode and no early display encoding.
+    return litScene * mix(vec3(1.0), tint, weight);
+#endif
 #endif
 }

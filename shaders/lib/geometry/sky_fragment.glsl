@@ -31,14 +31,19 @@ layout(location = 0) out vec4 color;
 
 void main() {
 	if (renderStage == MC_RENDER_STAGE_STARS) {
-		color = glcolor;
+		color = vec4(sceneFromDisplay(glcolor.rgb), glcolor.a);
 	} else {
 		vec3 pos = screenToView(vec3(gl_FragCoord.xy / vec2(viewWidth, viewHeight), 1.0));
 #if SKY_STYLE == 1
         // Blend to the native void silhouette with the SAME continuous style weight.
         float voidWeight = clamp(SKY_BLEND, 0.0, 1.0) * celestialEnvironmentWeight();
         if (renderStage == MC_RENDER_STAGE_VOID && voidWeight > 0.0) {
+#if SCENE_COLOR_MODE == 0
             color = mix(vec4(calcSkyColor(normalize(pos)), 1.0), glcolor, voidWeight);
+#else
+            color = mix(vec4(sceneFromDisplay(calcSkyColor(normalize(pos))), 1.0),
+                        vec4(sceneFromDisplay(glcolor.rgb), glcolor.a), voidWeight);
+#endif
             return;
         }
 #endif

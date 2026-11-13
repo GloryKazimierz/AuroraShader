@@ -5,11 +5,28 @@ sunsets, indigo nights, and eventually a distinctive optional aurora. The goal i
 a coherent, playable visual style with configurable performance, developed in
 small documented stages.
 
-**Current development: Milestone 7 — Fantasy Sky and Celestial Light Colors**
-on `codex/milestone-7-fantasy-sky`, based on M6 commit `5479a1c`.
+**Current development: Milestone 8 — Linear/HDR Scene Composition**
+on `codex/milestone-8-hdr-color`, based on M7 commit `0b46bcb`.
+The default scene path stores linear RGB in RGBA16F, composites geometry and
+transparency in that space, and applies exposure, highlight mapping and display
+encoding once in final. A prepare pass initializes background fog color correctly.
+
+This is a scene-compositing foundation, not a physical material-lighting rewrite:
+the existing Minecraft texture/tint/AO/lightmap product is decoded as one baked
+display-like source. Its texture filtering and internal shading are retained.
+Normal/light-level/depth data and alpha coverage are never gamma converted.
+
+The **Scene Color and Highlights** page offers `SCENE_COLOR_MODE=0` for the M7
+RGBA8 display path and `1` (default) for linear/HDR. `TONE_MAPPING=1` uses a
+peak-based soft shoulder beginning at `TONEMAP_KNEE=0.6`; `0` clips instead.
+Output is still SDR. Post-map artistic grading can clip extreme settings.
+See [M8 English learning notes](docs/MILESTONE_8.md) /
+[M8 中文原理与学习说明](docs/MILESTONE_8.zh-CN.md).
+
 Sky and light colors follow solar elevation smoothly; vanilla stars, sun and moon
-remain. The new palette uses local linear-color operations while scene storage
-and the existing lightmap pipeline remain LDR. This is not a full HDR renderer.
+remain. M7 established their shared palette; M8 keeps that design while moving
+scene storage and composition into linear light. Special blend paths such as
+armor glint and emissive eyes still need Minecraft observation.
 
 The user has authorized continuous development with code and learning notes
 pushed together. Runtime observations remain pending where not supplied; they
@@ -21,8 +38,9 @@ Start with the [English roadmap](docs/AURORA_ROADMAP.md) /
 [M7 implementation and study notes](docs/MILESTONE_7.md) /
 [M7 中文原理与测试说明](docs/MILESTONE_7.zh-CN.md).
 
-The **Aurora Sky and Light** options page controls the new look. `SKY_STYLE=0`
-and `LIGHT_PALETTE=0` restore the M6 rendering paths; sky blend and light color
+The **Aurora Sky and Light** options page controls the palette. Set
+`SCENE_COLOR_MODE=0`, `SKY_STYLE=0` and `LIGHT_PALETTE=0` for the older M6
+rendering logic; sky blend and light color
 strength also have zero-strength bypasses. Defaults are Aurora sky, sky blend 1,
 sunset warmth 1, night sky brightness 1, Aurora light colors, color strength 0.6.
 Zero skylight, full block light and excluded environments retain the original result;
@@ -54,6 +72,7 @@ Angle-Aware range is `0.0001` to `0.0005`. Hard / 3x3 / 5x5 / Poisson keep
 | M5 | Poisson PCF |
 | M6 | Shadow Bias Robustness |
 | M7 | Fantasy day/night sky and celestial light palette |
+| M8 | Linear/HDR scene composition, exposure and soft highlight mapping |
 
 Read [Milestone 6 (English)](docs/MILESTONE_6.md) /
 [中文说明](docs/MILESTONE_6.zh-CN.md), the
@@ -65,7 +84,7 @@ The [M5 Poisson experiment](docs/MILESTONE_5.md) and
 [shadow mapping study guide](docs/SHADOW_MAPPING_STUDY_GUIDE.md) remain available.
 This work does not merge into main or modify historical milestone branches.
 
-Current M7 checkout: `D:\MinecraftShaders\MyShader-pcf-kernels`. The original
+Current M8 checkout: `D:\MinecraftShaders\MyShader-pcf-kernels`. The original
 `MyShader` junction still resolves to the separate sky worktree, so it does not
 load this development branch. Follow the benchmark's test-profile setup to select the correct pack;
 this task has not created a test instance or changed a junction.
