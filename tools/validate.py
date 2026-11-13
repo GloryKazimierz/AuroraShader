@@ -645,3 +645,7 @@ validate_water(ROOT, expand, preprocess, compact, function_body)
 # M14 changes reflection normals while preserving all original geometry/coverage.
 from validate_water_waves import validate_water_waves
 validate_water_waves(ROOT, expand, preprocess, compact, function_body)
+
+# M16 measures same-ray world depth without changing alpha, waves or reflection.
+from validate_water_depth import validate_water_depth
+validate_water_depth(ROOT, expand, preprocess, compact, function_body)

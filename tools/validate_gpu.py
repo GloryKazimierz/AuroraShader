@@ -398,7 +398,7 @@ def shader_digest():
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--cxx',help='Installed MinGW g++ compiler; no download')
-    parser.add_argument('--suite',choices=('all','probe','compile','render'),default='all')
+    parser.add_argument('--suite',choices=('all','probe','compile','render','depth'),default='all')
     parser.add_argument('--report',help='New JSON report path under the project; existing files are never overwritten')
     args=parser.parse_args()
     require(os.name=='nt','This optional WGL runner requires Windows; no GPU checks performed')
@@ -428,8 +428,11 @@ def main():
         if args.suite in ('all','compile'):
             report['driver_compile']=driver_compile(runner)
             print('PASS: native driver program matrix',flush=True)
-        if args.suite in ('all','render'):
-            for name,function in (('controls',harness_controls),('bloom',bloom_tests),('water',water_tests),('final',final_tests)):
+        if args.suite in ('all','render','depth'):
+            from validate_gpu_depth import depth_tests
+            cases=[] if args.suite=='depth' else [('controls',harness_controls),('bloom',bloom_tests),('water',water_tests),('final',final_tests)]
+            cases.append(('water_depth',lambda driver: depth_tests(driver,compare)))
+            for name,function in cases:
                 report[name]=function(runner)
                 print('PASS: '+name+' synthetic driver checks',flush=True)
         require(shader_digest()==report['shader_sha256'],'Shader source changed during validation; report invalid')

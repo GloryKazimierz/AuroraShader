@@ -4,6 +4,7 @@
 #include "/lib/lighting_settings.glsl"
 #include "/lib/sky_palette.glsl"
 #include "/lib/water_waves.glsl"
+#include "/lib/water_depth.glsl"
 
 float waterFresnel(float normalDotView) {
     // Schlick's angle dependence with a fixed water-like F0; not full transmission.
@@ -19,7 +20,8 @@ vec3 applyWaterStyle(vec3 scene, vec3 viewPosition, vec3 normalView, vec2 lightm
     // gbuffers_water also draws glass and other translucent blocks. Only an
     // explicitly assigned water ID AND fluid marker may enter this effect.
     if (waterSurface != 1) return scene;
-    if (WATER_TINT_STRENGTH <= 0.0 && WATER_REFLECTION_STRENGTH <= 0.0) return scene;
+    if (WATER_TINT_STRENGTH <= 0.0 && WATER_REFLECTION_STRENGTH <= 0.0
+        && (WATER_DEPTH_TINT == 0 || WATER_DEPTH_STRENGTH <= 0.0)) return scene;
     bool supportedBlend = all(equal(blendState, ivec4(0)))
                        || (blendState.x == 770 && blendState.y == 771)
                        || (blendState.x == 1 && blendState.y == 0);
@@ -36,6 +38,8 @@ vec3 applyWaterStyle(vec3 scene, vec3 viewPosition, vec3 normalView, vec2 lightm
                      * environment * skyAccess * (1.0 - levels.x);
     vec3 tinted = scene;
     if (tintWeight > 0.0) tinted = scene * mix(vec3(1.0), vec3(0.80, 1.03, 1.08), tintWeight);
+    // Depth color is independent of the M13 tint/reflection and Aurora Sky controls.
+    tinted = applyWaterDepthTint(tinted, viewPosition, normalView, environment * skyAccess * (1.0 - levels.x));
 #if SKY_STYLE == 0
     return tinted;
 #else

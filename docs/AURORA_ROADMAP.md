@@ -44,8 +44,9 @@ rather than turning every surface into a uniform color wash.
 | M13 | Water-fluid classification, bounded tint and analytic sky-color reflection | Offline checks recorded; runtime confirmation remains pending |
 | M14 | World-anchored analytic water normals for moving sky reflections | Offline checks recorded; runtime confirmation remains pending |
 | M15 | Native-driver shader validation and synthetic GPU rendering checks | Native driver checks recorded; Minecraft/Iris confirmation remains pending |
+| M16 | Same-pixel vertical-background-gap water color with preserved source luminance | CPU/offline/native checks recorded; Minecraft/Iris confirmation remains pending |
 
-M6–M14 remain available as historical branches. M15 builds on M14 without
+M6–M15 remain available as historical branches. M16 builds on M15 without
 upgrading any runtime status merely because development continues.
 
 ## Sequence of work
@@ -91,12 +92,17 @@ Each step should ship a small, reviewable increment with its own learning notes.
    and link shader variants on the active driver and compare selected synthetic
    framebuffer results with CPU references. Keep compiler, GPU and Minecraft/Iris
    evidence separate; add no graphics feature or performance claim.
-10. **Water depth and transparency — next research priority.** Establish reliable
-   depth, sorting and composition contracts before selecting the next transmission
+10. **Water depth color (M16).** Use the pre-hand/pre-translucent background depth
+   at the same pixel to estimate a bounded vertical gap. Gently shift eligible
+   water-source color toward equal-luminance teal, keeping native alpha and the
+   existing reflection/fog sequence. This geometric heuristic is not water-volume
+   thickness, absorption or transmission.
+11. **Water transparency — next research priority.** Establish reliable
+   depth, sorting and composition contracts before selecting a transmission
    feature. A future opaque-scene copy needs its own suitable attachment; gbuffer
    `colortex0`–`colortex3` reads are atlas aliases, not the composed scene. This
    remains research/planning, not implemented water-depth transmission.
-11. **Completeness.** Explore distinct dimension palettes, vegetation motion,
+12. **Completeness.** Explore distinct dimension palettes, vegetation motion,
    performance profiles and broad compatibility. Maintain clear gameplay silhouettes
    and stable temporal behavior.
 
@@ -147,6 +153,7 @@ runtime success. No performance improvement is claimed without measurement.
 
 - [Complementary's stated product priorities](https://www.complementary.dev/)
 - [Iris rendering program order](https://shaders.properties/current/reference/programs/overview/)
+- [M16 water depth-color learning notes](MILESTONE_16.md)
 - [M15 native GPU validation learning notes](MILESTONE_15.md)
 - [M14 analytic water-normal learning notes](MILESTONE_14.md)
 - [M13 water foundation learning notes](MILESTONE_13.md)

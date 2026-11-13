@@ -5,6 +5,7 @@ import struct
 import subprocess
 from functools import lru_cache
 from itertools import product
+from validate_water_depth import restore_water_depth_source
 
 M13_BASELINE = 'fd394d3e5f60ebbb101f3cc4a48656623dcd3e34'
 WAVES = ((11,3,.06,10),(4,-9,.04,-13),(7,13,.03,7))
@@ -32,6 +33,7 @@ def restore_water_wave_source(relative,source):
     relative = relative.replace('\\','/')
     if relative.startswith('shaders/'):
         relative = relative[len('shaders/'):]
+    source = restore_water_depth_source(relative,source)
     if relative == 'lib/fog.glsl':
         include = '#include "/lib/camera_anchor.glsl"\n'
         assert source.count(include) == 1
@@ -152,7 +154,7 @@ def validate_water_waves(root,expand,preprocess,compact,function_body):
             assert restore_water_wave_source(relative,read(relative)) == prior(relative),relative
             pinned += 1
     assert len(list(shaders.glob('*.vsh'))) == len(list(shaders.glob('*.fsh'))) == 24
-    assert read('lang/en_us.lang').startswith(prior('lang/en_us.lang'))
+    assert restore_water_depth_source('lang/en_us.lang',read('lang/en_us.lang')).startswith(prior('lang/en_us.lang'))
     anchor = read('lib/camera_anchor.glsl')
     assert anchor.startswith('#ifndef AURORA_CAMERA_ANCHOR_INCLUDED\n#define AURORA_CAMERA_ANCHOR_INCLUDED\n')
     assert anchor.endswith('#endif\n') and anchor.count(ANCHOR_UNIFORMS) == 1
@@ -182,7 +184,7 @@ def validate_water_waves(root,expand,preprocess,compact,function_body):
         assert token in code,token
     assert '%' not in code and not re.search(r'\bvec2\(cameraPositionInt',code)
     assert 'sampler' not in code and 'gl_Position' not in code and 'gl_FragDepth' not in code
-    water = read('lib/water.glsl')
+    water = restore_water_depth_source('lib/water.glsl',read('lib/water.glsl'))
     assert water.count(NEW_NORMAL_BLOCK) == 1
     effect = body(water,'applyWaterStyle')
     assert effect.count('floatupwardSurface=') == effect.count('waterWaveNormal(') == 1
@@ -190,7 +192,7 @@ def validate_water_waves(root,expand,preprocess,compact,function_body):
     assert effect.index('if(reflectionWeight<=0.0)returntinted;') < effect.index('waterWaveNormal(')
     # Off uses the exact old normal. Narrow block restoration proves all old
     # Fresnel/reflection/tint operations are otherwise identical to M13.
-    assert restore_water_wave_source('lib/water.glsl',water) == prior('lib/water.glsl')
+    assert restore_water_wave_source('lib/water.glsl',read('lib/water.glsl')) == prior('lib/water.glsl')
     for mode,enabled,style,debug in product((0,1),(0,1),(0,1),range(7)):
         selected = preprocess(expand(shaders/'gbuffers_water.fsh'),debug,False,
                               overrides={'SCENE_COLOR_MODE':mode,'WATER_WAVES':enabled,'WATER_STYLE':style})

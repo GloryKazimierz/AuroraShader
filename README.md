@@ -5,8 +5,28 @@ sunsets, indigo nights, and optional teal/violet aurora ribbons. The goal is
 a coherent, playable visual style with configurable performance, developed in
 small documented stages.
 
-**Current development: Milestone 15 — Native GPU Validation**
-on `codex/milestone-15-gpu-validation`, based on M14 commit `e8007b2`.
+**Current development: Milestone 16 — Water Depth Color**
+on `codex/milestone-16-water-depth-color`, based on M15 commit `bc81180`.
+Classified, upward-facing water now receives a bounded teal chroma shift when the
+same screen pixel contains lower background geometry. The depth snapshot excludes
+solid hands in the inspected Iris implementation. Positions are reconstructed
+before measuring vertical separation; raw nonlinear depth values are not treated
+as distances. This is an artistic background-gap cue, not actual water thickness.
+
+The existing Water page adds depth color (on), strength (0.35) and scale (8 blocks).
+The source's linear luminance and biome color variation are retained. Original
+alpha, geometry, reflection waves and foreground fog remain intact. Off, zero
+strength, unsupported environments and invalid/background-free depth preserve the
+previous source exactly. The new control works even with the older tint/reflection
+or Aurora sky disabled. It adds at most one depth fetch per eligible water fragment.
+
+CPU, offline compilation and synthetic native-GPU depth-color checks passed;
+Minecraft/Iris appearance and performance remain unobserved. See
+[M16 English notes](docs/MILESTONE_16.md) /
+[M16 中文原理与学习说明](docs/MILESTONE_16.zh-CN.md) and the
+[extended GPU depth-color record](docs/validation/M16_GPU_depth_extended.json).
+
+**Native GPU validation foundation (M15):**
 An optional Windows OpenGL tool now runs the existing shader-option matrix and
 selected numerical rendering fixtures on the actual driver. It creates a hidden
 context and private framebuffer targets; generated files and compiler temporary
@@ -15,7 +35,7 @@ files stay beside the project on D: and are cleaned after the run.
 Recorded on Intel Iris Xe / OpenGL 3.3 compatibility: all 1,272 program-pair
 configurations linked successfully; synthetic bloom, water-wave normals and final
 display checks passed. Harness controls also verify correct binding, complete
-pixel writes and expected failure handling. Shader source is unchanged from M14.
+pixel writes and expected failure handling. M15 shader source was unchanged from M14.
 These checks do not run Iris's patcher, Minecraft scenes or a performance benchmark.
 See [M15 English notes](docs/MILESTONE_15.md) /
 [M15 中文原理与学习说明](docs/MILESTONE_15.zh-CN.md),
@@ -191,7 +211,7 @@ Windows native GPU checks additionally need an installed MinGW `g++`:
 python -B tools/validate_gpu.py --cxx C:/msys64/ucrt64/bin/g++.exe
 ```
 
-Use `--suite probe`, `compile` or `render` for a subset, or `--report` with a new
+Use `--suite probe`, `compile`, `render` or `depth` for a subset, or `--report` with a new
 project-relative JSON filename to retain evidence. The default is all checks.
 Reports are never overwritten; CPU/offline checks remain independently available.
 
@@ -217,6 +237,7 @@ Angle-Aware range is `0.0001` to `0.0005`. Hard / 3x3 / 5x5 / Poisson keep
 | M13 | Classified water color and bounded analytic sky reflection |
 | M14 | Periodic world-anchored wave normals for water reflection |
 | M15 | Native OpenGL driver compilation and synthetic rendering checks |
+| M16 | Luminance-preserving water source color from background vertical depth |
 
 Read [Milestone 6 (English)](docs/MILESTONE_6.md) /
 [中文说明](docs/MILESTONE_6.zh-CN.md), the
@@ -228,7 +249,7 @@ The [M5 Poisson experiment](docs/MILESTONE_5.md) and
 [shadow mapping study guide](docs/SHADOW_MAPPING_STUDY_GUIDE.md) remain available.
 This work does not merge into main or modify historical milestone branches.
 
-Current M15 checkout: `D:\MinecraftShaders\MyShader-pcf-kernels`. The original
+Current M16 checkout: `D:\MinecraftShaders\MyShader-pcf-kernels`. The original
 `MyShader` junction still resolves to the separate sky worktree, so it does not
 load this development branch. Follow the benchmark's test-profile setup to select the correct pack;
 this task has not created a test instance or changed a junction.

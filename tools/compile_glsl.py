@@ -117,6 +117,21 @@ def configurations():
                                     WATER_WAVE_STRENGTH=strength, WATER_WAVE_SPEED=speed,
                                     WATER_REFLECTION_STRENGTH=reflection, FOG_ENABLED=fog)
 
+    # M16: independent depth-color gates, every exposed strength/scale pair, and
+    # active depth with both older water effects disabled and vanilla sky style.
+    for mode, style, depth_color, debug in product((0, 1), (0, 1), (0, 1), range(7)):
+        yield 'gbuffers_water', dict(SCENE_COLOR_MODE=mode, WATER_STYLE=style,
+                                    WATER_DEPTH_TINT=depth_color, DEBUG_VIEW=debug)
+    for strength, scale in product((0.0, .15, .25, .35), (4.0, 8.0, 16.0, 32.0)):
+        yield 'gbuffers_water', dict(SCENE_COLOR_MODE=1, WATER_STYLE=1, WATER_DEPTH_TINT=1,
+                                    WATER_DEPTH_STRENGTH=strength, WATER_DEPTH_SCALE=scale,
+                                    WATER_TINT_STRENGTH=0.0, WATER_REFLECTION_STRENGTH=0.0,
+                                    SKY_STYLE=0, FOG_ENABLED=0)
+    for depth_color, waves, fog in product((0, 1), (0, 1), (0, 1)):
+        yield 'gbuffers_water', dict(SCENE_COLOR_MODE=1, WATER_STYLE=1,
+                                    WATER_DEPTH_TINT=depth_color, WATER_WAVES=waves,
+                                    FOG_ENABLED=fog, WATER_REFLECTION_STRENGTH=.75)
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--compiler', help='Path to installed glslangValidator')
