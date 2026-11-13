@@ -141,6 +141,15 @@ def configurations():
             yield program, dict(SCENE_COLOR_MODE=1, FOLIAGE_WIND=1,
                                 FOLIAGE_WIND_STRENGTH=strength, FOLIAGE_WIND_SPEED=speed)
 
+    # M19: independent glow gates plus all sun/moon strength choices with the
+    # global sky blend off/on. The actual sky wrapper and vertex are linked.
+    for mode, glow, style, debug in product((0, 1), (0, 1), (0, 1), range(7)):
+        yield 'gbuffers_skybasic', dict(SCENE_COLOR_MODE=mode, CELESTIAL_GLOW=glow,
+                                      SKY_STYLE=style, DEBUG_VIEW=debug)
+    for sun, moon, blend in product((0.0, .2, .4, .6, 1.0), (0.0, .05, .15, .3, .5), (0.0, 1.0)):
+        yield 'gbuffers_skybasic', dict(SCENE_COLOR_MODE=1, CELESTIAL_GLOW=1,
+                                      SUN_GLOW_STRENGTH=sun, MOON_GLOW_STRENGTH=moon, SKY_BLEND=blend)
+
     # M17 adds actual profile selections without replacing prior configurations.
     from validate_settings_profiles import profile_configurations
     yield from profile_configurations(ROOT)

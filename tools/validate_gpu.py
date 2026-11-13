@@ -399,7 +399,7 @@ def shader_digest():
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--cxx',help='Installed MinGW g++ compiler; no download')
-    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage'),default='all')
+    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial'),default='all')
     parser.add_argument('--report',help='New JSON report path under the project; existing files are never overwritten')
     args=parser.parse_args()
     require(os.name=='nt','This optional WGL runner requires Windows; no GPU checks performed')
@@ -445,6 +445,10 @@ def main():
             from validate_gpu_foliage import foliage_tests
             report['foliage']=foliage_tests(runner,compare)
             print('PASS: foliage synthetic driver checks',flush=True)
+        if args.suite in ('all','render','celestial'):
+            from validate_gpu_celestial_glow import celestial_glow_tests
+            report['celestial_glow']=celestial_glow_tests(runner,compare)
+            print('PASS: celestial glow synthetic driver checks',flush=True)
         require(shader_digest()==report['shader_sha256'],'Shader source changed during validation; report invalid')
         report['ok']=True
         report['finished_utc']=datetime.now(timezone.utc).isoformat()

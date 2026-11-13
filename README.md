@@ -5,14 +5,14 @@ coral/gold sunsets, indigo nights and teal/violet aurora. It combines Minecraft'
 textures and lightmaps with directional lighting, shadows, atmosphere and gentle
 water effects. The aim is a coherent, playable pack with its own identity.
 
-**Current development: M18 — rooted foliage wind**
-on `codex/milestone-18-foliage-wind`, based on M17 commit `b26755b`.
-Leaves and grass now sway in a shared world-space wind field. Grass roots remain
-fixed, and terrain and shadow casters use the same displacement. There are 54
-controls with English/Simplified Chinese labels and three quality profiles.
+**Current development: M19 — warm sun and cool moon glow**
+on `codex/milestone-19-celestial-glow`, based on M18 commit `60871f4`.
+Angular sky glow follows the independent sun and moon directions, with phase-aware
+moon brightness. Native celestial textures remain in their existing paths. There
+are 57 controls with English/Simplified Chinese labels and three quality profiles.
 
 [中文路线图](docs/AURORA_ROADMAP.zh-CN.md) ·
-[中文草木摆动原理](docs/MILESTONE_18.zh-CN.md) ·
+[中文日月光晕原理](docs/MILESTONE_19.zh-CN.md) ·
 [English roadmap](docs/AURORA_ROADMAP.md)
 
 ## Current features
@@ -20,7 +20,7 @@ controls with English/Simplified Chinese labels and three quality profiles.
 | System | Implemented scope |
 |---|---|
 | Lighting and shadows | Deferred directional light; ambient/block-light protection; hard, 3x3, 5x5 or eight-tap Poisson shadows; constant or angle-aware bias |
-| Sky and light color | Continuous azure/coral/indigo palette with sun direction, time, weather and environment gates |
+| Sky and light color | Continuous azure/coral/indigo palette; warm angular sun glow and cool phase-aware moon glow in the background |
 | Scene color | Linear HDR scene storage, exposure once, highlight shoulder, sRGB display conversion and configurable grading |
 | Fog and clouds | Height/distance atmosphere, compatible late-source fog and native-cloud color; original cloud geometry retained |
 | Bloom | Four-pass half-resolution bright-pixel extraction, separable blur and recombination |
@@ -32,6 +32,8 @@ controls with English/Simplified Chinese labels and three quality profiles.
 Water reflection uses an analytic sky palette. Waves change reflection normals;
 they do not move the mesh or shoreline. Depth color uses a background height gap,
 not measured water-volume thickness. Native water alpha is retained.
+Sun/moon glow adds bounded light to the sky background. It fades with horizon,
+weather and vision conditions; it is not physical scattering or terrain illumination.
 There is no SSR, physical water transmission/refraction, PBR, SSAO, volumetric
 lighting or custom volumetric cloud geometry in this stage.
 
@@ -49,7 +51,8 @@ clouds, aurora, bloom, fog, foliage, grading and advanced/debug controls.
 
 Profiles change exactly seven settings: shadow enable/filter and the five feature
 switches above. All three enable shadows. Exposure, grading, artistic strengths,
-fog, debug and pipeline choices remain as you set them. Adding profiles does not
+fog, celestial-glow controls, debug and pipeline choices remain as you set them.
+Adding profiles does not
 overwrite saved settings; the seven source defaults match Balanced.
 Iris matches only the listed controls. A manual edit can match another profile or
 Custom. Legacy/debug/environment gates can independently hide an effect.
@@ -123,7 +126,7 @@ Run from this D: checkout:
 python -B tools/validate.py
 python -B tools/compile_glsl.py --compiler C:/VulkanSDK/1.4.363.0/Bin/glslangValidator.exe
 python -B tools/compile_glsl.py --profiles-only --compiler C:/VulkanSDK/1.4.363.0/Bin/glslangValidator.exe
-python -B tools/validate_gpu.py --cxx C:/msys64/ucrt64/bin/g++.exe --suite foliage
+python -B tools/validate_gpu.py --cxx C:/msys64/ucrt64/bin/g++.exe --suite celestial
 git diff --check
 ```
 
@@ -133,19 +136,23 @@ builds a hidden OpenGL harness with installed MinGW. It never downloads dependen
 or launches Minecraft. Generated inputs, binaries and compiler temporary files
 stay on the project drive and are removed after the run.
 
-Native suites: `probe`, `compile`, `profiles`, `render`, `depth`, `foliage`, or default `all`.
+Native suites: `probe`, `compile`, `profiles`, `render`, `depth`, `foliage`,
+`celestial`, or default `all`.
 Use `--report docs/validation/NEW_NAME.json` to retain a new result; existing
 reports are never overwritten. Synthetic rendering covers bloom, water normals,
-final color, water-depth color and foliage math. Foliage wrappers exercise the
+final color, water-depth color, foliage math and celestial glow. Foliage wrappers exercise the
 shared displacement and clip functions, without native chunk attributes or
-geometry/shadow rasterization. The tool does not run Iris's patcher or reproduce
+geometry/shadow rasterization. Celestial checks also execute the actual sky pair
+with synthetic stage identifiers; this checks source branching without Iris's
+actual enum injection or sky meshes. The tool does not run Iris's patcher or reproduce
 Minecraft's resource binding, draw scheduling or world rendering.
 
 User-confirmed Minecraft evidence is retained in [M3A](docs/MILESTONE_3A.md) and
 [M3B](docs/MILESTONE_3B.md). Newer CPU/offline and native Intel Iris Xe results are
 recorded in [M15](docs/MILESTONE_15.md) and [M16](docs/MILESTONE_16.md).
 [M17](docs/MILESTONE_17.md) records settings checks;
-[M18](docs/MILESTONE_18.md) records foliage evidence and remaining limits. Synthetic GPU success
+[M18](docs/MILESTONE_18.md) records foliage evidence;
+[M19](docs/MILESTONE_19.md) records celestial-glow evidence and limits. Synthetic GPU success
 does not establish that the latest branch passed Minecraft testing. Tool duration
 is not a GPU-performance benchmark.
 
@@ -168,6 +175,7 @@ is not a GPU-performance benchmark.
 | Water depth color | [M16](docs/MILESTONE_16.md) / [中文](docs/MILESTONE_16.zh-CN.md) |
 | Settings and profiles | [M17](docs/MILESTONE_17.md) / [中文](docs/MILESTONE_17.zh-CN.md) |
 | Foliage and shared shadow motion | [M18](docs/MILESTONE_18.md) / [中文](docs/MILESTONE_18.zh-CN.md) |
+| Angular sun/moon glow | [M19](docs/MILESTONE_19.md) / [中文](docs/MILESTONE_19.zh-CN.md) |
 
 `shaders/` contains 24 program pairs and configuration. Shared code/settings live
 in `shaders/lib/`, native geometry helpers in `shaders/lib/geometry/`, translations

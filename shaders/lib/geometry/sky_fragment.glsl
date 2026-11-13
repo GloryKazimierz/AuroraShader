@@ -1,6 +1,7 @@
 // M7 styles only the sky background; stars and textured celestial bodies remain vanilla.
 #include "/lib/sky_palette.glsl"
 #include "/lib/aurora.glsl"
+#include "/lib/celestial_glow.glsl"
 
 uniform int renderStage;
 uniform float viewHeight;
@@ -52,6 +53,8 @@ void main() {
         // Only the upper background receives ribbons: never stars, void or sunset draws.
         // Keep the shared sky palette unchanged so terrain fog cannot contain aurora.
         if (renderStage == MC_RENDER_STAGE_SKY) {
+            // M19 changes only background light; native sun/moon texture draws stay separate.
+            color.rgb = applyCelestialGlow(pos, color.rgb);
             color.rgb = applyNightAurora(pos, color.rgb);
         }
 	}

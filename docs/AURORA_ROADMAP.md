@@ -47,8 +47,9 @@ rather than turning every surface into a uniform color wash.
 | M16 | Same-pixel vertical-background-gap water color with preserved source luminance | CPU/offline/native checks recorded; Minecraft/Iris confirmation remains pending |
 | M17 | Grouped settings, complete Simplified Chinese labels and three six-setting profiles | CPU/offline/native profile checks recorded; Iris UI/runtime confirmation pending |
 | M18 | Shared world-anchored leaf/grass displacement and matching shadows; profiles expanded to seven controls | CPU/offline/native checks recorded; Minecraft/Iris observation remains pending |
+| M19 | Independent angular sun/moon sky glow with bounded color and artistic lunar-phase brightness | CPU/offline/native checks recorded; Minecraft/Iris observation remains pending |
 
-M6–M17 remain available as historical branches. M18 builds on M17 without
+M6–M18 remain available as historical branches. M19 builds on M18 without
 upgrading any runtime status merely because development continues.
 
 ## Sequence of work
@@ -108,12 +109,16 @@ Each step should ship a small, reviewable increment with its own learning notes.
    motion bounded, preserve unrelated geometry and expose Off/strength/speed controls.
    Extend profiles to seven controls; leave culling/model assumptions and runtime
    observations explicit. This is not a weather or plant-physics simulation.
-13. **Water transparency — next research priority.** Establish reliable
+13. **Celestial sky glow (M19).** Add bounded warm sun and cool moon halos to the sky
+   background, using independent celestial directions, angular falloff and artistic
+   lunar-phase brightness. Retain native discs, terrain lighting and shared fog/water
+   palettes; explain angular width versus pixel footprint and finite fallbacks.
+14. **Water transparency — next research priority.** Establish reliable
    depth, sorting and composition contracts before selecting a transmission
    feature. A future opaque-scene copy needs its own suitable attachment; gbuffer
    `colortex0`–`colortex3` reads are atlas aliases, not the composed scene. This
    remains research/planning, not implemented water-depth transmission.
-14. **Completeness.** Explore distinct dimension palettes, broader vegetation coverage,
+15. **Completeness.** Explore distinct dimension palettes, broader vegetation coverage,
    measured performance budgets and broad compatibility. Maintain clear gameplay silhouettes
    and stable temporal behavior.
 
@@ -164,6 +169,7 @@ runtime success. No performance improvement is claimed without measurement.
 
 - [Complementary's stated product priorities](https://www.complementary.dev/)
 - [Iris rendering program order](https://shaders.properties/current/reference/programs/overview/)
+- [M19 celestial sky-glow learning notes](MILESTONE_19.md)
 - [M18 foliage wind and matching-shadow notes](MILESTONE_18.md)
 - [M17 settings and profile guide](MILESTONE_17.md)
 - [M16 water depth-color learning notes](MILESTONE_16.md)

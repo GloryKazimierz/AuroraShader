@@ -184,3 +184,12 @@ value.FOLIAGE_WIND_SPEED.0=静态
 value.FOLIAGE_WIND_SPEED.1=正常
 value.FOLIAGE_WIND_SPEED.2=双倍
 option.FOLIAGE_WIND_SPEED.comment=静态使用零相位的固定弯曲形态，并非冻结当前画面。关闭风动才会恢复原形。
+
+option.CELESTIAL_GLOW=日月光晕
+value.CELESTIAL_GLOW.0=关闭
+value.CELESTIAL_GLOW.1=开启
+option.CELESTIAL_GLOW.comment=在太阳周围添加柔和暖色光晕，在月亮周围添加冷色光晕。需要 Aurora 天空与线性场景模式，地形光照保持不变。
+option.SUN_GLOW_STRENGTH=太阳光晕强度
+option.SUN_GLOW_STRENGTH.comment=控制太阳周围新增的暖色天空光晕。设为零只关闭太阳光晕。
+option.MOON_GLOW_STRENGTH=月亮光晕强度
+option.MOON_GLOW_STRENGTH.comment=满月最亮，新月不添加光晕。设为零只关闭月亮光晕。

@@ -6,6 +6,7 @@ import subprocess
 from functools import lru_cache
 from itertools import product
 from validate_clouds import restore_cloud_source
+from validate_celestial_glow import restore_celestial_glow_source, restore_celestial_glow_plumbing
 
 M10_BASELINE = '9e9bbc06d7f115783a9fa0f52c940325dc7e3f38'
 AURORA_CALL = '''        // Only the upper background receives ribbons: never stars, void or sunset draws.
@@ -22,6 +23,7 @@ screen.AURORA.columns = 2
 
 
 def restore_aurora_plumbing(source):
+    source = restore_celestial_glow_plumbing(source)
     assert source.count(AURORA_CALL) <= 1
     return source.replace(AURORA_CALL,'',1)
 
@@ -167,12 +169,12 @@ def validate_aurora(root,expand,preprocess,compact,function_body):
         assert token in code,token
     assert 'pow(' not in code
     assert 'cameraPosition' not in code and 'gbufferModelViewInverse[3]' not in code
-    geometry = read('lib/geometry/sky_fragment.glsl')
+    geometry = restore_celestial_glow_source('lib/geometry/sky_fragment.glsl',read('lib/geometry/sky_fragment.glsl'))
     assert geometry.count(AURORA_CALL) == 1
     assert body(geometry,'main').count('applyNightAurora(') == 1
     assert geometry.index('color = vec4(applyAuroraSky') < geometry.index(AURORA_CALL)
     # Exact M10 restoration pins stars/void branches, alpha, base sky and all fog.
-    assert restore_aurora_source('lib/geometry/sky_fragment.glsl',geometry) == prior('lib/geometry/sky_fragment.glsl')
+    assert restore_aurora_source('lib/geometry/sky_fragment.glsl',read('lib/geometry/sky_fragment.glsl')) == prior('lib/geometry/sky_fragment.glsl')
     for path in sorted(shaders.glob('*.fsh')):
         expanded = expand(path)
         assert ('applyNightAurora(' in expanded) == (path.stem == 'gbuffers_skybasic'),path.name

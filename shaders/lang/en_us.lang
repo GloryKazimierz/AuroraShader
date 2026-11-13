@@ -184,3 +184,12 @@ value.FOLIAGE_WIND_SPEED.0=Static
 value.FOLIAGE_WIND_SPEED.1=Normal
 value.FOLIAGE_WIND_SPEED.2=Double
 option.FOLIAGE_WIND_SPEED.comment=Static keeps a fixed bent pattern at zero phase. Off restores the original shape; it does not freeze the current frame.
+
+option.CELESTIAL_GLOW=Sun and Moon Glow
+value.CELESTIAL_GLOW.0=Off
+value.CELESTIAL_GLOW.1=On
+option.CELESTIAL_GLOW.comment=Soft warm glow around the sun and cool glow around the moon. Requires Aurora Sky and linear scene mode; terrain lighting stays unchanged.
+option.SUN_GLOW_STRENGTH=Sun Glow Strength
+option.SUN_GLOW_STRENGTH.comment=Controls the added warm sky glow around the sun. Zero disables only sun glow.
+option.MOON_GLOW_STRENGTH=Moon Glow Strength
+option.MOON_GLOW_STRENGTH.comment=Full moon is brightest; new moon has no added glow. Zero disables only moon glow.

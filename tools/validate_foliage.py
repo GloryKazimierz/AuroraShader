@@ -5,6 +5,7 @@ import struct
 import subprocess
 from pathlib import Path
 from itertools import product
+from validate_celestial_glow import GLOW_OPTIONS, restore_celestial_glow_source
 
 M17_BASELINE = 'b26755b1c3e611dd18a4836db305d6188dafd052'
 FOLIAGE_OPTIONS = {'FOLIAGE_WIND','FOLIAGE_WIND_STRENGTH','FOLIAGE_WIND_SPEED'}
@@ -336,6 +337,7 @@ def restore_foliage_source(relative,source):
     relative=relative.replace('\\','/')
     if relative.startswith('shaders/'):
         relative=relative[len('shaders/'):]
+    source=restore_celestial_glow_source(relative,source)
     if relative=='gbuffers_terrain.vsh':
         flag='#define APPLY_FOLIAGE_WIND\n'
         assert source.count(flag)==1
@@ -397,7 +399,7 @@ def validate_foliage(root,expand,preprocess,compact,function_body):
         previous=subprocess.check_output(['git','-C',str(root),'show',M17_BASELINE+':'+path]).decode('utf-8').replace('\r\n','\n')
         assert restore_foliage_source(relative,read(relative))==previous,relative
     current_files={str(path.relative_to(root)).replace('\\','/') for path in shaders.rglob('*') if path.is_file()}
-    assert current_files-set(old_files)=={'shaders/lib/foliage.glsl','shaders/lib/foliage_settings.glsl'}
+    assert current_files-set(old_files)=={'shaders/lib/foliage.glsl','shaders/lib/foliage_settings.glsl','shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl'}
     assert len(list(shaders.glob('*.vsh')))==len(list(shaders.glob('*.fsh')))==24
     helper=read('lib/foliage.glsl')
     code=compact(helper)
@@ -446,8 +448,8 @@ def validate_foliage(root,expand,preprocess,compact,function_body):
     assert mappings['block.10003']=='minecraft:short_grass'
     assert mappings['block.10004']=='minecraft:tall_grass:half=lower'
     assert mappings['block.10005']=='minecraft:tall_grass:half=upper'
-    options=option_definitions(root)
-    properties=parse_properties(read('shaders.properties'))
+    options={key:value for key,value in option_definitions(root).items() if key not in GLOW_OPTIONS}
+    properties=parse_properties(restore_celestial_glow_source('shaders.properties',read('shaders.properties')))
     controls,screens=menu_options(properties,options)
     assert len(options)==len(controls)==54 and len(screens)==12
     for name,default,values in (('FOLIAGE_WIND','1',('0','1')),
@@ -468,7 +470,7 @@ def validate_foliage(root,expand,preprocess,compact,function_body):
         current['FOLIAGE_WIND_SPEED']='2'
         assert matching_profiles(profiles,current)==(name,)
     assert matching_profiles(profiles,dict(defaults,FOLIAGE_WIND='0'))==()
-    en,zh=(parse_language(read('lang/'+language)) for language in ('en_us.lang','zh_cn.lang'))
+    en,zh=(parse_language(restore_celestial_glow_source('lang/'+language,read('lang/'+language))) for language in ('en_us.lang','zh_cn.lang'))
     assert len(en)==len(zh)==171 and set(en)==set(zh)
     assert FOLIAGE_LABELS<=set(en)
     assert all(re.search(r'[\u3400-\u9fff]',zh[key]) for key in FOLIAGE_LABELS)

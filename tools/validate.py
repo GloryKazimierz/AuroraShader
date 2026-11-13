@@ -665,3 +665,7 @@ validate_settings_profiles(ROOT)
 # M18 shares rooted foliage displacement between terrain and shadow casters.
 from validate_foliage import validate_foliage
 validate_foliage(ROOT, expand, preprocess, compact, function_body)
+
+# M19 adds independent sun/moon background glow before the existing aurora.
+from validate_celestial_glow import validate_celestial_glow
+validate_celestial_glow(ROOT, expand, preprocess, compact, function_body)
