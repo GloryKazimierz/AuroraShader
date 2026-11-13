@@ -5,8 +5,28 @@ sunsets, indigo nights, and optional teal/violet aurora ribbons. The goal is
 a coherent, playable visual style with configurable performance, developed in
 small documented stages.
 
-**Current development: Milestone 13 — Water Color and Sky Reflection**
-on `codex/milestone-13-water-foundation`, based on M12 commit `4e7b8b4`.
+**Current development: Milestone 14 — Stable Water Reflection Waves**
+on `codex/milestone-14-water-waves`, based on M13 commit `fd394d3`.
+Three gentle analytic waves now vary the normal used for classified water's sky
+reflection and Fresnel weight. The pattern follows world coordinates, with safe
+negative/large camera anchors and periodic spatial/time phases. Original face
+eligibility is retained while the reflection direction changes.
+
+The existing Water page adds waves (on), strength (0.6) and motion (normal).
+Off or strength zero returns the exact M13 reflection normal. Static selects a
+fixed rippled pattern, not a flat surface. Integer wave frequencies tile every
+128 blocks and share a 200-second base loop that joins across Iris's clock reset.
+The maximum horizontal-water slope is bounded by about 0.07466212 at full strength.
+
+Only reflection normals change: mesh positions, shorelines, alpha, depth, tint,
+material classification, shadow casting and fog math remain unchanged. A shared
+camera-anchor include relocates two existing declarations without changing them.
+There are still 24 program pairs and no additional attachments or textures.
+Runtime appearance, motion stability and GPU cost remain unmeasured.
+See [M14 English learning notes](docs/MILESTONE_14.md) /
+[M14 中文原理与学习说明](docs/MILESTONE_14.zh-CN.md).
+
+**Water source foundation (M13):**
 Vanilla water fluid geometry is explicitly classified by material ID and fluid
 marker. Sky-lit water receives a gentle cyan color multiplier and an angle-dependent
 blend of analytic Aurora sky color on upward-facing surfaces. Glass, lava, host
@@ -169,6 +189,7 @@ Angle-Aware range is `0.0001` to `0.0005`. Hard / 3x3 / 5x5 / Poisson keep
 | M11 | Bounded world-oriented teal/violet night-sky ribbons |
 | M12 | Native cloud day/night tint and per-fragment atmosphere |
 | M13 | Classified water color and bounded analytic sky reflection |
+| M14 | Periodic world-anchored wave normals for water reflection |
 
 Read [Milestone 6 (English)](docs/MILESTONE_6.md) /
 [中文说明](docs/MILESTONE_6.zh-CN.md), the
@@ -180,7 +201,7 @@ The [M5 Poisson experiment](docs/MILESTONE_5.md) and
 [shadow mapping study guide](docs/SHADOW_MAPPING_STUDY_GUIDE.md) remain available.
 This work does not merge into main or modify historical milestone branches.
 
-Current M13 checkout: `D:\MinecraftShaders\MyShader-pcf-kernels`. The original
+Current M14 checkout: `D:\MinecraftShaders\MyShader-pcf-kernels`. The original
 `MyShader` junction still resolves to the separate sky worktree, so it does not
 load this development branch. Follow the benchmark's test-profile setup to select the correct pack;
 this task has not created a test instance or changed a junction.

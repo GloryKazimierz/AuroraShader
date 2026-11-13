@@ -4,6 +4,7 @@ import re
 import subprocess
 from functools import lru_cache
 from itertools import product
+from validate_water_waves import restore_water_wave_source
 
 M12_BASELINE = '4e7b8b4bb943d24eee9e46745ffeaef16bee5f4f'
 WATER_VERTEX_DECL = '''#ifdef APPLY_WATER_STYLE
@@ -44,6 +45,7 @@ def restore_water_source(relative,source):
     relative = relative.replace('\\','/')
     if relative.startswith('shaders/'):
         relative = relative[len('shaders/'):]
+    source = restore_water_wave_source(relative,source)
     if relative in ('gbuffers_water.vsh','gbuffers_water.fsh'):
         assert source.count('#define APPLY_WATER_STYLE\n') == 1
         source = source.replace('#define APPLY_WATER_STYLE\n','',1)
@@ -171,7 +173,9 @@ def validate_water(root,expand,preprocess,compact,function_body):
     assert read('lang/en_us.lang').startswith(prior('lang/en_us.lang'))
     assignments = [line.strip() for line in read('block.properties').splitlines() if line.strip() and not line.lstrip().startswith('#')]
     assert assignments == ['block.10001 = minecraft:water']
-    source,vertex,fragment = read('lib/water.glsl'),read('lib/geometry/lit_vertex.glsl'),read('lib/geometry/lit_fragment.glsl')
+    # Bind the M13 oracle to the precisely restored waves-off implementation.
+    source = restore_water_wave_source('lib/water.glsl',read('lib/water.glsl'))
+    vertex,fragment = read('lib/geometry/lit_vertex.glsl'),read('lib/geometry/lit_fragment.glsl')
     code = compact(source)
     for token in ('floatgrazing=1.0-clamp(normalDotView,0.0,1.0);',
                   'return0.02+0.98*squared*squared*grazing;',

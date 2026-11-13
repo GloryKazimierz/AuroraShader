@@ -142,3 +142,15 @@ option.WATER_TINT_STRENGTH=Water Color Strength
 option.WATER_TINT_STRENGTH.comment=Gentle cyan bias on sky-lit water; block light reduces the tint. Zero disables only the new color multiplier.
 option.WATER_REFLECTION_STRENGTH=Water Sky Reflection
 option.WATER_REFLECTION_STRENGTH.comment=Angle-dependent analytic sky color on upper water faces. Requires Aurora Sky and sky light; no terrain, clouds, sun/moon or aurora reflections. Native alpha still applies.
+
+option.WATER_WAVES=Water Reflection Waves
+value.WATER_WAVES.0=Off
+value.WATER_WAVES.1=On
+option.WATER_WAVES.comment=Gentle world-anchored variation of reflection normals only. No vertex displacement, shoreline movement or refraction.
+option.WATER_WAVE_STRENGTH=Water Wave Strength
+option.WATER_WAVE_STRENGTH.comment=Scales analytic slopes. Zero preserves the M13 reflection normal exactly. Original upward-face eligibility remains fixed.
+option.WATER_WAVE_SPEED=Water Wave Motion
+value.WATER_WAVE_SPEED.0=Static
+value.WATER_WAVE_SPEED.1=Normal
+value.WATER_WAVE_SPEED.2=Double
+option.WATER_WAVE_SPEED.comment=Normal motion uses integer frequencies in a 200-second loop. Static keeps a rippled pattern at zero phase; Off returns the flat source normal.

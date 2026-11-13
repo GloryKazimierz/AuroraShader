@@ -3,6 +3,7 @@
 #include "/lib/water_settings.glsl"
 #include "/lib/lighting_settings.glsl"
 #include "/lib/sky_palette.glsl"
+#include "/lib/water_waves.glsl"
 
 float waterFresnel(float normalDotView) {
     // Schlick's angle dependence with a fixed water-like F0; not full transmission.
@@ -48,9 +49,11 @@ vec3 applyWaterStyle(vec3 scene, vec3 viewPosition, vec3 normalView, vec2 lightm
     if (normalScale <= 1e-6 || viewScale <= 1e-6) return tinted;
     vec3 normal = celestialUnit(normalView);
     vec3 towardEye = celestialUnit(-viewPosition);
-    vec3 reflected = reflect(-towardEye, normal);
     vec3 up = celestialUnit(upPosition);
+    // Face eligibility uses the original normal, so animation cannot toggle the face mask.
     float upwardSurface = smoothstep(0.5, 0.95, dot(normal, up));
+    normal = waterWaveNormal(normal, viewPosition, upwardSurface);
+    vec3 reflected = reflect(-towardEye, normal);
     // Preserve the strong grazing reflection at the horizon; fade only just below it.
     float aboveHorizon = smoothstep(-0.10, 0.0, dot(reflected, up));
     reflectionWeight *= upwardSurface * aboveHorizon * waterFresnel(dot(normal, towardEye));

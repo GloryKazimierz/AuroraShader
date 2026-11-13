@@ -641,3 +641,7 @@ validate_clouds(ROOT, expand, preprocess, compact, function_body)
 # M13 scopes water RGB to a flat material/fluid classification before existing fog.
 from validate_water import validate_water
 validate_water(ROOT, expand, preprocess, compact, function_body)
+
+# M14 changes reflection normals while preserving all original geometry/coverage.
+from validate_water_waves import validate_water_waves
+validate_water_waves(ROOT, expand, preprocess, compact, function_body)

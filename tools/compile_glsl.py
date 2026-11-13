@@ -107,6 +107,16 @@ def configurations():
                                     WATER_TINT_STRENGTH=tint, WATER_REFLECTION_STRENGTH=reflection,
                                     FOG_ENABLED=fog)
 
+    # M14: wave/scene/style/debug gates and every strength/speed option, including
+    # reflection-off and atmospheric-fog-off integration paths.
+    for mode, style, waves, debug in product((0, 1), (0, 1), (0, 1), range(7)):
+        yield 'gbuffers_water', dict(SCENE_COLOR_MODE=mode, WATER_STYLE=style,
+                                    WATER_WAVES=waves, DEBUG_VIEW=debug)
+    for strength, speed, reflection, fog in product((0.0, .3, .6, 1.0), (0, 1, 2), (0.0, .75), (0, 1)):
+        yield 'gbuffers_water', dict(SCENE_COLOR_MODE=1, WATER_STYLE=1, WATER_WAVES=1,
+                                    WATER_WAVE_STRENGTH=strength, WATER_WAVE_SPEED=speed,
+                                    WATER_REFLECTION_STRENGTH=reflection, FOG_ENABLED=fog)
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--compiler', help='Path to installed glslangValidator')

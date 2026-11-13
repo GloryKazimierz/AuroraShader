@@ -41,9 +41,10 @@ rather than turning every surface into a uniform color wash.
 | M10 | Controlled linear HDR bright-pixel bloom at half resolution | Offline checks recorded; runtime confirmation remains pending |
 | M11 | World-oriented, night/weather-gated procedural sky aurora | Offline checks recorded; runtime confirmation remains pending |
 | M12 | Native cloud color and source-depth fog with explicit blend scope | Offline checks recorded; runtime confirmation remains pending |
-| M13 | Water-fluid classification, bounded tint and analytic sky-color reflection | Implementation branch; executed checks belong in the milestone report |
+| M13 | Water-fluid classification, bounded tint and analytic sky-color reflection | Offline checks recorded; runtime confirmation remains pending |
+| M14 | World-anchored analytic water normals for moving sky reflections | Implementation branch; executed checks belong in the milestone report |
 
-M6–M12 remain available as historical branches. M13 builds on M12 without
+M6–M13 remain available as historical branches. M14 builds on M13 without
 upgrading any runtime status merely because development continues.
 
 ## Sequence of work
@@ -81,10 +82,16 @@ Each step should ship a small, reviewable increment with its own learning notes.
    alpha and apply bounded tint/analytic sky-color reflection before the existing
    foreground fog. This reflects a palette, not scene geometry, clouds or aurora;
    it adds no SSR, refraction or waves.
-8. **Water depth and transparency — next research priority.** Establish reliable
+8. **Gentle water reflection motion (M14).** Add bounded analytic wave normals at
+   world-anchored positions. Keep geometry, alpha, depth, tint and fog unchanged;
+   preserve the original surface eligibility before perturbing reflection/Fresnel.
+   Document periodic space/time and the limits of normal-only motion.
+9. **Water depth and transparency — next research priority.** Establish reliable
    depth, sorting and composition contracts before selecting the next transmission
-   feature. This remains research/planning, not implemented physical water depth.
-9. **Completeness.** Explore distinct dimension palettes, vegetation motion,
+   feature. A future opaque-scene copy needs its own suitable attachment; gbuffer
+   `colortex0`–`colortex3` reads are atlas aliases, not the composed scene. This
+   remains research/planning, not implemented water-depth transmission.
+10. **Completeness.** Explore distinct dimension palettes, vegetation motion,
    performance profiles and broad compatibility. Maintain clear gameplay silhouettes
    and stable temporal behavior.
 
@@ -134,6 +141,7 @@ runtime success. No performance improvement is claimed without measurement.
 
 - [Complementary's stated product priorities](https://www.complementary.dev/)
 - [Iris rendering program order](https://shaders.properties/current/reference/programs/overview/)
+- [M14 analytic water-normal learning notes](MILESTONE_14.md)
 - [M13 water foundation learning notes](MILESTONE_13.md)
 - [M12 native cloud atmosphere learning notes](MILESTONE_12.md)
 - [M11 procedural sky aurora learning notes](MILESTONE_11.md)

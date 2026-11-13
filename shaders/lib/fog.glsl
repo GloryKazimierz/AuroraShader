@@ -2,8 +2,7 @@
 #include "/lib/sky_palette.glsl"
 #include "/lib/position.glsl"
 uniform vec3 fogColor;
-uniform ivec3 cameraPositionInt;
-uniform vec3 cameraPositionFract;
+#include "/lib/camera_anchor.glsl"
 uniform ivec2 eyeBrightnessSmooth;
 uniform float viewWidth;
 uniform float viewHeight;
