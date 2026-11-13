@@ -40,9 +40,10 @@ rather than turning every surface into a uniform color wash.
 | M9 | Distance/height/weather fog with explicit opaque and late-blend scope | Offline checks recorded; runtime confirmation remains pending |
 | M10 | Controlled linear HDR bright-pixel bloom at half resolution | Offline checks recorded; runtime confirmation remains pending |
 | M11 | World-oriented, night/weather-gated procedural sky aurora | Offline checks recorded; runtime confirmation remains pending |
-| M12 | Native cloud color and source-depth fog with explicit blend scope | Implementation branch; executed checks belong in the milestone report |
+| M12 | Native cloud color and source-depth fog with explicit blend scope | Offline checks recorded; runtime confirmation remains pending |
+| M13 | Water-fluid classification, bounded tint and analytic sky-color reflection | Implementation branch; executed checks belong in the milestone report |
 
-M6–M11 remain available as historical branches. M12 builds on M11 without
+M6–M12 remain available as historical branches. M13 builds on M12 without
 upgrading any runtime status merely because development continues.
 
 ## Sequence of work
@@ -76,11 +77,14 @@ Each step should ship a small, reviewable increment with its own learning notes.
    fog before supported native blends. Unknown cloud blend paths retain their
    baseline; overlap with celestial objects/aurora still needs runtime observation.
    Custom cloud geometry, volumetrics and cloud shadows remain separate future work.
-7. **Water foundations — next priority.** Establish water classification and bounded
-   sky-color reflection before fog while preserving alpha. The next planned increment
-   excludes SSR, refraction and waves. Later material/transmission work should follow
-   explicit composition contracts and the capabilities of the scene buffers.
-8. **Completeness.** Explore distinct dimension palettes, vegetation motion,
+7. **Water foundations (M13).** Classify actual water-fluid geometry, retain native
+   alpha and apply bounded tint/analytic sky-color reflection before the existing
+   foreground fog. This reflects a palette, not scene geometry, clouds or aurora;
+   it adds no SSR, refraction or waves.
+8. **Water depth and transparency — next research priority.** Establish reliable
+   depth, sorting and composition contracts before selecting the next transmission
+   feature. This remains research/planning, not implemented physical water depth.
+9. **Completeness.** Explore distinct dimension palettes, vegetation motion,
    performance profiles and broad compatibility. Maintain clear gameplay silhouettes
    and stable temporal behavior.
 
@@ -130,6 +134,7 @@ runtime success. No performance improvement is claimed without measurement.
 
 - [Complementary's stated product priorities](https://www.complementary.dev/)
 - [Iris rendering program order](https://shaders.properties/current/reference/programs/overview/)
+- [M13 water foundation learning notes](MILESTONE_13.md)
 - [M12 native cloud atmosphere learning notes](MILESTONE_12.md)
 - [M11 procedural sky aurora learning notes](MILESTONE_11.md)
 - [M10 controlled bloom learning notes](MILESTONE_10.md)

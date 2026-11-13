@@ -97,6 +97,16 @@ def configurations():
         yield 'gbuffers_clouds', dict(SCENE_COLOR_MODE=1, CLOUD_STYLE=1,
                                     CLOUD_COLOR_STRENGTH=strength, FOG_DENSITY=density, FOG_START=start)
 
+    # M13: material varying linkage, every compile-time water/sky/debug gate,
+    # and all exposed tint/reflection choices with both atmospheric-fog states.
+    for mode, style, sky_style, debug in product((0, 1), (0, 1), (0, 1), range(7)):
+        yield 'gbuffers_water', dict(SCENE_COLOR_MODE=mode, WATER_STYLE=style,
+                                    SKY_STYLE=sky_style, DEBUG_VIEW=debug)
+    for tint, reflection, fog in product((0.0, .2, .35, .5, 1.0), (0.0, .2, .35, .5, .75), (0, 1)):
+        yield 'gbuffers_water', dict(SCENE_COLOR_MODE=1, WATER_STYLE=1,
+                                    WATER_TINT_STRENGTH=tint, WATER_REFLECTION_STRENGTH=reflection,
+                                    FOG_ENABLED=fog)
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--compiler', help='Path to installed glslangValidator')

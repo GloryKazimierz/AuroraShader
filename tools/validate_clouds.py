@@ -4,6 +4,7 @@ import re
 import subprocess
 from functools import lru_cache
 from itertools import product
+from validate_water import restore_water_source
 
 M11_BASELINE = 'b0f6e105a11b1c09e97ff3100cc58f8bed7c986a'
 CLOUD_INCLUDE = '''#ifdef APPLY_CLOUD_ATMOSPHERE
@@ -30,6 +31,7 @@ def restore_cloud_source(relative,source):
     relative = relative.replace('\\','/')
     if relative.startswith('shaders/'):
         relative = relative[len('shaders/'):]
+    source = restore_water_source(relative,source)
     if relative == 'gbuffers_clouds.fsh':
         assert source.count('#define APPLY_CLOUD_ATMOSPHERE\n') == 1
         source = source.replace('#define APPLY_CLOUD_ATMOSPHERE\n','',1)

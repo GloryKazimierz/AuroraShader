@@ -10,6 +10,7 @@ from functools import lru_cache
 from itertools import product
 from validate_bloom import BLOOM_PROGRAMS, restore_bloom_properties
 from validate_aurora import restore_aurora_source
+from validate_water import restore_water_plumbing, restore_water_source
 
 M8_BASELINE = '7ac62da5bada1ab0fd0eb6c66cb27222d6ed3586'
 GUARDED = ('pipeline_settings', 'color_space', 'scene_color', 'atmosphere_settings',
@@ -46,7 +47,7 @@ def remove_once(source, fragment):
 
 def restore_fog_plumbing(source):
     """Remove only the exact two M9 call sites from preprocessed historical checks."""
-    return remove_once(remove_once(source, DEFERRED_FOG), LATE_FOG)
+    return remove_once(remove_once(restore_water_plumbing(source), DEFERRED_FOG), LATE_FOG)
 
 
 def historical_source(relative, source):
@@ -189,7 +190,7 @@ def validate_fog(root, expand, preprocess, compact, function_body):
     assert main.index('if(surface.a>0.5)') < main.index('lightScene(') < main.index('applyCelestialPalette(') < main.index('applyAtmosphericFog(')
     assert 'if(surfaceDepth<1.0){vec2screenUV=' in main
     assert main.count('applyAtmosphericFog(') == 1
-    lit = read('lib/geometry/lit_fragment.glsl')
+    lit = restore_water_source('lib/geometry/lit_fragment.glsl', read('lib/geometry/lit_fragment.glsl'))
     assert lit.count(LATE_INCLUDE) == lit.count(LATE_FOG) == 1
     assert lit.index('discard;') < lit.index('sceneFromDisplay(color.rgb)') < lit.index('applyLateAtmosphericFog(color.rgb,fogView)'.replace(',', ', '))
     # Every active fragment contains one copy of each guarded declaration/function.

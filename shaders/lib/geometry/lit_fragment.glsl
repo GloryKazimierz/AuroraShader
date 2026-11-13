@@ -3,6 +3,13 @@
 #ifdef APPLY_LATE_FOG
 #include "/lib/fog.glsl"
 #endif
+#ifdef APPLY_WATER_STYLE
+#include "/lib/water.glsl"
+flat in int waterSurface;
+#ifndef WRITE_SURFACE_DATA
+in vec3 normalView;
+#endif
+#endif
 
 uniform sampler2D lightmap;
 uniform sampler2D gtexture;
@@ -32,6 +39,10 @@ void main() {
     // Reconstruct this foreground fragment, not the already composed background.
     vec2 fogUV = gl_FragCoord.xy / vec2(viewWidth, viewHeight);
     vec3 fogView = reconstructViewPosition(fogUV, gl_FragCoord.z);
+#ifdef APPLY_WATER_STYLE
+    // Use the water's own position; existing late fog still runs once afterward.
+    color.rgb = applyWaterStyle(color.rgb, fogView, normalView, lmcoord, waterSurface, blendFunc, fogColor);
+#endif
     color.rgb = applyLateAtmosphericFog(color.rgb, fogView);
 #endif
 #ifdef WRITE_SURFACE_DATA

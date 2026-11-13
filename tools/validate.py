@@ -7,6 +7,7 @@ import re
 import subprocess
 from validate_fog import historical_source, restore_fog_plumbing
 from validate_bloom import BLOOM_PROGRAMS, BLOOM_TARGETS
+from validate_water import stage_variables
 
 ROOT = Path(__file__).resolve().parents[1]
 SHADERS = ROOT / "shaders"
@@ -105,10 +106,9 @@ for debug, grayscale, shadows, filtering, softness, bias_mode in product(
                     depth += (char == left) - (char == right)
                     assert depth >= 0, str(fragment)
                 assert depth == 0, str(fragment)
-        outputs = dict((name, kind) for kind, name in
-                       re.findall(r"^out (\w+) (\w+);", vs, re.M))
-        for kind, name in re.findall(r"^in (\w+) (\w+);", fs, re.M):
-            assert outputs.get(name) == kind, (fragment, name)
+        outputs = stage_variables(vs, "out")
+        for name, signature in stage_variables(fs, "in").items():
+            assert outputs.get(name) == signature, (fragment, name)
         locations = [int(n) for n in re.findall(
             r"layout\(location = (\d+)\) out vec4", fs)]
         targets = re.findall(r"/\* RENDERTARGETS: ([0-9,]+) \*/", fs)
@@ -637,3 +637,7 @@ validate_aurora(ROOT, expand, preprocess, compact, function_body)
 # M12 keeps native cloud geometry and adds only source RGB atmosphere.
 from validate_clouds import validate_clouds
 validate_clouds(ROOT, expand, preprocess, compact, function_body)
+
+# M13 scopes water RGB to a flat material/fluid classification before existing fog.
+from validate_water import validate_water
+validate_water(ROOT, expand, preprocess, compact, function_body)

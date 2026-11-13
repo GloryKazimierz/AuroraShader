@@ -5,8 +5,29 @@ sunsets, indigo nights, and optional teal/violet aurora ribbons. The goal is
 a coherent, playable visual style with configurable performance, developed in
 small documented stages.
 
-**Current development: Milestone 12 — Cloud Color and Atmosphere**
-on `codex/milestone-12-cloud-atmosphere`, based on M11 commit `b0f6e10`.
+**Current development: Milestone 13 — Water Color and Sky Reflection**
+on `codex/milestone-13-water-foundation`, based on M12 commit `4e7b8b4`.
+Vanilla water fluid geometry is explicitly classified by material ID and fluid
+marker. Sky-lit water receives a gentle cyan color multiplier and an angle-dependent
+blend of analytic Aurora sky color on upward-facing surfaces. Glass, lava, host
+blocks, held items and unknown fluids retain their existing source paths.
+
+The **Water Color and Sky Reflection** page offers style (default Aurora), tint
+strength (0.35) and reflection strength (0.35). Style off or both strengths zero
+restores the M12 source before its existing late fog. Tint is reduced by block
+light; zero skylight disables both additions. Reflection also requires Aurora Sky
+and follows Sky Blend, fading below the reflected horizon. Fluid cameras, legacy
+scene mode, debug and unsupported blend states bypass the new water effect.
+
+This is a source-color approximation: native alpha still attenuates the reflection.
+It does not sample terrain, clouds, celestial discs or aurora, and adds no SSR,
+refraction, waves, opacity change, geometry displacement or shadow behavior. No new
+attachment or program pair is added. Runtime water classification and appearance
+remain unconfirmed; waterlogged/flowing fluid support follows pinned Iris source.
+See [M13 English learning notes](docs/MILESTONE_13.md) /
+[M13 中文原理与学习说明](docs/MILESTONE_13.zh-CN.md).
+
+**Cloud atmosphere foundation (M12):**
 Native cloud geometry now receives a restrained warm twilight/cool night tint and
 its own distance/height fog before ordinary blending. Original cloud coverage,
 face shading, alpha and native draw/depth behavior are retained. This is cloud
@@ -147,6 +168,7 @@ Angle-Aware range is `0.0001` to `0.0005`. Hard / 3x3 / 5x5 / Poisson keep
 | M10 | Half-resolution HDR bright-pixel bloom with separable filtering |
 | M11 | Bounded world-oriented teal/violet night-sky ribbons |
 | M12 | Native cloud day/night tint and per-fragment atmosphere |
+| M13 | Classified water color and bounded analytic sky reflection |
 
 Read [Milestone 6 (English)](docs/MILESTONE_6.md) /
 [中文说明](docs/MILESTONE_6.zh-CN.md), the
@@ -158,7 +180,7 @@ The [M5 Poisson experiment](docs/MILESTONE_5.md) and
 [shadow mapping study guide](docs/SHADOW_MAPPING_STUDY_GUIDE.md) remain available.
 This work does not merge into main or modify historical milestone branches.
 
-Current M12 checkout: `D:\MinecraftShaders\MyShader-pcf-kernels`. The original
+Current M13 checkout: `D:\MinecraftShaders\MyShader-pcf-kernels`. The original
 `MyShader` junction still resolves to the separate sky worktree, so it does not
 load this development branch. Follow the benchmark's test-profile setup to select the correct pack;
 this task has not created a test instance or changed a junction.

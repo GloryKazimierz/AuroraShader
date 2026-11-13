@@ -132,3 +132,13 @@ option.CLOUD_FOG=Cloud Fog
 value.CLOUD_FOG.0=Off
 value.CLOUD_FOG.1=On
 option.CLOUD_FOG.comment=Use the existing height/distance fog on each cloud fragment before blending. Also requires global Atmospheric Fog.
+
+screen.WATER=Water Color and Sky Reflection
+option.WATER_STYLE=Water Style
+value.WATER_STYLE.0=Native M12
+value.WATER_STYLE.1=Aurora
+option.WATER_STYLE.comment=Classified vanilla water only. Glass, lava and unknown fluids keep their original source. No waves, refraction or opacity changes.
+option.WATER_TINT_STRENGTH=Water Color Strength
+option.WATER_TINT_STRENGTH.comment=Gentle cyan bias on sky-lit water; block light reduces the tint. Zero disables only the new color multiplier.
+option.WATER_REFLECTION_STRENGTH=Water Sky Reflection
+option.WATER_REFLECTION_STRENGTH.comment=Angle-dependent analytic sky color on upper water faces. Requires Aurora Sky and sky light; no terrain, clouds, sun/moon or aurora reflections. Native alpha still applies.

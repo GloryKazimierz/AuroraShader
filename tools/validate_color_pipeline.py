@@ -10,6 +10,7 @@ from validate_atmosphere import decode, encode, clamp
 from validate_bloom import BLOOM_PROGRAMS
 from validate_aurora import restore_aurora_plumbing
 from validate_clouds import restore_cloud_plumbing
+from validate_water import stage_variables
 
 M7_BASELINE = '0b46bcb663363df21e0b45a89c26b427afe04eeb'
 
@@ -80,9 +81,9 @@ def validate_color_pipeline(root, expand, preprocess, compact, function_body):
             assert vs.count('void main()') == fs.count('void main()') == 1
             clean=re.sub(r'/\*.*?\*/|//[^\n]*','',fs,flags=re.S)
             assert not re.search(r'const int colortex\d+Format\s*=\s*[A-Z]',clean)
-            outs=dict((name,kind) for kind,name in re.findall(r'^out (\w+) (\w+);',vs,re.M))
-            for kind,name in re.findall(r'^in (\w+) (\w+);',fs,re.M):
-                assert outs.get(name) == kind, (fragment.name,mode,name)
+            outs=stage_variables(vs,'out')
+            for name,signature in stage_variables(fs,'in').items():
+                assert outs.get(name) == signature, (fragment.name,mode,name)
             if vertex.stem.startswith('gbuffers_') and vertex.stem != 'gbuffers_skybasic':
                 main=body(fs,'main')
                 assert main.count('color.rgb=sceneFromDisplay(color.rgb);') == 1, vertex.stem
