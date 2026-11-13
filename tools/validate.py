@@ -23,7 +23,7 @@ def expand(path, chain=()):
         return expand(SHADERS / match[1].lstrip("/"), chain + (path,))
     return re.sub(r'^#include "([^"]+)"\s*$', include, text, flags=re.M)
 
-def preprocess(text, debug, grayscale, shadows=True, filtering=1, softness=1.0, bias_mode=0):
+def preprocess(text, debug, grayscale, shadows=True, filtering=1, softness=1.0, bias_mode=0, overrides=None):
     macros = {}
     stack = []
     active = True
@@ -40,6 +40,8 @@ def preprocess(text, debug, grayscale, shadows=True, filtering=1, softness=1.0, 
                     macros[parts[1]] = str(bias_mode)
                 if parts[1] == "SHADOW_FILTER":
                     macros[parts[1]] = str(filtering)
+                if overrides and parts[1] in overrides:
+                    macros[parts[1]] = str(overrides[parts[1]])
                 if parts[1] == "SHADOWS_ENABLED" and not shadows:
                     macros.pop(parts[1], None)
             continue
@@ -114,10 +116,26 @@ for debug, grayscale, shadows, filtering, softness, bias_mode in product(
 props = (SHADERS / "shaders.properties").read_text()
 all_source = "\n".join(p.read_text() for p in SHADERS.rglob("*") if p.is_file())
 options = set(re.findall(r"^\s*(?://)?#define (\w+)", all_source, re.M))
+# Validate nested option screens as a graph, including missing screens and cycles.
+screens = {}
 for line in props.splitlines():
-    if line.startswith(("screen =", "sliders =")):
-        for option in line.split("=", 1)[1].split():
+    match = re.fullmatch(r"(screen(?:\.\w+)?) = (.*)", line)
+    if match and not match[1].endswith(".columns"):
+        screens[match[1]] = match[2].split()
+def check_screen(name, ancestors=()):
+    assert name not in ancestors, "Option screen cycle: " + name
+    assert name in screens, "Undefined option screen: " + name
+    for option in screens[name]:
+        if option.startswith("[") and option.endswith("]"):
+            check_screen("screen." + option[1:-1], ancestors + (name,))
+        else:
             assert option in options, "Undefined option: " + option
+for name in screens:
+    check_screen(name)
+for line in props.splitlines():
+    if line.startswith("sliders ="):
+        for option in line.split("=", 1)[1].split():
+            assert option in options, "Undefined slider: " + option
 for option in ("DEBUG_VIEW", "LIGHTING_STRENGTH", "AMBIENT_LIGHT",
                "DIRECT_LIGHT", "EXPOSURE", "SATURATION", "CONTRAST",
                "TEMPERATURE", "TINT", "GRAYSCALE", "SHADOWS_ENABLED", "SHADOW_BIAS", "SHADOW_FILTER", "SHADOW_SOFTNESS"):
@@ -451,7 +469,9 @@ assert "returnfilterShadow(shadowCoord,effectiveBias);" in receiver
 # existing view-space celestial light. Lambert/ambient/block math stays pinned.
 deferred = compact(function_body((SHADERS/"deferred.fsh").read_text(),"main"))
 assert "shadowVisibility(pixel,normalView,shadowLightPosition)" in deferred
-restored = deferred.replace("vec3normalView=decodeNormal(surface.rgb);", "").replace(
+# M7 adds one palette call after the unchanged M6 lighting computation.
+restored = deferred.replace("color.rgb=applyCelestialPalette(color.rgb,normalView,levels,visibility);", "").replace(
+    "vec3normalView=decodeNormal(surface.rgb);", "").replace(
     "shadowVisibility(pixel,normalView,shadowLightPosition)", "shadowVisibility(pixel)").replace(
     "lightScene(scene.rgb,normalView,levels,visibility)",
     "lightScene(scene.rgb,decodeNormal(surface.rgb),levels,visibility)")
@@ -463,7 +483,12 @@ for debug in range(6):
     new = preprocess(lighting_settings+(SHADERS/"final.fsh").read_text(),debug,False)
     assert compact(function_body(old,"main")) == compact(function_body(new,"main")).replace(
         "shadowVisibility(pixel,normalView,shadowLightPosition)", "shadowVisibility(pixel)")
-restored_props = props.replace("SHADOW_BIAS SHADOW_BIAS_MODE SHADOW_BIAS_MIN SHADOW_BIAS_MAX SHADOW_FILTER",
+# Remove only the M7 additions before checking the complete M5 property contract.
+m7_properties_suffix = "\n# M7 fantasy styling; legacy controls retain their existing names.\nscreen.ATMOSPHERE = SKY_STYLE SKY_BLEND SUNSET_GLOW NIGHT_BRIGHTNESS LIGHT_PALETTE LIGHT_PALETTE_STRENGTH\nscreen.ATMOSPHERE.columns = 2\n"
+assert props.endswith(m7_properties_suffix)
+pre_m7_props = props[:-len(m7_properties_suffix)].replace("screen = [ATMOSPHERE] ", "screen = ").replace(
+    "sliders = SKY_BLEND SUNSET_GLOW NIGHT_BRIGHTNESS LIGHT_PALETTE_STRENGTH ", "sliders = ")
+restored_props = pre_m7_props.replace("SHADOW_BIAS SHADOW_BIAS_MODE SHADOW_BIAS_MIN SHADOW_BIAS_MAX SHADOW_FILTER",
                               "SHADOW_BIAS SHADOW_FILTER").replace(
     "SHADOW_BIAS SHADOW_BIAS_MIN SHADOW_BIAS_MAX LIGHTING_STRENGTH", "SHADOW_BIAS LIGHTING_STRENGTH")
 assert restored_props == baseline_file("shaders/shaders.properties").replace("\r\n","\n")
@@ -565,3 +590,7 @@ print("PASS: M6 shared bias for 1/9/25/8 taps; constant mode exactly preserves M
 print("PASS: angle bias bounds, monotonicity, reversed/equal bounds, invalid vectors and camera rotation")
 print("PASS: legacy direct/ambient/block lighting and debug 0-5 preserved; safe ungraded debug 6")
 print("LIMIT: static structural/numerical validation is NOT Minecraft/Iris/GPU runtime validation")
+
+# M7 extends the contracts above; it does not replace their historical baselines.
+from validate_atmosphere import validate_atmosphere
+validate_atmosphere(ROOT, expand, preprocess, compact, function_body)

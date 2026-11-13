@@ -1,10 +1,44 @@
 # AuroraShader
 
-Milestone 6 studies **shadow bias robustness** on `milestone-6-shadow-bias`.
-Constant mode preserves the M5 tolerance; Angle-Aware mode blends bounded receiver
-bias using compatible view-space normal/light directions. It is a normal-based
-heuristic, not hardware slope-scaled raster bias. Debug 6 previews effective bias.
-**The implementation is experimental until the user confirms Minecraft/Iris runtime testing.**
+AuroraShader is growing into a rich fantasy shader pack: azure days, coral/gold
+sunsets, indigo nights, and eventually a distinctive optional aurora. The goal is
+a coherent, playable visual style with configurable performance, developed in
+small documented stages.
+
+**Current development: Milestone 7 — Fantasy Sky and Celestial Light Colors**
+on `codex/milestone-7-fantasy-sky`, based on M6 commit `5479a1c`.
+Sky and light colors follow solar elevation smoothly; vanilla stars, sun and moon
+remain. The new palette uses local linear-color operations while scene storage
+and the existing lightmap pipeline remain LDR. This is not a full HDR renderer.
+
+The user has authorized continuous development with code and learning notes
+pushed together. Runtime observations remain pending where not supplied; they
+are tracked separately and no longer block independent subsequent development.
+Offline checks must never be reported as Minecraft/Iris runtime success.
+
+Start with the [English roadmap](docs/AURORA_ROADMAP.md) /
+[中文开发路线](docs/AURORA_ROADMAP.zh-CN.md) and
+[M7 implementation and study notes](docs/MILESTONE_7.md) /
+[M7 中文原理与测试说明](docs/MILESTONE_7.zh-CN.md).
+
+The **Aurora Sky and Light** options page controls the new look. `SKY_STYLE=0`
+and `LIGHT_PALETTE=0` restore the M6 rendering paths; sky blend and light color
+strength also have zero-strength bypasses. Defaults are Aurora sky, sky blend 1,
+sunset warmth 1, night sky brightness 1, Aurora light colors, color strength 0.6.
+Zero skylight, full block light and excluded environments retain the original result;
+partial block light smoothly reduces the new tint.
+
+Repeatable checks (run from this D: checkout):
+
+```text
+python -B tools/validate.py
+python -B tools/compile_glsl.py
+git diff --check
+```
+
+The optional compiler check needs an installed `glslangValidator`; it does not
+download tools or invoke Minecraft. Generated compiler inputs stay on the project
+drive in a verified temporary directory and are removed after the check.
 
 Defaults remain Constant `0.0002`, 3x3 PCF and softness `1.0`; the initial
 Angle-Aware range is `0.0001` to `0.0005`. Hard / 3x3 / 5x5 / Poisson keep
@@ -19,6 +53,7 @@ Angle-Aware range is `0.0001` to `0.0005`. Hard / 3x3 / 5x5 / Poisson keep
 | M4 | 3x3 vs 5x5 PCF experiment |
 | M5 | Poisson PCF |
 | M6 | Shadow Bias Robustness |
+| M7 | Fantasy day/night sky and celestial light palette |
 
 Read [Milestone 6 (English)](docs/MILESTONE_6.md) /
 [中文说明](docs/MILESTONE_6.zh-CN.md), the
@@ -30,9 +65,9 @@ The [M5 Poisson experiment](docs/MILESTONE_5.md) and
 [shadow mapping study guide](docs/SHADOW_MAPPING_STUDY_GUIDE.md) remain available.
 This work does not merge into main or modify historical milestone branches.
 
-Current M6 checkout: `D:\MinecraftShaders\MyShader-pcf-kernels`. The original
+Current M7 checkout: `D:\MinecraftShaders\MyShader-pcf-kernels`. The original
 `MyShader` junction still resolves to the separate sky worktree, so it does not
-load M6. Follow the benchmark's test-profile setup to select the correct pack;
+load this development branch. Follow the benchmark's test-profile setup to select the correct pack;
 this task has not created a test instance or changed a junction.
 
 Milestone 3B adds Hard/3x3 PCF selection and shadow softness and has passed

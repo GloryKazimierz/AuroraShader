@@ -1,4 +1,5 @@
-// Shared Base-330 fragment stage. Geometry writes scene color before final.
+// M7 styles only the sky background; stars and textured celestial bodies remain vanilla.
+#include "/lib/sky_palette.glsl"
 
 uniform int renderStage;
 uniform float viewHeight;
@@ -33,6 +34,14 @@ void main() {
 		color = glcolor;
 	} else {
 		vec3 pos = screenToView(vec3(gl_FragCoord.xy / vec2(viewWidth, viewHeight), 1.0));
-		color = vec4(calcSkyColor(normalize(pos)), 1.0);
+#if SKY_STYLE == 1
+        // Blend to the native void silhouette with the SAME continuous style weight.
+        float voidWeight = clamp(SKY_BLEND, 0.0, 1.0) * celestialEnvironmentWeight();
+        if (renderStage == MC_RENDER_STAGE_VOID && voidWeight > 0.0) {
+            color = mix(vec4(calcSkyColor(normalize(pos)), 1.0), glcolor, voidWeight);
+            return;
+        }
+#endif
+		color = vec4(applyAuroraSky(normalize(pos), calcSkyColor(normalize(pos)), fogColor), 1.0);
 	}
 }

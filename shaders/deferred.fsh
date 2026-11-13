@@ -2,6 +2,7 @@
 #include "/lib/lighting_settings.glsl"
 #include "/lib/lighting.glsl"
 #include "/lib/shadow.glsl"
+#include "/lib/celestial_lighting.glsl"
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
@@ -31,6 +32,7 @@ void main() {
         vec3 normalView = decodeNormal(surface.rgb);
         float visibility = shadowVisibility(pixel, normalView, shadowLightPosition);
         color.rgb = lightScene(scene.rgb, normalView, levels, visibility);
+        color.rgb = applyCelestialPalette(color.rgb, normalView, levels, visibility);
     }
     // Alpha is unchanged. Iris flips colortex0 after this fullscreen pass.
     // Most transparent geometry renders afterward using its original shading.
