@@ -5,6 +5,7 @@ import struct
 import subprocess
 from functools import lru_cache
 from itertools import product
+from validate_clouds import restore_cloud_source
 
 M10_BASELINE = '9e9bbc06d7f115783a9fa0f52c940325dc7e3f38'
 AURORA_CALL = '''        // Only the upper background receives ribbons: never stars, void or sunset draws.
@@ -30,6 +31,7 @@ def restore_aurora_source(relative, source):
     relative = relative.replace('\\','/')
     if relative.startswith('shaders/'):
         relative = relative[len('shaders/'):]
+    source = restore_cloud_source(relative,source)
     if relative == 'lib/geometry/sky_fragment.glsl':
         assert source.count('#include "/lib/aurora.glsl"\n') == 1
         assert source.count(AURORA_CALL) == 1

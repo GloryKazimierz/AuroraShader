@@ -1,5 +1,8 @@
 // M8 keeps baked Minecraft shading, then converts RGB for scene composition.
 #include "/lib/scene_color.glsl"
+#ifdef APPLY_CLOUD_ATMOSPHERE
+#include "/lib/clouds.glsl"
+#endif
 
 uniform sampler2D gtexture;
 
@@ -18,4 +21,8 @@ void main() {
 	}
     // RGB only: alpha coverage, discard and surface-data attachments stay unchanged.
     color.rgb = sceneFromDisplay(color.rgb);
+#ifdef APPLY_CLOUD_ATMOSPHERE
+    // Cloud source color changes only after its original coverage/discard decision.
+    color.rgb = applyCloudAtmosphere(color.rgb);
+#endif
 }

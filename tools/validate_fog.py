@@ -211,6 +211,12 @@ def validate_fog(root, expand, preprocess, compact, function_body):
                     assert m.count('applyLateAtmosphericFog(') == 1
                     assert 'gl_FragCoord.xy/vec2(viewWidth,viewHeight)' in m
                     assert 'reconstructViewPosition(fogUV,gl_FragCoord.z)' in m
+            elif path.stem == 'gbuffers_clouds':
+                # M12 adds this one verified native draw path; all other exclusions remain.
+                assert m.count('applyCloudAtmosphere(') == 1
+                assert 'applyLateAtmosphericFog(' not in m
+                if not mode or not enabled:
+                    assert compact(function_body(source, 'applyAtmosphericFog')) == 'returnscene;'
             else:
                 assert 'applyAtmosphericFog' not in source and 'applyLateAtmosphericFog' not in source, path.name
         # Compare M8 complete main bodies after removal of the precise new calls;

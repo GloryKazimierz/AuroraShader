@@ -633,3 +633,7 @@ validate_bloom(ROOT, expand, preprocess, compact, function_body)
 # M11 preserves previous passes and adds sky-only procedural night ribbons.
 from validate_aurora import validate_aurora
 validate_aurora(ROOT, expand, preprocess, compact, function_body)
+
+# M12 keeps native cloud geometry and adds only source RGB atmosphere.
+from validate_clouds import validate_clouds
+validate_clouds(ROOT, expand, preprocess, compact, function_body)

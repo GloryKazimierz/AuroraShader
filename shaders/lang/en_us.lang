@@ -120,3 +120,15 @@ value.AURORA_SPEED.0=Frozen
 value.AURORA_SPEED.1=Normal
 value.AURORA_SPEED.2=Double
 option.AURORA_SPEED.comment=Periodic 200-second motion at normal speed. Frozen uses the fixed zero phase, not the current frame.
+
+screen.CLOUDS=Cloud Color and Atmosphere
+option.CLOUD_STYLE=Cloud Atmosphere Style
+value.CLOUD_STYLE.0=Native M11
+value.CLOUD_STYLE.1=Aurora
+option.CLOUD_STYLE.comment=Color and fog on native cloud geometry. Off restores the whole M11 cloud source. Requires linear scene mode.
+option.CLOUD_COLOR_STRENGTH=Cloud Color Strength
+option.CLOUD_COLOR_STRENGTH.comment=Warm twilight and cool night tint. Zero disables only tint; Cloud Fog remains independent.
+option.CLOUD_FOG=Cloud Fog
+value.CLOUD_FOG.0=Off
+value.CLOUD_FOG.1=On
+option.CLOUD_FOG.comment=Use the existing height/distance fog on each cloud fragment before blending. Also requires global Atmospheric Fog.

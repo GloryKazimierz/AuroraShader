@@ -89,6 +89,14 @@ def configurations():
         yield 'gbuffers_skybasic', dict(SCENE_COLOR_MODE=1, AURORA_ENABLED=1,
                                       AURORA_INTENSITY=intensity, AURORA_SPEED=speed, SKY_BLEND=blend)
 
+    # M12: native cloud shader with every style/scene/debug/fog gate.
+    for mode, style, cloud_fog, fog, debug in product((0, 1), (0, 1), (0, 1), (0, 1), range(7)):
+        yield 'gbuffers_clouds', dict(SCENE_COLOR_MODE=mode, CLOUD_STYLE=style,
+                                    CLOUD_FOG=cloud_fog, FOG_ENABLED=fog, DEBUG_VIEW=debug)
+    for strength, density, start in product((0.0, .3, .6, 1.0), (0.0, .02), (0.0, 64.0)):
+        yield 'gbuffers_clouds', dict(SCENE_COLOR_MODE=1, CLOUD_STYLE=1,
+                                    CLOUD_COLOR_STRENGTH=strength, FOG_DENSITY=density, FOG_START=start)
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--compiler', help='Path to installed glslangValidator')

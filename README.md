@@ -5,8 +5,26 @@ sunsets, indigo nights, and optional teal/violet aurora ribbons. The goal is
 a coherent, playable visual style with configurable performance, developed in
 small documented stages.
 
-**Current development: Milestone 11 — Aurora Night Ribbons**
-on `codex/milestone-11-aurora`, based on M10 commit `9e9bbc0`.
+**Current development: Milestone 12 — Cloud Color and Atmosphere**
+on `codex/milestone-12-cloud-atmosphere`, based on M11 commit `b0f6e10`.
+Native cloud geometry now receives a restrained warm twilight/cool night tint and
+its own distance/height fog before ordinary blending. Original cloud coverage,
+face shading, alpha and native draw/depth behavior are retained. This is cloud
+composition, not a new noise field, volumetric cloud renderer or cloud shadow map.
+
+The **Cloud Color and Atmosphere** page exposes style (default Aurora), color
+strength (0.6) and cloud fog (on). Native M11 style disables the entire addition;
+zero color strength disables only tint, while cloud fog also follows the global
+fog switch. Legacy scene mode, debug, excluded environments and unsupported blend
+states retain the original cloud source. No extra program or buffer is allocated.
+
+The cloud path is based on documented matrix contracts and a pinned Iris 1.10.5 /
+Minecraft 1.21.11 source snapshot; the currently installed runtime was not freshly
+verified. Fast/Fancy/Sodium cloud appearance, overlap and cost remain unmeasured.
+See [M12 English learning notes](docs/MILESTONE_12.md) /
+[M12 中文原理与学习说明](docs/MILESTONE_12.zh-CN.md).
+
+**Signature night foundation (M11):**
 Optional teal cores and violet trails animate toward the northern night sky. They
 use world-oriented directions, fade with daylight/rain/vision effects, and are
 restricted to Iris's upper sky background. The original star/sun/moon paths, fog
@@ -128,6 +146,7 @@ Angle-Aware range is `0.0001` to `0.0005`. Hard / 3x3 / 5x5 / Poisson keep
 | M9 | Distance/height/rain fog with explicit opaque and late-source composition |
 | M10 | Half-resolution HDR bright-pixel bloom with separable filtering |
 | M11 | Bounded world-oriented teal/violet night-sky ribbons |
+| M12 | Native cloud day/night tint and per-fragment atmosphere |
 
 Read [Milestone 6 (English)](docs/MILESTONE_6.md) /
 [中文说明](docs/MILESTONE_6.zh-CN.md), the
@@ -139,7 +158,7 @@ The [M5 Poisson experiment](docs/MILESTONE_5.md) and
 [shadow mapping study guide](docs/SHADOW_MAPPING_STUDY_GUIDE.md) remain available.
 This work does not merge into main or modify historical milestone branches.
 
-Current M11 checkout: `D:\MinecraftShaders\MyShader-pcf-kernels`. The original
+Current M12 checkout: `D:\MinecraftShaders\MyShader-pcf-kernels`. The original
 `MyShader` junction still resolves to the separate sky worktree, so it does not
 load this development branch. Follow the benchmark's test-profile setup to select the correct pack;
 this task has not created a test instance or changed a junction.
