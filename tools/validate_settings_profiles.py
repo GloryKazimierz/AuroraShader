@@ -7,6 +7,7 @@ from collections import Counter
 from pathlib import Path
 import re
 import subprocess
+from validate_foliage import FOLIAGE_OPTIONS, restore_foliage_source
 
 M16_BASELINE = '581ffa86d0800b70cdab2d486a65606b2bc9e160'
 # Primary parsing/matching contract, pinned independently of pack implementation:
@@ -40,6 +41,7 @@ def restore_settings_profiles_source(relative,source):
     relative=relative.replace('\\','/')
     if relative.startswith('shaders/'):
         relative=relative[len('shaders/'):]
+    source=restore_foliage_source(relative,source)
     if relative == 'shaders.properties':
         assert source.endswith(M17_PROPERTIES)
         source=source[:-len(M17_PROPERTIES)]
@@ -207,8 +209,11 @@ def expect_rejected(function,*arguments):
 def validate_settings_profiles(root,*unused):
     root=Path(root)
     shaders=root/'shaders'
-    options=option_definitions(root)
-    properties=parse_properties((shaders/'shaders.properties').read_text(encoding='utf-8'))
+    # M17 contracts remain pinned to their six-control, 51-option view.
+    # Public loading/compile generators above always use the current full options.
+    options={key:value for key,value in option_definitions(root).items() if key not in FOLIAGE_OPTIONS}
+    properties=parse_properties(restore_foliage_source('shaders.properties',
+                                (shaders/'shaders.properties').read_text(encoding='utf-8')))
     profiles=parse_profiles(properties,options)
     assert len(options)==51
     assert set(profiles)=={'BALANCED','LIGHT','SOFT_SHADOWS'}
@@ -259,7 +264,7 @@ def validate_settings_profiles(root,*unused):
                       ('screen','<profile> <profile>'),('screen.MISSING.columns','2')):
         bad=dict(properties); bad[key]=value
         expect_rejected(menu_options,bad,options)
-    languages={name:parse_language((shaders/'lang'/name).read_text(encoding='utf-8')) for name in ('en_us.lang','zh_cn.lang')}
+    languages={name:parse_language(restore_foliage_source('lang/'+name,(shaders/'lang'/name).read_text(encoding='utf-8'))) for name in ('en_us.lang','zh_cn.lang')}
     en,zh=languages['en_us.lang'],languages['zh_cn.lang']
     assert len(en)==len(zh)==159 and set(en)==set(zh)
     assert all('option.'+key in en for key in options)
@@ -285,7 +290,7 @@ def validate_settings_profiles(root,*unused):
             assert restore_settings_profiles_source(relative,current)==before,relative
             pinned+=1
     current_files={str(path.relative_to(root)).replace('\\','/') for path in shaders.rglob('*') if path.is_file()}
-    assert current_files-set(old_files)=={'shaders/lang/zh_cn.lang'}
+    assert current_files-set(old_files)=={'shaders/lang/zh_cn.lang','shaders/lib/foliage.glsl','shaders/lib/foliage_settings.glsl'}
     assert len(list(profile_configurations(root)))==72
     print('PASS: M17 {} prior shader/property files pinned; all GLSL/defaults and rendering properties unchanged'.format(pinned))
     print('PASS: M17 3 distinct six-control profiles; inheritance, types, invalid tokens, subset matching and 45 retained artistic controls')

@@ -399,7 +399,7 @@ def shader_digest():
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--cxx',help='Installed MinGW g++ compiler; no download')
-    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles'),default='all')
+    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage'),default='all')
     parser.add_argument('--report',help='New JSON report path under the project; existing files are never overwritten')
     args=parser.parse_args()
     require(os.name=='nt','This optional WGL runner requires Windows; no GPU checks performed')
@@ -441,6 +441,10 @@ def main():
             for name,function in cases:
                 report[name]=function(runner)
                 print('PASS: '+name+' synthetic driver checks',flush=True)
+        if args.suite in ('all','render','foliage'):
+            from validate_gpu_foliage import foliage_tests
+            report['foliage']=foliage_tests(runner,compare)
+            print('PASS: foliage synthetic driver checks',flush=True)
         require(shader_digest()==report['shader_sha256'],'Shader source changed during validation; report invalid')
         report['ok']=True
         report['finished_utc']=datetime.now(timezone.utc).isoformat()

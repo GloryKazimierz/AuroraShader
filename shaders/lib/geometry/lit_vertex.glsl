@@ -5,13 +5,26 @@ out vec3 normalView;
 out vec2 lmcoord;
 out vec2 texcoord;
 out vec4 glcolor;
-#ifdef APPLY_WATER_STYLE
+#if defined(APPLY_WATER_STYLE) || defined(APPLY_FOLIAGE_WIND)
 in vec2 mc_Entity;
+#endif
+#ifdef APPLY_WATER_STYLE
 flat out int waterSurface;
+#endif
+#ifdef APPLY_FOLIAGE_WIND
+#include "/lib/foliage.glsl"
+in vec4 at_midBlock;
+uniform mat4 gbufferModelView;
+uniform mat4 gbufferModelViewInverse;
 #endif
 
 void main() {
 	gl_Position = ftransform();
+#ifdef APPLY_FOLIAGE_WIND
+    // The shadow vertex stage applies this same world-space wind before projection.
+    gl_Position = foliageWindClip(gl_Position, gl_ModelViewMatrix * gl_Vertex,
+        gbufferModelViewInverse, gbufferModelView, gl_ProjectionMatrix, mc_Entity, at_midBlock);
+#endif
     normalView = gl_NormalMatrix * gl_Normal;
 	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 	lmcoord = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;

@@ -5,6 +5,7 @@ import subprocess
 from functools import lru_cache
 from itertools import product
 from validate_water_waves import restore_water_wave_source
+from validate_foliage import restore_foliage_source, expand_without_foliage
 
 M12_BASELINE = '4e7b8b4bb943d24eee9e46745ffeaef16bee5f4f'
 WATER_VERTEX_DECL = '''#ifdef APPLY_WATER_STYLE
@@ -171,11 +172,11 @@ def validate_water(root,expand,preprocess,compact,function_body):
             pinned += 1
     assert len(list(shaders.glob('*.vsh'))) == len(list(shaders.glob('*.fsh'))) == 24
     assert read('lang/en_us.lang').startswith(prior('lang/en_us.lang'))
-    assignments = [line.strip() for line in read('block.properties').splitlines() if line.strip() and not line.lstrip().startswith('#')]
+    assignments = [line.strip() for line in restore_foliage_source('block.properties',read('block.properties')).splitlines() if line.strip() and not line.lstrip().startswith('#')]
     assert assignments == ['block.10001 = minecraft:water']
     # Bind the M13 oracle to the precisely restored waves-off implementation.
     source = restore_water_wave_source('lib/water.glsl',read('lib/water.glsl'))
-    vertex,fragment = read('lib/geometry/lit_vertex.glsl'),read('lib/geometry/lit_fragment.glsl')
+    vertex,fragment = restore_foliage_source('lib/geometry/lit_vertex.glsl',read('lib/geometry/lit_vertex.glsl')),read('lib/geometry/lit_fragment.glsl')
     code = compact(source)
     for token in ('floatgrazing=1.0-clamp(normalDotView,0.0,1.0);',
                   'return0.02+0.98*squared*squared*grazing;',
@@ -219,7 +220,7 @@ def validate_water(root,expand,preprocess,compact,function_body):
     except AssertionError as error:
         assert str(error).startswith('Duplicate stage variable:')
     for path in shaders.glob('*.vsh'):
-        vs = preprocess(expand(path),0,False)
+        vs = preprocess(expand_without_foliage(path,shaders),0,False)
         fs = preprocess(expand(path.with_suffix('.fsh')),0,False)
         outputs,inputs = stage_variables(vs,'out'),stage_variables(fs,'in')
         for name,signature in inputs.items():

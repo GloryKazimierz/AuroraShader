@@ -59,10 +59,14 @@ def preprocess(text, debug, grayscale, shadows=True, filtering=1, softness=1.0, 
             active = active and cond
         elif stripped.startswith("#if ") or stripped.startswith("#elif "):
             # A deliberately narrow expression grammar: equality/inequality
-            # clauses joined by OR. Never evaluate source as Python code.
+            # clauses or defined(NAME), joined by OR. Never evaluate source as Python code.
             clauses = stripped.split(" ", 1)[1].split("||")
             conditions = []
             for clause in clauses:
+                defined = re.fullmatch(r"defined\s*\(\s*(\w+)\s*\)", clause.strip())
+                if defined:
+                    conditions.append(defined[1] in macros)
+                    continue
                 match = re.fullmatch(r"(\w+)\s+(==|!=)\s+(\d+)", clause.strip())
                 assert match, "Unsupported conditional: " + stripped
                 equal = macros.get(match[1], "0") == match[3]
@@ -657,3 +661,7 @@ validate_water_depth(ROOT, expand, preprocess, compact, function_body)
 # M17 preserves shader defaults and groups every control exactly once.
 from validate_settings_profiles import validate_settings_profiles
 validate_settings_profiles(ROOT)
+
+# M18 shares rooted foliage displacement between terrain and shadow casters.
+from validate_foliage import validate_foliage
+validate_foliage(ROOT, expand, preprocess, compact, function_body)

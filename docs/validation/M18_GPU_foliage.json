@@ -1,0 +1,552 @@
+{
+  "schema": 1,
+  "started_utc": "2026-11-13T09:07:16.580361+00:00",
+  "suite": "foliage",
+  "shader_sha256": "fce9807e418b04d1ec21ab7f8ac33f75b80e9c29333f003a830c4e743c72a637",
+  "scope": "Native OpenGL synthetic inputs only: no Iris patcher, Minecraft world, render-order/texture-binding integration, screenshots or performance measurement.",
+  "ok": true,
+  "gl": {
+    "vendor": "Intel",
+    "renderer": "Intel(R) Iris(R) Xe Graphics",
+    "version": "3.3.0 - Build 31.0.101.3962",
+    "glsl_version": "3.30 - Build 31.0.101.3962",
+    "major": 3,
+    "minor": 3,
+    "profile_mask": 2,
+    "profile": "compatibility",
+    "max_texture_size": 16384,
+    "max_texture_units": 32
+  },
+  "build": {
+    "compiler": "g++.exe",
+    "flags": [
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-static"
+    ],
+    "diagnostics": ""
+  },
+  "foliage": {
+    "displacement_cases": 35,
+    "displacement_samples": 840,
+    "exact_zero_samples": 570,
+    "clip_cases": 11,
+    "clip_samples": 264,
+    "exact_clip_bypasses": 220,
+    "comparisons": [
+      {
+        "label": "foliage-field-0",
+        "channels": 96,
+        "max_absolute_error": 1.2453265585410378e-08,
+        "max_tolerance_fraction": 0.0012453265585410378,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-1",
+        "channels": 96,
+        "max_absolute_error": 2.256474685157243e-08,
+        "max_tolerance_fraction": 0.002256474685157243,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-2",
+        "channels": 96,
+        "max_absolute_error": 7.014887674922782e-07,
+        "max_tolerance_fraction": 0.07014887674922782,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-3",
+        "channels": 96,
+        "max_absolute_error": 9.861426272794738e-09,
+        "max_tolerance_fraction": 0.0009861426272794738,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-4",
+        "channels": 96,
+        "max_absolute_error": 3.0313848724608516e-08,
+        "max_tolerance_fraction": 0.003031384872460851,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-5",
+        "channels": 96,
+        "max_absolute_error": 6.221683727276883e-07,
+        "max_tolerance_fraction": 0.062216837272768825,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-6",
+        "channels": 96,
+        "max_absolute_error": 1.0052202639720953e-08,
+        "max_tolerance_fraction": 0.0010052202639720953,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-7",
+        "channels": 96,
+        "max_absolute_error": 2.3836087595027755e-08,
+        "max_tolerance_fraction": 0.0023836087595027755,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-8",
+        "channels": 96,
+        "max_absolute_error": 6.865850951977281e-07,
+        "max_tolerance_fraction": 0.06865850951977281,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-9",
+        "channels": 96,
+        "max_absolute_error": 1.2453265585410378e-08,
+        "max_tolerance_fraction": 0.0012453265585410378,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-10",
+        "channels": 96,
+        "max_absolute_error": 2.256474685157243e-08,
+        "max_tolerance_fraction": 0.002256474685157243,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-11",
+        "channels": 96,
+        "max_absolute_error": 7.014887674922782e-07,
+        "max_tolerance_fraction": 0.07014887674922782,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-12",
+        "channels": 96,
+        "max_absolute_error": 1.0052202639720953e-08,
+        "max_tolerance_fraction": 0.0010052202639720953,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-13",
+        "channels": 96,
+        "max_absolute_error": 2.3836087595027755e-08,
+        "max_tolerance_fraction": 0.0023836087595027755,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-14",
+        "channels": 96,
+        "max_absolute_error": 6.865850951977281e-07,
+        "max_tolerance_fraction": 0.06865850951977281,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-15",
+        "channels": 96,
+        "max_absolute_error": 8.894134623238514e-09,
+        "max_tolerance_fraction": 0.0008894134623238513,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-16",
+        "channels": 96,
+        "max_absolute_error": 2.943494141482983e-07,
+        "max_tolerance_fraction": 0.029434941414829826,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-17",
+        "channels": 96,
+        "max_absolute_error": 3.392111355728089e-07,
+        "max_tolerance_fraction": 0.03392111355728089,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-18",
+        "channels": 96,
+        "max_absolute_error": 8.894134623238514e-09,
+        "max_tolerance_fraction": 0.0008894134623238513,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-19",
+        "channels": 96,
+        "max_absolute_error": 1.0137208988902913e-08,
+        "max_tolerance_fraction": 0.0010137208988902913,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-20",
+        "channels": 96,
+        "max_absolute_error": 6.591949784640061e-09,
+        "max_tolerance_fraction": 0.0006591949784640061,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-21",
+        "channels": 96,
+        "max_absolute_error": 8.894134623238514e-09,
+        "max_tolerance_fraction": 0.0008894134623238513,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-22",
+        "channels": 96,
+        "max_absolute_error": 9.40144784591923e-09,
+        "max_tolerance_fraction": 0.000940144784591923,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-23",
+        "channels": 96,
+        "max_absolute_error": 1.3462188017121512e-08,
+        "max_tolerance_fraction": 0.001346218801712151,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-24",
+        "channels": 96,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-25",
+        "channels": 96,
+        "max_absolute_error": 1.1117864906484698e-08,
+        "max_tolerance_fraction": 0.0011117864906484698,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-26",
+        "channels": 96,
+        "max_absolute_error": 4.447145962593879e-08,
+        "max_tolerance_fraction": 0.004447145962593879,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-27",
+        "channels": 96,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-28",
+        "channels": 96,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-29",
+        "channels": 96,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-30",
+        "channels": 96,
+        "max_absolute_error": 8.894134623238514e-09,
+        "max_tolerance_fraction": 0.0008894134623238513,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-31",
+        "channels": 96,
+        "max_absolute_error": 8.894134623238514e-09,
+        "max_tolerance_fraction": 0.0008894134623238513,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-32",
+        "channels": 96,
+        "max_absolute_error": 8.894134623238514e-09,
+        "max_tolerance_fraction": 0.0008894134623238513,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-33",
+        "channels": 96,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-field-34",
+        "channels": 96,
+        "max_absolute_error": 2.2235729812969396e-08,
+        "max_tolerance_fraction": 0.0022235729812969396,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 1e-05,
+          "relative": 0.0
+        }
+      }
+    ],
+    "clip_comparisons": [
+      {
+        "label": "foliage-clip-terrain",
+        "channels": 96,
+        "max_absolute_error": 1.1504359598291103e-07,
+        "max_tolerance_fraction": 0.005752179799145551,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 2e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-clip-shadow",
+        "channels": 96,
+        "max_absolute_error": 1.1083991013904892e-07,
+        "max_tolerance_fraction": 0.005541995506952445,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 2e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-clip-identity",
+        "channels": 96,
+        "max_absolute_error": 1.167117589240263e-07,
+        "max_tolerance_fraction": 0.005835587946201314,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 2e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-clip-homogeneous",
+        "channels": 96,
+        "max_absolute_error": 1.1504359598291103e-07,
+        "max_tolerance_fraction": 0.005752179799145551,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 2e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-clip-off",
+        "channels": 96,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 2e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-clip-zero",
+        "channels": 96,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 2e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-clip-legacy",
+        "channels": 96,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 2e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-clip-debug",
+        "channels": 96,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 2e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-clip-zero-w",
+        "channels": 96,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 2e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-clip-invalid-inverse",
+        "channels": 96,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 2e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "foliage-clip-invalid-projection",
+        "channels": 96,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 2e-05,
+          "relative": 0.0
+        }
+      }
+    ],
+    "input": "Actual shared GLSL helpers in synthetic fragment wrappers; no Iris attribute binding, chunk mesh, shadow rasterization or frame timing"
+  },
+  "finished_utc": "2026-11-13T09:08:18.016848+00:00"
+}

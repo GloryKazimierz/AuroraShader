@@ -132,6 +132,15 @@ def configurations():
                                     WATER_DEPTH_TINT=depth_color, WATER_WAVES=waves,
                                     FOG_ENABLED=fog, WATER_REFLECTION_STRENGTH=.75)
 
+    # M18: both vertex consumers across exact bypass gates and every exposed
+    # strength/speed choice; the corresponding actual fragments are linked too.
+    for program in ('gbuffers_terrain', 'shadow'):
+        for mode, wind, debug in product((0, 1), (0, 1), range(7)):
+            yield program, dict(SCENE_COLOR_MODE=mode, FOLIAGE_WIND=wind, DEBUG_VIEW=debug)
+        for strength, speed in product((0.0, .25, .5, 1.0), (0, 1, 2)):
+            yield program, dict(SCENE_COLOR_MODE=1, FOLIAGE_WIND=1,
+                                FOLIAGE_WIND_STRENGTH=strength, FOLIAGE_WIND_SPEED=speed)
+
     # M17 adds actual profile selections without replacing prior configurations.
     from validate_settings_profiles import profile_configurations
     yield from profile_configurations(ROOT)

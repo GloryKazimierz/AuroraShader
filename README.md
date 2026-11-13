@@ -5,13 +5,14 @@ coral/gold sunsets, indigo nights and teal/violet aurora. It combines Minecraft'
 textures and lightmaps with directional lighting, shadows, atmosphere and gentle
 water effects. The aim is a coherent, playable pack with its own identity.
 
-**Current development: M17 — Chinese settings and quality profiles**
-on `codex/milestone-17-settings-profiles`, based on M16 commit `581ffa8`.
-M17 organizes all 51 options, adds Simplified Chinese labels and offers three
-quality presets. GLSL source and shader defaults are unchanged from M16.
+**Current development: M18 — rooted foliage wind**
+on `codex/milestone-18-foliage-wind`, based on M17 commit `b26755b`.
+Leaves and grass now sway in a shared world-space wind field. Grass roots remain
+fixed, and terrain and shadow casters use the same displacement. There are 54
+controls with English/Simplified Chinese labels and three quality profiles.
 
 [中文路线图](docs/AURORA_ROADMAP.zh-CN.md) ·
-[中文设置与预设说明](docs/MILESTONE_17.zh-CN.md) ·
+[中文草木摆动原理](docs/MILESTONE_18.zh-CN.md) ·
 [English roadmap](docs/AURORA_ROADMAP.md)
 
 ## Current features
@@ -25,6 +26,7 @@ quality presets. GLSL source and shader defaults are unchanged from M16.
 | Bloom | Four-pass half-resolution bright-pixel extraction, separable blur and recombination |
 | Aurora | Bounded procedural teal/violet sky ribbons at night, with weather/vision fallbacks |
 | Water | Fluid classification, gentle tint, analytic sky-color reflection, world-anchored wave normals and luminance-preserving background-depth color |
+| Foliage | Eleven vanilla leaf types, short grass and joined tall grass; shared terrain/shadow wind with fixed grass roots |
 | Settings | English/Simplified Chinese, grouped pages, three quality profiles and seven debug views |
 
 Water reflection uses an analytic sky palette. Waves change reflection normals;
@@ -37,18 +39,18 @@ lighting or custom volumetric cloud geometry in this stage.
 
 Use Iris's Shader Pack Settings. Minecraft's Simplified Chinese language selects
 `zh_cn.lang`; English remains available. Pages group sky/light, shadows, water,
-clouds, aurora, bloom, fog, grading and advanced/debug controls.
+clouds, aurora, bloom, fog, foliage, grading and advanced/debug controls.
 
-| Profile | Shadows | Bloom / aurora / water waves / depth color |
+| Profile | Shadows | Bloom / aurora / water waves / depth color / foliage wind |
 |---|---|---|
 | Balanced / 均衡（默认） | 3x3 PCF | Enabled |
 | Light / 轻量 | Hard | Disabled |
 | Soft Shadows / 柔和阴影 | 5x5 PCF | Enabled |
 
-Profiles change exactly six settings: shadow enable/filter and the four feature
+Profiles change exactly seven settings: shadow enable/filter and the five feature
 switches above. All three enable shadows. Exposure, grading, artistic strengths,
 fog, debug and pipeline choices remain as you set them. Adding profiles does not
-overwrite saved settings; the six source defaults match Balanced.
+overwrite saved settings; the seven source defaults match Balanced.
 Iris matches only the listed controls. A manual edit can match another profile or
 Custom. Legacy/debug/environment gates can independently hide an effect.
 
@@ -108,8 +110,9 @@ Selecting the old `MyShader` entry does not test this branch.
 
 The pack supplies GLSL 3.30 compatibility input to Iris. Recent contracts were
 inspected at Iris commit `99d855970316329f2e0e42ac2b79ef763cb77cc3`
-(Iris 1.10.5 / Minecraft 1.21.11 source); the installed game version has not been
-freshly verified. Other GPUs, mod versions, resource packs and dimensions need
+(Iris 1.10.5 / Minecraft 1.21.11 source). Local vanilla 1.21.11 assets were read
+to check leaf IDs and grass model roots; the active game/Iris installation has
+not been run or verified. Other GPUs, mod versions, resource packs and dimensions need
 their own integration observations.
 
 ## Validation and limits
@@ -120,7 +123,7 @@ Run from this D: checkout:
 python -B tools/validate.py
 python -B tools/compile_glsl.py --compiler C:/VulkanSDK/1.4.363.0/Bin/glslangValidator.exe
 python -B tools/compile_glsl.py --profiles-only --compiler C:/VulkanSDK/1.4.363.0/Bin/glslangValidator.exe
-python -B tools/validate_gpu.py --cxx C:/msys64/ucrt64/bin/g++.exe --suite profiles
+python -B tools/validate_gpu.py --cxx C:/msys64/ucrt64/bin/g++.exe --suite foliage
 git diff --check
 ```
 
@@ -130,16 +133,19 @@ builds a hidden OpenGL harness with installed MinGW. It never downloads dependen
 or launches Minecraft. Generated inputs, binaries and compiler temporary files
 stay on the project drive and are removed after the run.
 
-Native suites: `probe`, `compile`, `profiles`, `render`, `depth`, or default `all`.
+Native suites: `probe`, `compile`, `profiles`, `render`, `depth`, `foliage`, or default `all`.
 Use `--report docs/validation/NEW_NAME.json` to retain a new result; existing
 reports are never overwritten. Synthetic rendering covers bloom, water normals,
-final color and water-depth color. It does not run Iris's patcher or reproduce
+final color, water-depth color and foliage math. Foliage wrappers exercise the
+shared displacement and clip functions, without native chunk attributes or
+geometry/shadow rasterization. The tool does not run Iris's patcher or reproduce
 Minecraft's resource binding, draw scheduling or world rendering.
 
 User-confirmed Minecraft evidence is retained in [M3A](docs/MILESTONE_3A.md) and
 [M3B](docs/MILESTONE_3B.md). Newer CPU/offline and native Intel Iris Xe results are
 recorded in [M15](docs/MILESTONE_15.md) and [M16](docs/MILESTONE_16.md).
-[M17](docs/MILESTONE_17.md) records this stage's checks. Synthetic GPU success
+[M17](docs/MILESTONE_17.md) records settings checks;
+[M18](docs/MILESTONE_18.md) records foliage evidence and remaining limits. Synthetic GPU success
 does not establish that the latest branch passed Minecraft testing. Tool duration
 is not a GPU-performance benchmark.
 
@@ -161,6 +167,7 @@ is not a GPU-performance benchmark.
 | Native GPU checks | [M15](docs/MILESTONE_15.md) / [中文](docs/MILESTONE_15.zh-CN.md) |
 | Water depth color | [M16](docs/MILESTONE_16.md) / [中文](docs/MILESTONE_16.zh-CN.md) |
 | Settings and profiles | [M17](docs/MILESTONE_17.md) / [中文](docs/MILESTONE_17.zh-CN.md) |
+| Foliage and shared shadow motion | [M18](docs/MILESTONE_18.md) / [中文](docs/MILESTONE_18.zh-CN.md) |
 
 `shaders/` contains 24 program pairs and configuration. Shared code/settings live
 in `shaders/lib/`, native geometry helpers in `shaders/lib/geometry/`, translations
