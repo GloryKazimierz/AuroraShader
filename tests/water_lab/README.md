@@ -129,6 +129,12 @@ unobserved; screenshots or FPS are not invented by the static checker.
 
 ## What is checked without Minecraft
 
+The [static validator](../../tools/validate_water_lab.py) passed: 36 loaded-chunk
+guards, 50 bounded block operations, 25 completion sentinels, five calibrated
+water columns and all nine camera poses. Nine in-memory negative controls rejected
+missing guards, unsafe dimensions/bounds and forbidden automatic/world-state commands.
+Run from the repository with `python -B tools/validate_water_lab.py`.
+
 The separate repository validator checks the exact pack format/dimension schema,
 isolated absolute block bounds, one-shot/load guards, fill volumes, critical
 geometry, camera containment and intended eye/center-ray relationships. It does
