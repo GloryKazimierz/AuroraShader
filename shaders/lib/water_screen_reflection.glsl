@@ -40,6 +40,11 @@ bool waterTracePoint(vec3 q0, vec3 q1, float k0, float k1, float fraction, out v
     return waterTraceFinite3(view) && view.z < 0.0;
 }
 
+#ifdef AURORA_WATER_OPTICS_ACTIVE
+#if WATER_TRACE_TILES == 1
+#include "/lib/water_trace_bounds.glsl"
+#endif
+#endif
 // A bounded screen-space grid trace, not an off-screen scene representation.
 // Visit crossed pixels including diagonal entries. Discard only corner slivers
 // below the declared FP32 pixel precision bound, plus zero-area corner contacts.
@@ -147,6 +152,14 @@ bool traceWaterScene(vec3 originView, vec3 directionView, out ivec2 hitPixel,
     // removes numerically ambiguous corner slivers rather than changing a tie
     // comparison or charging unstable extra cells to the confidence budget.
     float minimumPixelSpan = max(0.0001, 4.76837158203125e-7 * float(max(size.x, size.y)));
+#ifdef AURORA_WATER_OPTICS_ACTIVE
+#if WATER_TRACE_TILES == 1
+    if (waterTraceEmptyPrefix(p0,delta,q0,q1,k0,k1,size,stepLimit,minimumPixelSpan)) {
+        outcome = WATER_TRACE_UNRESOLVED;
+        return false;
+    }
+#endif
+#endif
     ivec2 stepDirection = ivec2(sign(delta));
     ivec2 cell = ivec2(floor(p0));
     for (int axis = 0; axis < 2; ++axis) {

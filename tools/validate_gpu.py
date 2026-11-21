@@ -408,7 +408,7 @@ def shader_digest():
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--cxx',help='Installed MinGW g++ compiler; no download')
-    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial','snapshot','filtered-waves','screen-reflections','water-debug','water-transport','water-stability'),default='all')
+    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial','snapshot','filtered-waves','screen-reflections','water-debug','water-transport','water-stability','water-bounds'),default='all')
     parser.add_argument('--report',help='New JSON report path under the project; existing files are never overwritten')
     parser.add_argument('--debug-plate',help='Save the selected water suite comparison to a new project PNG')
     args=parser.parse_args()
@@ -500,6 +500,10 @@ def main():
             from validate_gpu_water_reflection_stability import stability_tests
             report['water_reflection_stability']=stability_tests(runner,plate_path)
             print('PASS: reflection footprint and known roof occlusion',flush=True)
+        if args.suite in ('all','render','water-bounds'):
+            from validate_gpu_water_bounds import bounds_tests
+            report['water_bounds']=bounds_tests(runner)
+            print('PASS: empty-ray acceleration and odd viewport bounds',flush=True)
         require(shader_digest()==report['shader_sha256'],'Shader source changed during validation; report invalid')
         report['ok']=True
         report['finished_utc']=datetime.now(timezone.utc).isoformat()

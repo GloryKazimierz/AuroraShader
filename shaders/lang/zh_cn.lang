@@ -217,3 +217,6 @@ value.WATER_OPTICS.1=开
 option.WATER_OPTICS.comment=水底与观察者之间只有一层水面时，按水深计算吸收与散射。需要 HDR 和独立混合支持。
 option.WATER_CLARITY=水体清澈度
 option.WATER_CLARITY.comment=同等光线衰减所需的水中距离。数值越高，越能看清深处的水底。
+
+option.WATER_TRACE_TILES=反射深度加速
+option.WATER_TRACE_TILES.comment=利用分块记录的最近深度，提前跳过确定无法相交的反射路径。

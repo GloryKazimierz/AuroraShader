@@ -168,7 +168,7 @@ def test_pack():
                 require(tree.read('shaders/'+before+suffix) == (SHADERS/(after+suffix)).read_bytes(),
                         'Changed bloom program ' + after + suffix)
         old = {Path(n).stem for n in tree.namelist() if n.endswith('.vsh')}
-        require(set(entries) == old | {'composite4'}, 'Unexpected pass set')
+        require(set(entries) == old | {'composite4', 'deferred1'}, 'Unexpected pass set')
         # Cover every former display selection, both storage modes and all genuine
         # opt-out routes. Compare BOTH live stages, directives and referenced macro
         # values against M0, with the four bloom entry names mapped above.
@@ -216,6 +216,19 @@ def test_pack():
                 require(route == (0,), 'Full resolution optical output')
         require(('blend.gbuffers_water.colortex7' in properties) == (supported and (active or debug in (7,8,9))),
                 'Surface record blend mode')
+    for supported, optics, tiles, ssr, debug, hdr, style in product((0,1), repeat=7):
+        case={FEATURE:bool(supported),'WATER_OPTICS':optics,'WATER_TRACE_TILES':tiles,
+              'WATER_SCREEN_REFLECTIONS':ssr,'DEBUG_VIEW':8*debug,'SCENE_COLOR_MODE':hdr,'WATER_STYLE':style}
+        values=dict(defaults, **case)
+        values.pop(FEATURE)
+        selected=parse_properties(select(props,case,values)[0])
+        active=bool(supported and optics and tiles and ssr and not debug and hdr and style)
+        require((selected.get('program.deferred1.enabled','true')=='true')==active, 'Depth-bound scheduling')
+        require(selected.get('size.buffer.colortex10')==('0.125 0.125' if active else None), 'Depth-bound size')
+        source,_=select(expand(SHADERS/'deferred1.fsh'),case)
+        require(routing(source)==((10,) if active else (0,)), 'Depth-bound target')
+        require(('const int colortex10Format = R32F;' in source)==active, 'Depth-bound format')
+    print('PASS: 128 reflection depth-bound scheduling and buffer checks')
     for language in ('en_us','zh_cn'):
         labels = parse_language((SHADERS/'lang'/(language+'.lang')).read_text(encoding='utf-8'))
         require(all('option.'+key in labels for key in options), 'Missing translation for '+language)

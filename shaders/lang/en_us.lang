@@ -217,3 +217,6 @@ value.WATER_OPTICS.1=On
 option.WATER_OPTICS.comment=Depth-dependent absorption and scattering for a single visible water surface above a solid bed. Requires HDR and independent blending.
 option.WATER_CLARITY=Water Clarity
 option.WATER_CLARITY.comment=Water travel distance for the same light loss. Higher values reveal deeper terrain.
+
+option.WATER_TRACE_TILES=Reflection Depth Bounds
+option.WATER_TRACE_TILES.comment=Skip screen-space reflection walks that cannot reach any opaque depth in their bounded area.

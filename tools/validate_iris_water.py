@@ -30,7 +30,7 @@ class WaterDirectives {
                 if (!route.equals(c[2])) throw new AssertionError(c[1] + " routes to " + route);
                 var formats = new TreeMap<String,String>();
                 for (var v : ConstDirectiveParser.findDirectives(source)) {
-                    if (v.getKey().matches("colortex[789]Format")) formats.put(v.getKey(),v.getValue());
+                    if (v.getKey().matches("colortex(7|8|9|10)Format")) formats.put(v.getKey(),v.getValue());
                 }
                 if (!String.join(",", formats.values()).equals(c[3].replace("-","")))
                     throw new AssertionError(c[1] + " formats " + formats);
@@ -38,7 +38,7 @@ class WaterDirectives {
                 continue;
             }
             var env = new ArrayList<StringPair>();
-            for (int i=3; i<c.length; i++) {
+            for (int i=4; i<c.length; i++) {
                 String[] pair = c[i].split("=",2);
                 env.add(new StringPair(pair[0],pair[1]));
             }
@@ -47,6 +47,10 @@ class WaterDirectives {
             boolean active = c[1].equals("1");
             if (!loaded.getProperty("program.composite.enabled","true").equals(Boolean.toString(active)))
                 throw new AssertionError("Water pass enable: "+line);
+            boolean bounds=c[3].equals("1");
+            if (!loaded.getProperty("program.deferred1.enabled","true").equals(Boolean.toString(bounds))
+                || !Objects.equals(loaded.getProperty("size.buffer.colortex10"),bounds ? "0.125 0.125" : null))
+                throw new AssertionError("Reflection bound dispatch: "+line);
             int count=0;
             for (String key : loaded.stringPropertyNames()) {
                 if (!key.endsWith(".colortex8")) continue;
@@ -81,14 +85,16 @@ def verify(work, iris_jar, slf4j_jar):
         macro=dict(WATER_OPTICS=enabled,SCENE_COLOR_MODE=hdr,WATER_STYLE=style,DEBUG_VIEW=debug)
         if support:
             macro[FEATURE]=1
-        lines.append(['settings',str(int(active)),str(int(bool(support and (active or debug)))),
-                      *(f'{k}={v}' for k,v in macro.items())])
+        for tiles,ssr in product((0,1),repeat=2):
+            options=dict(macro,WATER_TRACE_TILES=tiles,WATER_SCREEN_REFLECTIONS=ssr)
+            lines.append(['settings',str(int(active)),str(int(bool(support and (active or debug)))),
+                          str(int(bool(active and tiles and ssr))),*(f'{k}={v}' for k,v in options.items())])
     variants=({'WATER_OPTICS':1,FEATURE:True},{'WATER_OPTICS':0,FEATURE:True},
               {'WATER_OPTICS':1},{'WATER_OPTICS':1,FEATURE:True,'DEBUG_VIEW':8})
     for index,opts in enumerate(variants):
         for path in sorted(SHADERS.glob('*.fsh')):
             name=path.stem
-            if not name.startswith('gbuffers_') and name not in ('deferred','composite'):
+            if not name.startswith('gbuffers_') and name not in ('deferred','deferred1','composite'):
                 continue
             active=index==0
             target='0'
@@ -97,6 +103,9 @@ def verify(work, iris_jar, slf4j_jar):
                 target='0,5,6,7,8,9' if active else '0,5,6'
                 if active:
                     formats='RGBA32F,RGBA8,R16F'
+            elif name=='deferred1' and active:
+                target='10'
+                formats='R32F'
             elif name in WRITERS:
                 target='0,1,2,8' if active else '0,1,2'
             elif name=='gbuffers_water' and (active or index==3):

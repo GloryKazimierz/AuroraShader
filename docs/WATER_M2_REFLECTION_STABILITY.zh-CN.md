@@ -54,3 +54,11 @@ python -B tools/validate_gpu.py --suite water-stability --debug-plate docs/valid
 把它转换为高光/镜面反射瓣，还需要明确 BRDF、基础粗糙度及方向处理；M2 尚未实现。不能因为法线或颜色做了过滤，就宣称细碎高光已经稳定。此次没有改用归属缓冲的 alpha 通道。
 
 [屋顶、受遮挡采样与开放场景对照图](validation/WATER_M2_roofs.png)按列显示上一版、本版和放大 12 倍的显示差异。[显卡报告](validation/WATER_M2_GPU.json)记录了着色器源码摘要和逐像素结果。
+
+## 提前跳过碰不到物体的反射线
+
+在水面绘制前，新增的一道程序会为每块 8×8 像素记录最近的不透明表面深度。即使缺少颜色，已知的遮挡也算数。遇到不一致的深度或颜色，整块停用加速。反射线只有在能证明整段都位于遮挡物前方时才提前返回。可能命中物体、贴近分块角点或超出边缘覆盖时，仍用原有的逐像素追踪。1080p 的 R32F 双缓冲约增加 0.25 MiB。
+
+在 Intel Iris Xe 的 [720p 水池计时](validation/WATER_M2_BOUNDS_720p.json)中，64 步反射合成从 32.780 毫秒降至 16.268 毫秒，生成深度分块另用 1.465 毫秒，整张输出逐字节一致。这组射线都未命中，干燥场景也可能承担分块开销。时间是单独绘制的中位数，其他并行显卡测试可能影响读数。用菜单里的“反射深度加速”即可切换对照。[逐射线与奇数窗口验证](validation/WATER_M2_BOUNDS_GPU.json)
+
+Iris 从 deferred 阶段可提供不透明深度。[Iris 深度缓冲说明](https://shaders.properties/current/reference/buffers/depthtex/)

@@ -6,6 +6,7 @@
 #include "/lib/lighting_settings.glsl"
 #endif
 #define WATER_OPTICS 0 // [0 1]
+#define WATER_TRACE_TILES 1 // [0 1]
 #define WATER_CLARITY 1.0 // [0.5 1.0 2.0]
 // Iris defines the feature macro only on drivers with independent blending.
 #ifdef IRIS_FEATURE_PER_BUFFER_BLENDING

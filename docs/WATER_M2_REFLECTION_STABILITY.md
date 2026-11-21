@@ -54,3 +54,11 @@ Its trace is unresolved mean slope variance. This is exact for the full periodic
 Mapping that variance to a specular/highlight lobe requires a declared BRDF, finite base roughness and directional treatment. It has not been implemented in M2. Neither the normal filter nor this radiance filter alone proves stable glints. No ownership alpha channel is repurposed in this change.
 
 Compare the [roof, contaminated depth and open control](validation/WATER_M2_roofs.png) from left to right: previous output, filtered output and a 12× display difference. The [native driver report](validation/WATER_M2_GPU.json) records the source digest and measured pixel counts.
+
+## Skipping empty reflection paths
+
+An optional deferred pass records the nearest positive view depth in each 8×8 tile in an R32F image. A pixel with inconsistent color and depth invalidates the tile. Missing radiance on a known opaque surface still bounds the ray. The trace visits tiles until the furthest possible fine sample. It can return an unresolved miss only if the entire prefix passes strictly in front of every opaque sample. Ambiguous corners, uncovered edge tiles and possible hits use the original fine search. The additional full-HD double-buffered storage is approximately 0.25 MiB.
+
+In the [720p timer fixture](validation/WATER_M2_BOUNDS_720p.json) on Intel Iris Xe, the 64-step composite fell from 32.780 to 16.268 ms with 1.465 ms for the tile pass. The full output matched byte for byte. This flat pool stresses missed rays. A dry scene can still pay for the tile pass when the option is on. These separate draw medians exclude the game frame, and other synthetic GPU work may affect timing. The [native comparison](validation/WATER_M2_BOUNDS_GPU.json) checks actual hits, thin or unknown blockers and viewport edges. Switch **Reflection Depth Bounds** off to compare the original traversal.
+
+Iris supplies opaque depth at the deferred stage. [Iris depth buffer reference](https://shaders.properties/current/reference/buffers/depthtex/)
