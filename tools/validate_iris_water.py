@@ -23,6 +23,21 @@ class WaterDirectives {
         int programs = 0, settings = 0;
         for (String line : Files.readAllLines(root.resolve("cases.tsv"))) {
             String[] c = line.split("\t");
+            if (c[0].equals("contact")) {
+                var env=new ArrayList<StringPair>();
+                for (int i=2;i<c.length;i++) {
+                    String[] pair=c[i].split("=",2);
+                    env.add(new StringPair(pair[0],pair[1]));
+                }
+                var loaded=new Properties();
+                loaded.load(new StringReader(PropertiesPreprocessor.preprocessSource(properties,env)));
+                boolean active=c[1].equals("1");
+                if (!loaded.getProperty("program.prepare1.enabled","true").equals(Boolean.toString(active))
+                    || !Objects.equals(loaded.getProperty("size.buffer.colortex15"),active ? "16 2" : null))
+                    throw new AssertionError("Contact history dispatch: "+line);
+                settings++;
+                continue;
+            }
             if (c[0].equals("shader")) {
                 String source = JcppProcessor.glslPreprocessSource(Files.readString(root.resolve(c[1])), List.of());
                 String route = CommentDirectiveParser.findDirective(source, CommentDirective.Type.RENDERTARGETS)
@@ -30,11 +45,11 @@ class WaterDirectives {
                 if (!route.equals(c[2])) throw new AssertionError(c[1] + " routes to " + route);
                 var formats = new TreeMap<String,String>();
                 for (var v : ConstDirectiveParser.findDirectives(source)) {
-                    if (v.getKey().matches("colortex(7|8|9|10)Format")) formats.put(v.getKey(),v.getValue());
+                    if (v.getKey().matches("colortex(7|8|9|10|15)Format")) formats.put(v.getKey(),v.getValue());
                 }
                 if (!String.join(",", formats.values()).equals(c[3].replace("-","")))
                     throw new AssertionError(c[1] + " formats " + formats);
-                if (c.length>4 && source.contains("applyWaterRefractionTransport(") != c[4].equals("1"))
+                if (c.length>4 && source.contains(c.length>5 ? c[5] : "applyWaterRefractionTransport(") != c[4].equals("1"))
                     throw new AssertionError("Refraction mode expansion: "+c[1]);
                 programs++;
                 continue;
@@ -126,6 +141,19 @@ def verify(work, iris_jar, slf4j_jar):
         (work/filename).write_text(configure(expand(SHADERS/'composite.fsh'),options),encoding='utf-8')
         active=support and optics and hdr and not debug and mode>0
         lines.append(['shader',filename,'0','-',str(int(bool(active)))])
+    for enabled,support,optics,detail,hdr,style,debug in product((0,1),repeat=7):
+        options={'WATER_INTERACTIONS':enabled,'WATER_OPTICS':optics,'WATER_SURFACE_DETAIL':detail,
+                 'SCENE_COLOR_MODE':hdr,'WATER_STYLE':style,'DEBUG_VIEW':8*debug}
+        if support:
+            options[FEATURE]=1
+        active=bool(enabled and support and optics and detail and hdr and style and not debug)
+        lines.append(['contact',str(int(active)),*(f'{k}={v}' for k,v in options.items())])
+    for mode,support,detail in product((0,1),repeat=3):
+        opts={'WATER_INTERACTIONS':mode,'WATER_OPTICS':1,FEATURE:bool(support),'WATER_SURFACE_DETAIL':detail}
+        filename=f'contacts-{mode}-{support}-{detail}.fsh'
+        (work/filename).write_text(configure(expand(SHADERS/'prepare1.fsh'),opts),encoding='utf-8')
+        active=bool(mode and support and detail)
+        lines.append(['shader',filename,'15' if active else '0','RGBA32F' if active else '-'])
     (work/'cases.tsv').write_text('\n'.join('\t'.join(row) for row in lines),encoding='utf-8')
     env=dict(os.environ,TEMP=str(work),TMP=str(work),TMPDIR=str(work))
     subprocess.run(['javac','-J-XX:-UsePerfData',f'-J-Djava.io.tmpdir={work}','-cp',cp,str(java)],

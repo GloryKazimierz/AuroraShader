@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "started_utc": "2026-11-21T18:18:03.136244+00:00",
+  "suite": "water-motion",
+  "shader_sha256": "871d826608398c3275766002a8c923c8a25cb2b98257df431b0eb07f89febbb8",
+  "scope": "Native OpenGL synthetic inputs only: no Iris patcher, Minecraft world, render-order/texture-binding integration, screenshots or performance measurement.",
+  "ok": true,
+  "gl": {
+    "vendor": "Intel",
+    "renderer": "Intel(R) Iris(R) Xe Graphics",
+    "version": "3.3.0 - Build 31.0.101.3962",
+    "glsl_version": "3.30 - Build 31.0.101.3962",
+    "major": 3,
+    "minor": 3,
+    "profile_mask": 2,
+    "profile": "compatibility",
+    "max_texture_size": 16384,
+    "max_texture_units": 32,
+    "max_draw_buffers": 8,
+    "max_color_attachments": 8
+  },
+  "build": {
+    "compiler": "g++.exe",
+    "flags": [
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-static"
+    ],
+    "diagnostics": ""
+  },
+  "water_current": {
+    "waterfall_advection_error": 9.220093488693237e-08,
+    "wrap_error": 0.0,
+    "faces": {
+      "flat": {
+        "changed": 0,
+        "animated": 3840
+      },
+      "river": {
+        "changed": 3840,
+        "animated": 3840
+      },
+      "falls": {
+        "changed": 2234,
+        "animated": 1879
+      },
+      "glass": {
+        "changed": 0,
+        "animated": 0
+      },
+      "dark-falls": {
+        "changed": 0,
+        "animated": 0
+      }
+    }
+  },
+  "water_ripples": {
+    "boat_packets": 6,
+    "current_velocity_mps": 2.0,
+    "rain_pixels": 770,
+    "wake_pixels": 1368,
+    "world_anchor_error": 1.0700896382331848e-06,
+    "reset_cases": [
+      "skip",
+      "lag",
+      "teleport"
+    ]
+  },
+  "finished_utc": "2026-11-21T18:20:19.222980+00:00"
+}

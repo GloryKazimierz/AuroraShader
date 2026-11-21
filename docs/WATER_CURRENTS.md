@@ -1,0 +1,13 @@
+# Currents, falling sheets and contact ripples
+
+[中文](WATER_CURRENTS.zh-CN.md)
+
+Enable **Water Optical Transport** and detailed waves. Under **Water**, turn on **Water Currents** for sloping rivers and falls, or **Rain and Contact Ripples** for surface disturbances. Both are opt-in. The [geometry and time comparisons](validation/WATER_MOTION_views.png) show magnified normal differences on a river, the displayed color of a falling sheet, and signed slope channels for rain and wakes. The flat-water control keeps the existing wind waves.
+
+**Flow direction.** The renderer measures the triangle from two world-space screen derivatives, then projects gravity onto its tangent plane. Downhill river facets and near-vertical falls therefore have different motion. Three periodic bands advect along the world axes and blend according to the local downhill direction. A falling band travels 2.56 blocks/s, horizontal bands 1.28 blocks/s. The pixel footprint suppresses frequencies too small to resolve. Flow speed and pattern are artistic estimates. Flat meshes carry no slope flow. Vanilla fluid animation remains visible.
+
+**Rain.** Nearby integer world cells spawn independently phased, finite ring packets. Local sky light and the camera biome's precipitation type reduce false rain in snow, dry regions and caves. A skylit glass roof or a distant biome boundary can still disagree with the true rainfall at that surface. This is a local procedural rain field.
+
+**Wakes.** A 16×2 RGBA32F history records actual nearby player or ridden-vehicle water contact, movement and up to 15 short-lived impulses. Each frame transforms old positions into the current camera-relative space. Turning or orbiting around a stationary boat produces no wake. Teleports, skipped frames and long frames clear old impulses. The history needs 1 KiB per complete double buffer, excluding driver overhead. These disturbances cover the local player and ridden entity. Neighboring disconnected pools at similar heights are not separated by a fluid-volume map. [Iris position inputs](https://shaders.properties/current/reference/uniforms/camera/) · [Iris water-contact inputs](https://shaders.properties/current/reference/uniforms/status/)
+
+**Verification.** In the [native GPU report](validation/WATER_CURRENTS_GPU.json), the falling pattern follows the analytical downward translation within 9.3×10⁻⁸. All 3,840 river normals change, while flat geometry and non-water controls retain their prior result. The synthetic camera orbit preserves a driven speed of 2 m/s. The comparison includes actual material rasterization and the real prepare pass with fed-back history. Real gameplay flow fields, fluid settling and performance are unmeasured.

@@ -63,6 +63,10 @@ def water_optics_configurations():
     for mode, hdr, debug, support in product((0,1,2,3),(0,1),(0,8),(False,True)):
         yield 'composite', dict(WATER_OPTICS=1,WATER_REFRACTION=mode,SCENE_COLOR_MODE=hdr,
                                 DEBUG_VIEW=debug,IRIS_FEATURE_PER_BUFFER_BLENDING=support)
+    for current, contacts, detail, capability in product((0,1),repeat=4):
+        for name in ('gbuffers_water','prepare1'):
+            yield name, dict(WATER_OPTICS=1,WATER_FLOW=current,WATER_INTERACTIONS=contacts,
+                             WATER_SURFACE_DETAIL=detail,IRIS_FEATURE_PER_BUFFER_BLENDING=bool(capability))
     for tiles, ssr, budget in product((0,1),(0,1),(64,128)):
         for name in ('deferred1','gbuffers_water','composite'):
             yield name, dict(enabled,WATER_TRACE_TILES=tiles,WATER_SCREEN_REFLECTIONS=ssr,

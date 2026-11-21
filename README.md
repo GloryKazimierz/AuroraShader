@@ -252,3 +252,5 @@ Its [Unlicense](LICENSE) is retained. Iris references accompany the relevant
 equations and interface contracts in the learning notes.
 
 [Water refraction](docs/WATER_M3_REFRACTION.md) · [水面折射与三视角对照](docs/WATER_M3_REFRACTION.zh-CN.md)
+
+[Animated currents and water contact](docs/WATER_CURRENTS.md) · [河流、瀑布和涉水涟漪](docs/WATER_CURRENTS.zh-CN.md)

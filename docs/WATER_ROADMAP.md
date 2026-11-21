@@ -142,3 +142,5 @@ The first structural deliverable is W1's trustworthy scene/depth input, which ma
 later reflection and transmission reviewable without confusing depth or fog spaces.
 
 [Above-water refraction and dispersion](WATER_M3_REFRACTION.md) now follow the captured water surface to a matched background hit.
+
+[Slope flow, rain and contact ripples](WATER_CURRENTS.md) add camera-independent surface movement and a 15-impulse local history.

@@ -7,6 +7,16 @@
 #ifdef APPLY_WATER_STYLE
 #include "/lib/water.glsl"
 #include "/lib/water_debug_capture.glsl"
+#include "/lib/water_interaction_settings.glsl"
+#ifdef AURORA_WATER_INTERACTIONS
+#include "/lib/water_ripples.glsl"
+#endif
+#ifdef AURORA_WATER_OPTICS_ACTIVE
+#if WATER_FLOW == 1 && WATER_SURFACE_DETAIL == 1 && WATER_WAVES == 1
+#define AURORA_WATER_FLOW_ACTIVE
+#include "/lib/water_flow.glsl"
+#endif
+#endif
 flat in int waterSurface;
 #ifndef WRITE_SURFACE_DATA
 in vec3 normalView;
@@ -57,8 +67,15 @@ void main() {
     // this before alpha discard and every material/environment/reflection gate.
     vec2 waterScreenUV = gl_FragCoord.xy / vec2(viewWidth, viewHeight);
     vec3 waterViewPosition = reconstructViewPosition(waterScreenUV, gl_FragCoord.z);
+#ifdef AURORA_WATER_FLOW_ACTIVE
+    vec3 flowDx = mat3(gbufferModelViewInverse) * dFdx(waterViewPosition);
+    vec3 flowDy = mat3(gbufferModelViewInverse) * dFdy(waterViewPosition);
+    waterWorldDx = flowDx.xz;
+    waterWorldDy = flowDy.xz;
+#else
     waterWorldDx = (mat3(gbufferModelViewInverse) * dFdx(waterViewPosition)).xz;
     waterWorldDy = (mat3(gbufferModelViewInverse) * dFdy(waterViewPosition)).xz;
+#endif
 #endif
 #endif
 	color = texture(gtexture, texcoord) * glcolor;
@@ -94,6 +111,41 @@ void main() {
 #endif
     // Use the water's own position; existing late fog still runs once afterward.
     color.rgb = applyWaterStyle(color.rgb, fogView, normalView, lmcoord, waterSurface, blendFunc, fogColor, waterWorldDx, waterWorldDy);
+#ifdef AURORA_WATER_FLOW_ACTIVE
+    if (waterSurface == 1 && waterOpticsSurfaceBlend(blendFunc) && celestialEnvironmentWeight() > 0.0
+        && WATER_WAVE_STRENGTH > 0.0) {
+        vec3 ripple;
+        float sideWeight;
+        if (waterFlowFrame(flowDx,flowDy,normalView,viewToPlayerPosition(fogView),ripple,sideWeight)) {
+            if (abs(dot(waterOpticsSurface.xyz,waterOpticsSurface.xyz)-1.0)<0.001) {
+                waterOpticsSurface.xyz=celestialUnit(waterOpticsSurface.xyz-ripple);
+            }
+#if SKY_STYLE != 0
+            // Thin vertical sheets keep their native transparency. Their outward
+            // face can reflect skylight; backfaces and unlit caves cannot use it.
+            vec3 towardEye=celestialUnit(-fogView);
+            vec3 baseNormal=celestialUnit(normalView);
+            if (sideWeight>0.0 && dot(towardEye,baseNormal)>0.0) {
+                vec3 sheetNormal=celestialUnit(baseNormal-ripple);
+                vec3 ray=reflect(-towardEye,sheetNormal);
+                float skyAccess=clamp((lmcoord.y*16.0-0.5)/15.0,0.0,1.0);
+                float skyWeight=skyAccess*celestialEnvironmentWeight()*sideWeight*float(SKY_BLEND)
+                             *float(WATER_REFLECTION_STRENGTH)*waterFresnel(dot(sheetNormal,towardEye))
+                             *smoothstep(-0.04,0.10,dot(ray,celestialUnit(upPosition)));
+                color.rgb=mix(color.rgb,auroraSkyLinear(ray,fogColor),clamp(skyWeight,0.0,1.0));
+            }
+#endif
+        }
+    }
+#endif
+#endif
+#ifdef APPLY_WATER_STYLE
+#ifdef AURORA_WATER_INTERACTIONS
+    if (abs(dot(waterOpticsSurface.xyz,waterOpticsSurface.xyz)-1.0)<0.001) {
+        waterOpticsSurface.xyz=waterInteractiveNormal(waterOpticsSurface.xyz,fogView,
+            waterWorldDx,waterWorldDy,waterOpticsOwnership.b);
+    }
+#endif
 #endif
     color.rgb = applyLateAtmosphericFog(color.rgb, fogView);
 #endif

@@ -227,3 +227,8 @@ value.WATER_REFRACTION.1=64 Steps
 value.WATER_REFRACTION.2=128 Steps
 value.WATER_REFRACTION.3=RGB / 128 Steps
 option.WATER_REFRACTION.comment=Optical water only. Validates a 3x3 footprint per step; RGB can trace three rays. Uncertain targets keep same-ray transport. Cost is not yet measured.
+
+option.WATER_FLOW=Water Currents
+option.WATER_FLOW.comment=Animate ripples downhill on sloping fluid surfaces and falling sheets. Requires optics and detailed waves.
+option.WATER_INTERACTIONS=Rain and Contact Ripples
+option.WATER_INTERACTIONS.comment=Add rain rings and short-lived ripples from the moving player or ridden vehicle.

@@ -408,14 +408,14 @@ def shader_digest():
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--cxx',help='Installed MinGW g++ compiler; no download')
-    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial','snapshot','filtered-waves','screen-reflections','water-debug','water-transport','water-stability','water-bounds','water-refraction'),default='all')
+    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial','snapshot','filtered-waves','screen-reflections','water-debug','water-transport','water-stability','water-bounds','water-refraction','water-motion'),default='all')
     parser.add_argument('--report',help='New JSON report path under the project; existing files are never overwritten')
     parser.add_argument('--debug-plate',help='Save the selected water suite comparison to a new project PNG')
     args=parser.parse_args()
     plate_path=None
     if args.debug_plate:
         plate_path=(ROOT/args.debug_plate).resolve()
-        require(args.suite in ('water-debug','water-transport','water-stability','water-refraction') and ROOT.resolve() in plate_path.parents
+        require(args.suite in ('water-debug','water-transport','water-stability','water-refraction','water-motion') and ROOT.resolve() in plate_path.parents
                 and plate_path.suffix.lower()=='.png' and plate_path.parent.is_dir()
                 and not plate_path.exists(),'Water debug plate requires a new project PNG path')
 
@@ -508,6 +508,15 @@ def main():
             from validate_gpu_water_refraction import refraction_tests
             report['water_refraction']=refraction_tests(runner,plate_path if args.suite=='water-refraction' else None)
             print('PASS: refraction, target vetoes and optical paths',flush=True)
+        if args.suite in ('all','render','water-motion'):
+            from validate_gpu_water_current import current_tests, motion_plate
+            from validate_gpu_water_interactions import interaction_tests
+            panels={} if args.suite=='water-motion' and plate_path else None
+            report['water_current']=current_tests(runner,panels)
+            report['water_ripples']=interaction_tests(runner,panels)
+            if panels is not None:
+                motion_plate(panels,plate_path)
+            print('PASS: slope-driven flow, rain and entity-contact wake',flush=True)
         require(shader_digest()==report['shader_sha256'],'Shader source changed during validation; report invalid')
         report['ok']=True
         report['finished_utc']=datetime.now(timezone.utc).isoformat()

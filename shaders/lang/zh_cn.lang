@@ -227,3 +227,8 @@ value.WATER_REFRACTION.1=64 步
 value.WATER_REFRACTION.2=128 步
 value.WATER_REFRACTION.3=RGB／128 步
 option.WATER_REFRACTION.comment=需要水体光学。每步检查 3×3 邻域，RGB 最多追踪三条射线；无法确认目标时保留同射线透光。耗时尚未测量。
+
+option.WATER_FLOW=水流方向
+option.WATER_FLOW.comment=根据实际水面坡度让细纹顺流移动，瀑布水纹沿重力方向下落。需开启水体光学和细节波形。
+option.WATER_INTERACTIONS=雨滴与涉水涟漪
+option.WATER_INTERACTIONS.comment=在可见水面生成雨圈，保留玩家涉水和乘具移动留下的短暂水纹。
