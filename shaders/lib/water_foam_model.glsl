@@ -30,21 +30,18 @@ WaterFoamFlow waterFoamFlowAt(vec2 materialXZ, float seconds, float strength,
     speed = clamp(speed, 0.0, 2.0);
     // Same six conceptual height modes as W2. Lambda*sum(A*|kappa|)<0.178:
     // J stays positive definite, det(J)>0.675; the horizontal map cannot fold.
-    const vec2 wave[6] = vec2[6](vec2(11,3),vec2(4,-9),vec2(7,13),
-                                vec2(49,19),vec2(-83,31),vec2(151,97));
-    const float amplitude[6] = float[6](.06,.04,.03,.006,.0035,.0015);
-    const float harmonic[6] = float[6](10,-13,7,24,-31,43);
+#include "/lib/water_wave_spectrum.glsl"
     vec2 tile = fract(materialXZ / 128.0);
     float cycle = fract(seconds * speed / 200.0);
     for (int index = 0; index < 6; ++index) {
-        float weight = waterWavePixelFilter(wave[index], worldDx, worldDy);
-        float scale = 1.5 * strength * amplitude[index] * weight;
-        vec2 kappa = (6.28318530718 / 128.0) * wave[index];
+        float weight = waterWavePixelFilter(directions[index], worldDx, worldDy);
+        float scale = 1.5 * strength * amplitudes[index] * weight;
+        vec2 kappa = (6.28318530718 / 128.0) * directions[index];
         vec2 direction = normalize(kappa);
-        float angle = 6.28318530718 * fract(dot(wave[index], tile) + harmonic[index] * cycle);
+        float angle = 6.28318530718 * fract(dot(directions[index], tile) + harmonics[index] * cycle);
         float sine = sin(angle);
         result.displacement += scale * direction * cos(angle);
-        result.velocity -= scale * direction * sine * (6.28318530718 * harmonic[index] * speed / 200.0);
+        result.velocity -= scale * direction * sine * (6.28318530718 * harmonics[index] * speed / 200.0);
         result.jacobian -= scale * sine * outerProduct(direction, kappa);
     }
     result.areaRatio = determinant(result.jacobian);

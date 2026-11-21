@@ -159,7 +159,17 @@ def test_pack():
     require(set(entries) == {p.stem for p in SHADERS.glob('*.fsh')}, 'Unpaired programs')
     geometry = {p for p in entries if p.startswith('gbuffers_')}
     profiles = load_profiles(ROOT)
-    require(profiles and all('WATER_OPTICS' not in p for p in profiles.values()), 'Unexpected profile override')
+    from validate_settings_profiles import matching_profiles
+    expected=('BALANCED','LIGHT','SOFT_SHADOWS','WATER_LOW','WATER_MEDIUM','WATER_HIGH','WATER_ULTRA')
+    require(set(profiles)==set(expected),'Unexpected selectable quality profiles')
+    require(matching_profiles(profiles,defaults)==('BALANCED',),'Default shaderpack profile')
+    for before,after in product(profiles,repeat=2):
+        selected=dict(defaults,**profiles[before]);selected.update(profiles[after])
+        require(matching_profiles(profiles,selected)==(after,),f'Ambiguous profile: {before} -> {after}')
+        require('WATER_BODY' not in profiles[after] and 'WATER_CLARITY' not in profiles[after],
+                'Profiles must preserve the chosen water medium')
+    require(profiles['WATER_MEDIUM']['WATER_SCREEN_REFLECTIONS']=='0' and
+            profiles['WATER_MEDIUM']['WATER_REFRACTION']=='0','Unexpected ray cost in Coastal')
     checks = 0
     with archive('shaders') as tree:
         @lru_cache(maxsize=None)
@@ -255,7 +265,7 @@ def test_pack():
 def test_foam_routes():
     options=option_definitions(ROOT)
     require(options['WATER_FOAM']['default']=='0','Foam must remain opt-in')
-    require(all('WATER_FOAM' not in p for p in load_profiles(ROOT).values()),'Unrequested foam profile override')
+    require(load_profiles(ROOT)['WATER_ULTRA']['WATER_FOAM']=='2','Persistent foam preset')
     source=expand(SHADERS/'composite.fsh')
     checks=0
     for foam,support,optics,style,hdr,debug in product((0,1,2),(False,True),(0,1),(0,1),(0,1),(0,7)):

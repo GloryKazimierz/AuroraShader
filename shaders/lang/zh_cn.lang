@@ -170,7 +170,7 @@ screen.ADVANCED=高级与调试
 profile.BALANCED=均衡（默认）
 profile.LIGHT=轻量
 profile.SOFT_SHADOWS=柔和阴影
-profile.comment=调整阴影、泛光、极光、水面效果与植被风动，保留你的调色、雾和高级设置。轻量档使用硬阴影，并关闭泛光、极光、水面波动、水深颜色与植被风动。
+profile.comment=海岸档开启流动、雨纹、接触涟漪、局部泡沫和日月高光。倒影档加入场景反射；焦散档加入水底光纹和泡沫历史。
 
 screen.FOLIAGE=树叶与草
 option.FOLIAGE_WIND=植被风动
@@ -243,3 +243,17 @@ option.WATER_CELESTIAL_GLINT.comment=按太阳、月相、遮阴和距离计算�
 option.WATER_CAUSTICS=水底焦散
 option.WATER_CAUSTICS.comment=在阳光照到的浅水底部形成明暗光纹。使用 2048 像素的 16 位阴影颜色缓冲。
 option.WATER_CAUSTICS_STRENGTH=焦散强度
+option.WATER_BODY=水体色调
+option.WATER_BODY.comment=选择水吸收和散射光线的方式。清澈度控制能看多深。
+value.WATER_BODY.0=清澈淡水
+value.WATER_BODY.1=冰川青
+value.WATER_BODY.2=琥珀林溪
+value.WATER_BODY.3=深蓝海水
+
+screen.WATER_MOTION=波浪、流动与泡沫
+screen.WATER_LIGHT=水上和水底光照
+screen.WATER_TRACE=反射与折射
+profile.WATER_LOW=水面 / 轻量
+profile.WATER_MEDIUM=水面 / 海岸（中）
+profile.WATER_HIGH=水面 / 倒影（高）
+profile.WATER_ULTRA=水面 / 焦散（极致）

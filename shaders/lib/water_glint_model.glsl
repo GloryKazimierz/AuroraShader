@@ -5,12 +5,11 @@
 // An isotropic Beckmann slope distribution has E[|slope|^2]=alpha^2.
 // Use the missing mean slope variance of the six filtered height modes.
 float waterUnresolvedSlopeVariance(vec2 dx,vec2 dy,float strength) {
-    const vec2 k[6]=vec2[6](vec2(11,3),vec2(4,-9),vec2(7,13),vec2(49,19),vec2(-83,31),vec2(151,97));
-    const float a[6]=float[6](.06,.04,.03,.006,.0035,.0015);
+#include "/lib/water_wave_spectrum.glsl"
     float variance=0.0;
     for(int i=0;i<6;++i) {
-        float weight=waterWavePixelFilter(k[i],dx,dy);
-        vec2 rms=a[i]*(6.2831853/128.0)*k[i];
+        float weight=waterWavePixelFilter(directions[i],dx,dy);
+        vec2 rms=amplitudes[i]*(6.2831853/128.0)*directions[i];
         variance+=0.5*dot(rms,rms)*(1.0-weight*weight);
     }
     return variance*strength*strength;

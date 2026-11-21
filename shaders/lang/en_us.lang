@@ -170,7 +170,7 @@ screen.ADVANCED=Advanced and Debug
 profile.BALANCED=Balanced (Default)
 profile.LIGHT=Light
 profile.SOFT_SHADOWS=Soft Shadows
-profile.comment=Changes shadows, bloom, aurora, water effects and foliage wind while keeping your color, fog and advanced settings. Light uses hard shadows and turns off bloom, aurora, water waves, depth color and foliage wind.
+profile.comment=Water profiles select progressively more expensive rendering. Choose Coastal for currents, ripples, local foam and glints.
 
 screen.FOLIAGE=Leaves and Grass
 option.FOLIAGE_WIND=Foliage Wind
@@ -243,3 +243,17 @@ option.WATER_CELESTIAL_GLINT.comment=Directional water highlights with moon phas
 option.WATER_CAUSTICS=Underwater Caustics
 option.WATER_CAUSTICS.comment=Focus sunlight on shallow sunlit beds. Uses a 16-bit shadow color target at 2048 square.
 option.WATER_CAUSTICS_STRENGTH=Caustic Strength
+option.WATER_BODY=Water Body
+option.WATER_BODY.comment=Choose the absorption and scattering of the water. Clarity controls the distance scale.
+value.WATER_BODY.0=Freshwater
+value.WATER_BODY.1=Glacial Turquoise
+value.WATER_BODY.2=Amber Woodland Stream
+value.WATER_BODY.3=Deep Blue Sea
+
+screen.WATER_MOTION=Wave Motion and Foam
+screen.WATER_LIGHT=Light Below and Above Water
+screen.WATER_TRACE=Reflection and Refraction
+profile.WATER_LOW=Water / Low
+profile.WATER_MEDIUM=Water / Coastal (Medium)
+profile.WATER_HIGH=Water / Reflections (High)
+profile.WATER_ULTRA=Water / Caustics (Ultra)

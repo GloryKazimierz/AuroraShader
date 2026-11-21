@@ -13,12 +13,16 @@ from validate_gpu_depth import matrix_uniform
 from render_water_bench import display_rows, draw_text, png, make_scene, WIDTH, HEIGHT
 
 
-def analytical_transport(source, share, view_m, light_m, block, sky, sky_rgb, clarity=1.0):
+def analytical_transport(source, share, view_m, light_m, block, sky, sky_rgb, clarity=1.0, body=0):
     # Radiative-transfer approximation specified by M1: attenuate the separated
     # custom direct share along the incoming leg, then every source component
     # along the outgoing leg. Scatter is bounded by available illumination.
-    sigma_a = (.18, .055, .025)
-    sigma_s = (.012, .020, .025)
+    sigma_a,sigma_s = (
+        ((.18,.055,.025),(.012,.020,.025)),
+        ((.24,.052,.09),(.032,.105,.083)),
+        ((.08,.155,.34),(.066,.044,.022)),
+        ((.32,.075,.018),(.008,.018,.035)),
+    )[body]
     share, block, sky = [min(1., max(0., x)) for x in (share, block, sky)]
     result = []
     for channel in range(3):
@@ -191,7 +195,7 @@ def render_resolve(runner, scene, options=None, capability=True, label="M1-resol
     return runner.render(label,pair,scene["width"],scene["height"],textures,scene["uniforms"],optional=optional)
 
 
-def slab_expected(scene, clarity=1.):
+def slab_expected(scene, clarity=1., body=0):
     w,h=scene["width"],scene["height"]
     result=[]
     for y in range(h):
@@ -214,7 +218,7 @@ def slab_expected(scene, clarity=1.):
             light_distance=drop/math.sqrt(1.-(1.-sun_cosine*sun_cosine)/(1.333**2))
             tex=scene["textures"]
             rgb=analytical_transport(tex["colortex5"][y][x][:3],tex["colortex9"][y][x][0],
-                distance,light_distance,tex["colortex8"][y][x][1],tex["colortex8"][y][x][2],(0.,0.,0.),clarity)
+                distance,light_distance,tex["colortex8"][y][x][1],tex["colortex8"][y][x][2],(0.,0.,0.),clarity,body)
             row.append(tuple(a*(1-confidence)+b*confidence for a,b in zip(native[:3],rgb))+(native[3],))
         result.append(row)
     return result

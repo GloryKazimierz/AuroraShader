@@ -149,6 +149,8 @@ def profile_configurations(root):
     for name in profiles:
         for path in sorted((root/'shaders').glob('*.vsh')):
             yield path.stem,dict(profiles[name])
+            if name.startswith('WATER_'):
+                yield path.stem,dict(profiles[name],IRIS_FEATURE_PER_BUFFER_BLENDING=True)
 
 
 def matching_profiles(profiles,current):

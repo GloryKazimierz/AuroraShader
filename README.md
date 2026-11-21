@@ -1,20 +1,8 @@
 # AuroraShader
 
-The optional optical pass now filters subpixel reflected color across a continuous surface and suppresses sky reflection behind a known roof. [Reflection stability](docs/WATER_M2_REFLECTION_STABILITY.md) · [中文原理](docs/WATER_M2_REFLECTION_STABILITY.zh-CN.md).
+AuroraShader pairs azure days, coral sunsets and indigo nights with world-anchored water motion. Select **Shader Pack Settings → Water / Coastal (Medium)** to see currents, wakes, local foam and sun/moon glints. **Water → Water Body** offers freshwater, glacial turquoise, amber woodland streams and blue open sea. Use **Water / Caustics (Ultra)** for illuminated beds and persistent foam.
 
-AuroraShader is an Iris shader pack developing a rich fantasy style: azure days,
-coral/gold sunsets, indigo nights and teal/violet aurora. It combines Minecraft's
-textures and lightmaps with directional lighting, shadows, atmosphere and gentle
-water effects. The aim is a coherent, playable pack with its own identity.
-
-**Current priority: convincing, beautiful water from every view.**
-Open **Shader Pack Settings → Water → Water Optical Transport** to enable depth-dependent
-absorption and scattering. **Water Clarity** adjusts how far the bottom remains visible.
-This optional HDR pass operates above a single water surface with a known solid bed.
-It uses separate light-to-bed and bed-to-eye travel distances, attenuates reflected
-air paths, and preserves scene alpha. Its confidence checks keep the existing
-appearance around overlapping translucent geometry. Default **Off** retains the W3 water.
-[Water optics and validation](docs/WATER_M1_OPTICS.md) · [中文原理与证据](docs/WATER_M1_OPTICS.zh-CN.md).
+[Four water bodies at three depths](docs/validation/WATER_MATERIALS_views.png) · [中文画质与水色指南](docs/WATER_MATERIALS_AND_PRESETS.zh-CN.md) · [Optical transport](docs/WATER_M1_OPTICS.md) · [Reflections](docs/WATER_M2_REFLECTION_STABILITY.md)
 
 Water M0 on `codex/water-04a-optics-foundation` builds on the
 [W3 scene reflection](https://github.com/GloryKazimierz/AuroraShader/commit/df94fe404146c1364920f709569898359c84c8ed).
@@ -78,21 +66,17 @@ Use Iris's Shader Pack Settings. Minecraft's Simplified Chinese language selects
 `zh_cn.lang`; English remains available. Pages group sky/light, shadows, water,
 clouds, aurora, bloom, fog, foliage, grading and advanced/debug controls.
 
-| Profile | Shadows | Bloom / aurora / water waves / depth color / foliage wind |
-|---|---|---|
-| Balanced / 均衡（默认） | 3x3 PCF | Enabled |
-| Light / 轻量 | Hard | Disabled |
-| Soft Shadows / 柔和阴影 | 5x5 PCF | Enabled |
+In Shader Pack Settings, choose **Water / Coastal (Medium)** for moving water, rain and contact ripples, local foam and sun/moon glints. The first three profiles retain the historical rendering choices.
 
-Profiles change exactly seven settings: shadow enable/filter and the five feature
-switches above. All three enable shadows. Exposure, grading, artistic strengths,
-fog, celestial-glow controls, water scene-reflection controls, debug and pipeline
-choices remain as you set them. Light does not automatically disable the new SSR
-control; performance tiers for tracing require measurements.
-Adding profiles does not
-overwrite saved settings; the seven source defaults match Balanced.
-Iris matches only the listed controls. A manual edit can match another profile or
-Custom. Legacy/debug/environment gates can independently hide an effect.
+| Profile | Water appearance |
+|---|---|
+| Balanced / Light / Soft Shadows | Original balanced, lighter or softer-shadow rendering |
+| Water / Low | Simpler world-anchored waves and sky reflections |
+| Water / Coastal (Medium) | Absorption, scattering, currents, rain and wake normals, local foam and glints |
+| Water / Reflections (High) | Coastal plus screen-space scene reflections with empty-space skipping |
+| Water / Caustics (Ultra) | High plus shadow-space caustics and persistent foam |
+
+Profiles leave water color, clarity, wave strength and grading available for art direction. Refraction can be selected separately under Water → Reflection and Refraction. Each preset resets the performance switches so a previous high-cost selection does not carry over. Optical profiles select the HDR beauty view. The default shader settings match Balanced.
 
 The filters use 1/9/25 logical shadow comparisons respectively. The existing
 2048 shadow map and 64-block shadow distance remain fixed. Bloom-off retains four
