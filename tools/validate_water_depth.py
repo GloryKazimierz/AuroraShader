@@ -376,7 +376,7 @@ def validate_water_depth(root,expand,preprocess,compact,function_body):
     assert len(list(shaders.glob('*.vsh'))) == len(list(shaders.glob('*.fsh'))) == 24
     assert restore_water_depth_source('lang/en_us.lang',read('lang/en_us.lang')).startswith(prior('lang/en_us.lang'))
     new_files=set(str(path.relative_to(root)).replace('\\','/') for path in shaders.rglob('*') if path.is_file())-set(old_files)
-    assert new_files == {'shaders/lib/water_depth.glsl','shaders/lib/water_depth_settings.glsl','shaders/lang/zh_cn.lang','shaders/lib/foliage.glsl','shaders/lib/foliage_settings.glsl','shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl','shaders/lib/water_scene_snapshot.glsl','shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl'},new_files
+    assert new_files == {'shaders/lib/water_depth.glsl','shaders/lib/water_depth_settings.glsl','shaders/lang/zh_cn.lang','shaders/lib/foliage.glsl','shaders/lib/foliage_settings.glsl','shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl','shaders/lib/water_scene_snapshot.glsl','shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl','shaders/lib/water_screen_reflection.glsl','shaders/lib/water_screen_reflection_settings.glsl'},new_files
     source=read('lib/water_depth.glsl')
     assert source.startswith('#ifndef AURORA_WATER_DEPTH_INCLUDED\n#define AURORA_WATER_DEPTH_INCLUDED\n')
     assert source.endswith('#endif\n')
@@ -410,7 +410,7 @@ def validate_water_depth(root,expand,preprocess,compact,function_body):
     # alpha, texture coordinates, water reflection normals and single late fog.
     for mode,style,enabled,sky_style,debug in product((0,1),(0,1),(0,1),(0,1),range(7)):
         fs=preprocess(expand(shaders/'gbuffers_water.fsh'),debug,False,
-                      overrides={'SCENE_COLOR_MODE':mode,'WATER_STYLE':style,'WATER_DEPTH_TINT':enabled,'SKY_STYLE':sky_style})
+                      overrides={'SCENE_COLOR_MODE':mode,'WATER_STYLE':style,'WATER_DEPTH_TINT':enabled,'SKY_STYLE':sky_style,'WATER_SCREEN_REFLECTIONS':0})
         helper=body(fs,'applyWaterDepthTint')
         active=body(fs,'applyWaterStyle')
         if not enabled:

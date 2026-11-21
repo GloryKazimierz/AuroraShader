@@ -1,0 +1,2575 @@
+{
+  "schema": 1,
+  "started_utc": "2026-11-21T15:27:48.245423+00:00",
+  "suite": "screen-reflections",
+  "shader_sha256": "c5caa7e0d8a6149f53d4725fd5d492993f4182d9684e1c1fe44fa1358e58d34e",
+  "scope": "Native OpenGL synthetic inputs only: no Iris patcher, Minecraft world, render-order/texture-binding integration, screenshots or performance measurement.",
+  "ok": true,
+  "gl": {
+    "vendor": "Intel",
+    "renderer": "Intel(R) Iris(R) Xe Graphics",
+    "version": "3.3.0 - Build 31.0.101.3962",
+    "glsl_version": "3.30 - Build 31.0.101.3962",
+    "major": 3,
+    "minor": 3,
+    "profile_mask": 2,
+    "profile": "compatibility",
+    "max_texture_size": 16384,
+    "max_texture_units": 32,
+    "max_draw_buffers": 8,
+    "max_color_attachments": 8
+  },
+  "build": {
+    "compiler": "g++.exe",
+    "flags": [
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-static"
+    ],
+    "diagnostics": ""
+  },
+  "controls": {
+    "comparisons": [
+      {
+        "label": "copy-RGBA32F",
+        "channels": 24,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "copy-RGBA16F",
+        "channels": 24,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "two-samplers",
+        "channels": 24,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "matrix-and-coverage",
+        "channels": 60,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "discard-preserves-clear",
+        "channels": 24,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      }
+    ],
+    "rejected": [
+      "existing output without modification",
+      "invalid GLSL",
+      "truncated raw texture",
+      "uniform type mismatch",
+      "varying link mismatch",
+      "misspelled inactive sampler",
+      "unwritten zero target"
+    ]
+  },
+  "water_screen_reflection": {
+    "scene_configurations": 56,
+    "queries": 270,
+    "hits": 214,
+    "misses": 56,
+    "cases": [
+      {
+        "scene": "wall-wide",
+        "budget": 64,
+        "queries": 20,
+        "hits": 20
+      },
+      {
+        "scene": "wall-wide",
+        "budget": 128,
+        "queries": 20,
+        "hits": 20
+      },
+      {
+        "scene": "wall-tall",
+        "budget": 64,
+        "queries": 16,
+        "hits": 16
+      },
+      {
+        "scene": "wall-tall",
+        "budget": 128,
+        "queries": 16,
+        "hits": 16
+      },
+      {
+        "scene": "wall-square",
+        "budget": 64,
+        "queries": 16,
+        "hits": 16
+      },
+      {
+        "scene": "wall-square",
+        "budget": 128,
+        "queries": 16,
+        "hits": 16
+      },
+      {
+        "scene": "slanted",
+        "budget": 64,
+        "queries": 16,
+        "hits": 16
+      },
+      {
+        "scene": "slanted",
+        "budget": 128,
+        "queries": 16,
+        "hits": 16
+      },
+      {
+        "scene": "floor",
+        "budget": 64,
+        "queries": 12,
+        "hits": 12
+      },
+      {
+        "scene": "floor",
+        "budget": 128,
+        "queries": 12,
+        "hits": 12
+      },
+      {
+        "scene": "thin-poles",
+        "budget": 64,
+        "queries": 8,
+        "hits": 8
+      },
+      {
+        "scene": "thin-poles",
+        "budget": 128,
+        "queries": 8,
+        "hits": 8
+      },
+      {
+        "scene": "masked-rectangles",
+        "budget": 64,
+        "queries": 12,
+        "hits": 8
+      },
+      {
+        "scene": "masked-rectangles",
+        "budget": 128,
+        "queries": 12,
+        "hits": 8
+      },
+      {
+        "scene": "unknown-occluder",
+        "budget": 64,
+        "queries": 1,
+        "hits": 0
+      },
+      {
+        "scene": "unknown-occluder",
+        "budget": 128,
+        "queries": 1,
+        "hits": 0
+      },
+      {
+        "scene": "unknown-sky-gap",
+        "budget": 64,
+        "queries": 1,
+        "hits": 1
+      },
+      {
+        "scene": "unknown-sky-gap",
+        "budget": 128,
+        "queries": 1,
+        "hits": 1
+      },
+      {
+        "scene": "invalid-alpha",
+        "budget": 64,
+        "queries": 1,
+        "hits": 0
+      },
+      {
+        "scene": "invalid-alpha",
+        "budget": 128,
+        "queries": 1,
+        "hits": 0
+      },
+      {
+        "scene": "invalid-nan-color",
+        "budget": 64,
+        "queries": 1,
+        "hits": 0
+      },
+      {
+        "scene": "invalid-nan-color",
+        "budget": 128,
+        "queries": 1,
+        "hits": 0
+      },
+      {
+        "scene": "invalid-infinite-color",
+        "budget": 64,
+        "queries": 1,
+        "hits": 0
+      },
+      {
+        "scene": "invalid-infinite-color",
+        "budget": 128,
+        "queries": 1,
+        "hits": 0
+      },
+      {
+        "scene": "invalid-negative-color",
+        "budget": 64,
+        "queries": 1,
+        "hits": 0
+      },
+      {
+        "scene": "invalid-negative-color",
+        "budget": 128,
+        "queries": 1,
+        "hits": 0
+      },
+      {
+        "scene": "invalid-clear-color",
+        "budget": 64,
+        "queries": 1,
+        "hits": 0
+      },
+      {
+        "scene": "invalid-clear-color",
+        "budget": 128,
+        "queries": 1,
+        "hits": 0
+      },
+      {
+        "scene": "invalid-depth",
+        "budget": 64,
+        "queries": 1,
+        "hits": 0
+      },
+      {
+        "scene": "invalid-depth",
+        "budget": 128,
+        "queries": 1,
+        "hits": 0
+      },
+      {
+        "scene": "invalid-raw-depth",
+        "budget": 64,
+        "queries": 1,
+        "hits": 0
+      },
+      {
+        "scene": "invalid-raw-depth",
+        "budget": 128,
+        "queries": 1,
+        "hits": 0
+      },
+      {
+        "scene": "mismatched-recorded-depth",
+        "budget": 64,
+        "queries": 1,
+        "hits": 0
+      },
+      {
+        "scene": "mismatched-recorded-depth",
+        "budget": 128,
+        "queries": 1,
+        "hits": 0
+      },
+      {
+        "scene": "dimension-mismatch",
+        "budget": 64,
+        "queries": 1,
+        "hits": 0
+      },
+      {
+        "scene": "dimension-mismatch",
+        "budget": 128,
+        "queries": 1,
+        "hits": 0
+      },
+      {
+        "scene": "budget",
+        "budget": 64,
+        "queries": 4,
+        "hits": 0
+      },
+      {
+        "scene": "budget",
+        "budget": 128,
+        "queries": 4,
+        "hits": 4
+      },
+      {
+        "scene": "borders",
+        "budget": 64,
+        "queries": 4,
+        "hits": 4
+      },
+      {
+        "scene": "borders",
+        "budget": 128,
+        "queries": 4,
+        "hits": 4
+      },
+      {
+        "scene": "self-near-and-invalid-rays",
+        "budget": 64,
+        "queries": 8,
+        "hits": 0
+      },
+      {
+        "scene": "self-near-and-invalid-rays",
+        "budget": 128,
+        "queries": 8,
+        "hits": 0
+      },
+      {
+        "scene": "distance-60",
+        "budget": 64,
+        "queries": 1,
+        "hits": 1
+      },
+      {
+        "scene": "distance-60",
+        "budget": 128,
+        "queries": 1,
+        "hits": 1
+      },
+      {
+        "scene": "distance-72",
+        "budget": 64,
+        "queries": 1,
+        "hits": 0
+      },
+      {
+        "scene": "distance-72",
+        "budget": 128,
+        "queries": 1,
+        "hits": 0
+      },
+      {
+        "scene": "finite-slab-behind-rectangle",
+        "budget": 64,
+        "queries": 2,
+        "hits": 0
+      },
+      {
+        "scene": "finite-slab-behind-rectangle",
+        "budget": 128,
+        "queries": 2,
+        "hits": 0
+      },
+      {
+        "scene": "diagonal-unknown-pixel",
+        "budget": 64,
+        "queries": 1,
+        "hits": 0
+      },
+      {
+        "scene": "diagonal-unknown-pixel",
+        "budget": 128,
+        "queries": 1,
+        "hits": 0
+      },
+      {
+        "scene": "diagonal-sky-pixel",
+        "budget": 64,
+        "queries": 1,
+        "hits": 1
+      },
+      {
+        "scene": "diagonal-sky-pixel",
+        "budget": 128,
+        "queries": 1,
+        "hits": 1
+      },
+      {
+        "scene": "valid-black",
+        "budget": 64,
+        "queries": 1,
+        "hits": 1
+      },
+      {
+        "scene": "valid-black",
+        "budget": 128,
+        "queries": 1,
+        "hits": 1
+      },
+      {
+        "scene": "valid-fp16-maximum",
+        "budget": 64,
+        "queries": 1,
+        "hits": 1
+      },
+      {
+        "scene": "valid-fp16-maximum",
+        "budget": 128,
+        "queries": 1,
+        "hits": 1
+      }
+    ],
+    "comparisons": [
+      {
+        "label": "screen-reflection-wall-wide-64-0",
+        "channels": 80,
+        "max_absolute_error": 1.0273235808710979e-06,
+        "max_tolerance_fraction": 0.0014215464775005544,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-wall-wide-64-1",
+        "channels": 80,
+        "max_absolute_error": 9.688219435588508e-07,
+        "max_tolerance_fraction": 0.0013031293802872933,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-wall-wide-64-2",
+        "channels": 80,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-wall-wide-128-0",
+        "channels": 80,
+        "max_absolute_error": 1.0273235808710979e-06,
+        "max_tolerance_fraction": 0.0014215464775005544,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-wall-wide-128-1",
+        "channels": 80,
+        "max_absolute_error": 9.688219435588508e-07,
+        "max_tolerance_fraction": 0.0013031293802872933,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-wall-wide-128-2",
+        "channels": 80,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-wall-tall-64-0",
+        "channels": 64,
+        "max_absolute_error": 1.4937506467305184e-06,
+        "max_tolerance_fraction": 0.0021588826919151974,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-wall-tall-64-1",
+        "channels": 64,
+        "max_absolute_error": 1.6474570703195468e-06,
+        "max_tolerance_fraction": 0.0022109053551677845,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-wall-tall-64-2",
+        "channels": 64,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-wall-tall-128-0",
+        "channels": 64,
+        "max_absolute_error": 1.4937506467305184e-06,
+        "max_tolerance_fraction": 0.0021588826919151974,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-wall-tall-128-1",
+        "channels": 64,
+        "max_absolute_error": 1.6474570703195468e-06,
+        "max_tolerance_fraction": 0.0022109053551677845,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-wall-tall-128-2",
+        "channels": 64,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-wall-square-64-0",
+        "channels": 64,
+        "max_absolute_error": 0.00025527322283913634,
+        "max_tolerance_fraction": 0.36697811201933944,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-wall-square-64-1",
+        "channels": 64,
+        "max_absolute_error": 0.00020301233923980533,
+        "max_tolerance_fraction": 0.2728411836037279,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-wall-square-64-2",
+        "channels": 64,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-wall-square-128-0",
+        "channels": 64,
+        "max_absolute_error": 0.00025527322283913634,
+        "max_tolerance_fraction": 0.36697811201933944,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-wall-square-128-1",
+        "channels": 64,
+        "max_absolute_error": 0.00020301233923980533,
+        "max_tolerance_fraction": 0.2728411836037279,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-wall-square-128-2",
+        "channels": 64,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-slanted-64-0",
+        "channels": 64,
+        "max_absolute_error": 0.0005614089265382205,
+        "max_tolerance_fraction": 0.796284848999164,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-slanted-64-1",
+        "channels": 64,
+        "max_absolute_error": 0.0004891733956267075,
+        "max_tolerance_fraction": 0.6808791451458028,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-slanted-64-2",
+        "channels": 64,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-slanted-128-0",
+        "channels": 64,
+        "max_absolute_error": 0.0005614089265382205,
+        "max_tolerance_fraction": 0.796284848999164,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-slanted-128-1",
+        "channels": 64,
+        "max_absolute_error": 0.0004891733956267075,
+        "max_tolerance_fraction": 0.6808791451458028,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-slanted-128-2",
+        "channels": 64,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-floor-64-0",
+        "channels": 48,
+        "max_absolute_error": 1.6822853137199445e-06,
+        "max_tolerance_fraction": 0.002449750092110645,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-floor-64-1",
+        "channels": 48,
+        "max_absolute_error": 1.8304007802782962e-06,
+        "max_tolerance_fraction": 0.0023885327866970335,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-floor-64-2",
+        "channels": 48,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-floor-128-0",
+        "channels": 48,
+        "max_absolute_error": 1.6822853137199445e-06,
+        "max_tolerance_fraction": 0.002449750092110645,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-floor-128-1",
+        "channels": 48,
+        "max_absolute_error": 1.8304007802782962e-06,
+        "max_tolerance_fraction": 0.0023885327866970335,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-floor-128-2",
+        "channels": 48,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-thin-poles-64-0",
+        "channels": 32,
+        "max_absolute_error": 3.9769390625110645e-07,
+        "max_tolerance_fraction": 0.0005627681337506647,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-thin-poles-64-1",
+        "channels": 32,
+        "max_absolute_error": 8.343430035750998e-07,
+        "max_tolerance_fraction": 0.0011274893792946941,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-thin-poles-64-2",
+        "channels": 32,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-thin-poles-128-0",
+        "channels": 32,
+        "max_absolute_error": 3.9769390625110645e-07,
+        "max_tolerance_fraction": 0.0005627681337506647,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-thin-poles-128-1",
+        "channels": 32,
+        "max_absolute_error": 8.343430035750998e-07,
+        "max_tolerance_fraction": 0.0011274893792946941,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-thin-poles-128-2",
+        "channels": 32,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-masked-rectangles-64-0",
+        "channels": 48,
+        "max_absolute_error": 1.2172069450144818e-06,
+        "max_tolerance_fraction": 0.001658660112266353,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-masked-rectangles-64-1",
+        "channels": 48,
+        "max_absolute_error": 1.0730056292374002e-06,
+        "max_tolerance_fraction": 0.0014500061074458255,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-masked-rectangles-64-2",
+        "channels": 48,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-masked-rectangles-128-0",
+        "channels": 48,
+        "max_absolute_error": 1.2172069450144818e-06,
+        "max_tolerance_fraction": 0.001658660112266353,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-masked-rectangles-128-1",
+        "channels": 48,
+        "max_absolute_error": 1.0730056292374002e-06,
+        "max_tolerance_fraction": 0.0014500061074458255,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-masked-rectangles-128-2",
+        "channels": 48,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-unknown-occluder-64-0",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-unknown-occluder-64-1",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-unknown-occluder-64-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-unknown-occluder-128-0",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-unknown-occluder-128-1",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-unknown-occluder-128-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-unknown-sky-gap-64-0",
+        "channels": 4,
+        "max_absolute_error": 9.127429034805346e-07,
+        "max_tolerance_fraction": 0.0012023280542437817,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-unknown-sky-gap-64-1",
+        "channels": 4,
+        "max_absolute_error": 3.4951883698397523e-07,
+        "max_tolerance_fraction": 0.0005285102187374396,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-unknown-sky-gap-64-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-unknown-sky-gap-128-0",
+        "channels": 4,
+        "max_absolute_error": 9.127429034805346e-07,
+        "max_tolerance_fraction": 0.0012023280542437817,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-unknown-sky-gap-128-1",
+        "channels": 4,
+        "max_absolute_error": 3.4951883698397523e-07,
+        "max_tolerance_fraction": 0.0005285102187374396,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-unknown-sky-gap-128-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-alpha-64-0",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-alpha-64-1",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-alpha-64-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-alpha-128-0",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-alpha-128-1",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-alpha-128-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-nan-color-64-0",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-nan-color-64-1",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-nan-color-64-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-nan-color-128-0",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-nan-color-128-1",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-nan-color-128-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-infinite-color-64-0",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-infinite-color-64-1",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-infinite-color-64-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-infinite-color-128-0",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-infinite-color-128-1",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-infinite-color-128-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-negative-color-64-0",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-negative-color-64-1",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-negative-color-64-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-negative-color-128-0",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-negative-color-128-1",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-negative-color-128-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-clear-color-64-0",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-clear-color-64-1",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-clear-color-64-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-clear-color-128-0",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-clear-color-128-1",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-clear-color-128-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-depth-64-0",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-depth-64-1",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-depth-64-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-depth-128-0",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-depth-128-1",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-depth-128-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-raw-depth-64-0",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-raw-depth-64-1",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-raw-depth-64-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-raw-depth-128-0",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-raw-depth-128-1",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-invalid-raw-depth-128-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-mismatched-recorded-depth-64-0",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-mismatched-recorded-depth-64-1",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-mismatched-recorded-depth-64-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-mismatched-recorded-depth-128-0",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-mismatched-recorded-depth-128-1",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-mismatched-recorded-depth-128-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-dimension-mismatch-64-0",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-dimension-mismatch-64-1",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-dimension-mismatch-64-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-dimension-mismatch-128-0",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-dimension-mismatch-128-1",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-dimension-mismatch-128-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-budget-64-0",
+        "channels": 16,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-budget-64-1",
+        "channels": 16,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-budget-64-2",
+        "channels": 16,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-budget-128-0",
+        "channels": 16,
+        "max_absolute_error": 9.06487878538087e-07,
+        "max_tolerance_fraction": 0.0012868285756082829,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-budget-128-1",
+        "channels": 16,
+        "max_absolute_error": 1.0730056292374002e-06,
+        "max_tolerance_fraction": 0.0014500061074458255,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-budget-128-2",
+        "channels": 16,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-borders-64-0",
+        "channels": 16,
+        "max_absolute_error": 7.562162700480712e-07,
+        "max_tolerance_fraction": 0.0009204520441359892,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-borders-64-1",
+        "channels": 16,
+        "max_absolute_error": 1.0730056292374002e-06,
+        "max_tolerance_fraction": 0.0014500061074458255,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-borders-64-2",
+        "channels": 16,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-borders-128-0",
+        "channels": 16,
+        "max_absolute_error": 7.562162700480712e-07,
+        "max_tolerance_fraction": 0.0009204520441359892,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-borders-128-1",
+        "channels": 16,
+        "max_absolute_error": 1.0730056292374002e-06,
+        "max_tolerance_fraction": 0.0014500061074458255,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-borders-128-2",
+        "channels": 16,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-self-near-and-invalid-rays-64-0",
+        "channels": 32,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-self-near-and-invalid-rays-64-1",
+        "channels": 32,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-self-near-and-invalid-rays-64-2",
+        "channels": 32,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-self-near-and-invalid-rays-128-0",
+        "channels": 32,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-self-near-and-invalid-rays-128-1",
+        "channels": 32,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-self-near-and-invalid-rays-128-2",
+        "channels": 32,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-distance-60-64-0",
+        "channels": 4,
+        "max_absolute_error": 7.684832681320586e-06,
+        "max_tolerance_fraction": 0.004523318635448076,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-distance-60-64-1",
+        "channels": 4,
+        "max_absolute_error": 7.077264569943509e-06,
+        "max_tolerance_fraction": 0.004163030453527369,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-distance-60-64-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-distance-60-128-0",
+        "channels": 4,
+        "max_absolute_error": 7.684832681320586e-06,
+        "max_tolerance_fraction": 0.004523318635448076,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-distance-60-128-1",
+        "channels": 4,
+        "max_absolute_error": 7.077264569943509e-06,
+        "max_tolerance_fraction": 0.004163030453527369,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-distance-60-128-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-distance-72-64-0",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-distance-72-64-1",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-distance-72-64-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-distance-72-128-0",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-distance-72-128-1",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-distance-72-128-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-finite-slab-behind-rectangle-64-0",
+        "channels": 8,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-finite-slab-behind-rectangle-64-1",
+        "channels": 8,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-finite-slab-behind-rectangle-64-2",
+        "channels": 8,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-finite-slab-behind-rectangle-128-0",
+        "channels": 8,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-finite-slab-behind-rectangle-128-1",
+        "channels": 8,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-finite-slab-behind-rectangle-128-2",
+        "channels": 8,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-diagonal-unknown-pixel-64-0",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-diagonal-unknown-pixel-64-1",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-diagonal-unknown-pixel-64-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-diagonal-unknown-pixel-128-0",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-diagonal-unknown-pixel-128-1",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-diagonal-unknown-pixel-128-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-diagonal-sky-pixel-64-0",
+        "channels": 4,
+        "max_absolute_error": 1.417466403808021e-06,
+        "max_tolerance_fraction": 0.0015391675384509391,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-diagonal-sky-pixel-64-1",
+        "channels": 4,
+        "max_absolute_error": 6.192226571499759e-07,
+        "max_tolerance_fraction": 0.000688023211274454,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-diagonal-sky-pixel-64-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-diagonal-sky-pixel-128-0",
+        "channels": 4,
+        "max_absolute_error": 1.417466403808021e-06,
+        "max_tolerance_fraction": 0.0015391675384509391,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-diagonal-sky-pixel-128-1",
+        "channels": 4,
+        "max_absolute_error": 6.192226571499759e-07,
+        "max_tolerance_fraction": 0.000688023211274454,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-diagonal-sky-pixel-128-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-valid-black-64-0",
+        "channels": 4,
+        "max_absolute_error": 9.073046474128432e-07,
+        "max_tolerance_fraction": 0.001278321346888992,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-valid-black-64-1",
+        "channels": 4,
+        "max_absolute_error": 1.0730056292374002e-06,
+        "max_tolerance_fraction": 0.0014500061074458255,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-valid-black-64-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-valid-black-128-0",
+        "channels": 4,
+        "max_absolute_error": 9.073046474128432e-07,
+        "max_tolerance_fraction": 0.001278321346888992,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-valid-black-128-1",
+        "channels": 4,
+        "max_absolute_error": 1.0730056292374002e-06,
+        "max_tolerance_fraction": 0.0014500061074458255,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-valid-black-128-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-valid-fp16-maximum-64-0",
+        "channels": 4,
+        "max_absolute_error": 9.073046474128432e-07,
+        "max_tolerance_fraction": 0.001278321346888992,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-valid-fp16-maximum-64-1",
+        "channels": 4,
+        "max_absolute_error": 1.0730056292374002e-06,
+        "max_tolerance_fraction": 0.0014500061074458255,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-valid-fp16-maximum-64-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-valid-fp16-maximum-128-0",
+        "channels": 4,
+        "max_absolute_error": 9.073046474128432e-07,
+        "max_tolerance_fraction": 0.001278321346888992,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-valid-fp16-maximum-128-1",
+        "channels": 4,
+        "max_absolute_error": 1.0730056292374002e-06,
+        "max_tolerance_fraction": 0.0014500061074458255,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      },
+      {
+        "label": "screen-reflection-valid-fp16-maximum-128-2",
+        "channels": 4,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0005,
+          "relative": 2e-05
+        }
+      }
+    ],
+    "water_style": {
+      "configurations": 10,
+      "pixels_per_configuration": 8,
+      "changed_pixels": 32,
+      "cases": [
+        {
+          "case": "local-day",
+          "hits": 8,
+          "changed_pixels": 8
+        },
+        {
+          "case": "cave",
+          "hits": 8,
+          "changed_pixels": 8
+        },
+        {
+          "case": "sky-style-off",
+          "hits": 8,
+          "changed_pixels": 8
+        },
+        {
+          "case": "sky-blend-zero",
+          "hits": 8,
+          "changed_pixels": 8
+        },
+        {
+          "case": "scene-miss",
+          "hits": 0,
+          "changed_pixels": 0
+        },
+        {
+          "case": "nonwater",
+          "hits": 0,
+          "changed_pixels": 0
+        },
+        {
+          "case": "underwater",
+          "hits": 0,
+          "changed_pixels": 0
+        },
+        {
+          "case": "debug",
+          "hits": 0,
+          "changed_pixels": 0
+        },
+        {
+          "case": "legacy",
+          "hits": 0,
+          "changed_pixels": 0
+        },
+        {
+          "case": "water-off",
+          "hits": 0,
+          "changed_pixels": 0
+        }
+      ],
+      "comparisons": [
+        {
+          "label": "water-style-local-day",
+          "channels": 32,
+          "max_absolute_error": 1.628718560020559e-08,
+          "max_tolerance_fraction": 0.0004071796400051397,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0
+          }
+        },
+        {
+          "label": "water-style-cave",
+          "channels": 32,
+          "max_absolute_error": 1.628718560020559e-08,
+          "max_tolerance_fraction": 0.0004071796400051397,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0
+          }
+        },
+        {
+          "label": "water-style-sky-style-off",
+          "channels": 32,
+          "max_absolute_error": 1.628718560020559e-08,
+          "max_tolerance_fraction": 0.0004071796400051397,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0
+          }
+        },
+        {
+          "label": "water-style-sky-blend-zero",
+          "channels": 32,
+          "max_absolute_error": 1.628718560020559e-08,
+          "max_tolerance_fraction": 0.0004071796400051397,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0
+          }
+        },
+        {
+          "label": "water-style-scene-miss",
+          "channels": 32,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0
+          }
+        },
+        {
+          "label": "water-style-scene-miss-exact-fallback",
+          "channels": 32,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0,
+            "relative": 0.0
+          }
+        },
+        {
+          "label": "water-style-nonwater",
+          "channels": 32,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0
+          }
+        },
+        {
+          "label": "water-style-nonwater-exact-fallback",
+          "channels": 32,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0,
+            "relative": 0.0
+          }
+        },
+        {
+          "label": "water-style-underwater",
+          "channels": 32,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0
+          }
+        },
+        {
+          "label": "water-style-underwater-exact-fallback",
+          "channels": 32,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0,
+            "relative": 0.0
+          }
+        },
+        {
+          "label": "water-style-debug",
+          "channels": 32,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0
+          }
+        },
+        {
+          "label": "water-style-debug-exact-fallback",
+          "channels": 32,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0,
+            "relative": 0.0
+          }
+        },
+        {
+          "label": "water-style-legacy",
+          "channels": 32,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0
+          }
+        },
+        {
+          "label": "water-style-legacy-exact-fallback",
+          "channels": 32,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0,
+            "relative": 0.0
+          }
+        },
+        {
+          "label": "water-style-water-off",
+          "channels": 32,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0
+          }
+        },
+        {
+          "label": "water-style-water-off-exact-fallback",
+          "channels": 32,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0,
+            "relative": 0.0
+          }
+        }
+      ],
+      "actual_fragment_regression": {
+        "configurations": 4,
+        "pixels_per_configuration": 120,
+        "changed_detailed_pixels": 48,
+        "comparisons": [
+          {
+            "label": "water-fragment-original-exact-W1",
+            "channels": 480,
+            "max_absolute_error": 0.0,
+            "max_tolerance_fraction": 0.0,
+            "tolerance": {
+              "half_ulps": 0,
+              "absolute": 0.0,
+              "relative": 0.0
+            }
+          },
+          {
+            "label": "water-fragment-disabled-exact-W1",
+            "channels": 480,
+            "max_absolute_error": 0.0,
+            "max_tolerance_fraction": 0.0,
+            "tolerance": {
+              "half_ulps": 0,
+              "absolute": 0.0,
+              "relative": 0.0
+            }
+          },
+          {
+            "label": "water-fragment-zero-exact-W1",
+            "channels": 480,
+            "max_absolute_error": 0.0,
+            "max_tolerance_fraction": 0.0,
+            "tolerance": {
+              "half_ulps": 0,
+              "absolute": 0.0,
+              "relative": 0.0
+            }
+          }
+        ],
+        "scope": "Actual pack fragment with synthetic water vertex/material/atlas inputs; original, off and zero exact against W1."
+      },
+      "scope": "Actual water-style helper on synthetic surface inputs: Fresnel-weighted replacement, cave/sky controls, misses, gates and exact source alpha. Actual fragment regressions use SSR off."
+    },
+    "scope": "Actual GLSL ray helper, frozen synthetic RGBA16F/R32F scene inputs and MRT diagnostic readback. CPU fixture geometry has independent analytic ray-plane truth; no Iris transforms/world."
+  },
+  "finished_utc": "2026-11-21T15:34:10.227807+00:00"
+}

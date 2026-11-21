@@ -1,0 +1,94 @@
+{
+  "schema": 1,
+  "ok": true,
+  "scope": "Authored perspective plane/AABB scene with actual Aurora GLSL water/fog/tone helpers in hidden native OpenGL; not Minecraft, Iris preprocessing, transparent draw ordering, a physical-water reference or a performance measurement.",
+  "shader_sha256": "5e7f9029c6b078ef76f10aba87c1d1a1a5635154bb494b4d5a07e5eeccb4f9de",
+  "script_sha256": "3d3fade29008d7e060127d328c0af44dff44d9bf48199292fe50f50f4e5b88d2",
+  "width": 256,
+  "height": 144,
+  "daylight_only": true,
+  "budget": 64,
+  "native_alpha": 0.55,
+  "options": "Pack defaults except SSR off/on; authored source RGB (0.045,0.11,0.13)",
+  "cases": [
+    {
+      "camera": "OVERHEAD",
+      "pitch_down_degrees": 70.0,
+      "angle_from_surface_normal": 20.0,
+      "eye_relative_to_water": [
+        0.0,
+        15.035081932574533,
+        3.472322293210701
+      ],
+      "water_pixels": 14709,
+      "opaque_pixels": 36864,
+      "trace_hits": 764,
+      "changed_display_pixels": 764,
+      "max_display_delta": 0.005233108997344971
+    },
+    {
+      "camera": "OBLIQUE",
+      "pitch_down_degrees": 35.0,
+      "angle_from_surface_normal": 55.0,
+      "eye_relative_to_water": [
+        0.0,
+        9.177222981616737,
+        11.106432708623869
+      ],
+      "water_pixels": 13408,
+      "opaque_pixels": 34048,
+      "trace_hits": 1047,
+      "changed_display_pixels": 1047,
+      "max_display_delta": 0.023790836334228516
+    },
+    {
+      "camera": "GRAZING",
+      "pitch_down_degrees": 10.0,
+      "angle_from_surface_normal": 80.0,
+      "eye_relative_to_water": [
+        0.0,
+        2.7783708426708853,
+        13.756924048195328
+      ],
+      "water_pixels": 5309,
+      "opaque_pixels": 22201,
+      "trace_hits": 1256,
+      "changed_display_pixels": 1256,
+      "max_display_delta": 0.11770254373550415
+    }
+  ],
+  "images": [
+    "overhead_SSR_off.png",
+    "overhead_SSR_on.png",
+    "oblique_SSR_off.png",
+    "oblique_SSR_on.png",
+    "grazing_SSR_off.png",
+    "grazing_SSR_on.png"
+  ],
+  "gl": {
+    "vendor": "Intel",
+    "renderer": "Intel(R) Iris(R) Xe Graphics",
+    "version": "3.3.0 - Build 31.0.101.3962",
+    "glsl_version": "3.30 - Build 31.0.101.3962",
+    "major": 3,
+    "minor": 3,
+    "profile_mask": 2,
+    "profile": "compatibility",
+    "max_texture_size": 16384,
+    "max_texture_units": 32,
+    "max_draw_buffers": 8,
+    "max_color_attachments": 8
+  },
+  "build": {
+    "compiler": "g++.exe",
+    "flags": [
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-static"
+    ],
+    "diagnostics": ""
+  }
+}

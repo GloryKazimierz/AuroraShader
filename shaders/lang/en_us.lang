@@ -133,15 +133,15 @@ value.CLOUD_FOG.0=Off
 value.CLOUD_FOG.1=On
 option.CLOUD_FOG.comment=Use the existing height/distance fog on each cloud fragment before blending. Also requires global Atmospheric Fog.
 
-screen.WATER=Water Color and Sky Reflection
+screen.WATER=Water Surface and Reflections
 option.WATER_STYLE=Water Style
 value.WATER_STYLE.0=Native M12
 value.WATER_STYLE.1=Aurora
 option.WATER_STYLE.comment=Classified vanilla water only. Glass, lava and unknown fluids keep their original source. No vertex displacement, refraction or opacity changes.
 option.WATER_TINT_STRENGTH=Water Color Strength
 option.WATER_TINT_STRENGTH.comment=Gentle cyan bias on sky-lit water; block light reduces the tint. Zero disables only the new color multiplier.
-option.WATER_REFLECTION_STRENGTH=Water Sky Reflection
-option.WATER_REFLECTION_STRENGTH.comment=Angle-dependent analytic sky color on upper water faces. Requires Aurora Sky and sky light; no terrain, clouds, sun/moon or aurora reflections. Native alpha still applies.
+option.WATER_REFLECTION_STRENGTH=Water Reflection Strength
+option.WATER_REFLECTION_STRENGTH.comment=Scales screen-space scene reflections and the analytic sky fallback. Screen hits do not require Aurora Sky or sky light. Native alpha still applies.
 
 option.WATER_WAVES=Water Reflection Waves
 value.WATER_WAVES.0=Off
@@ -198,3 +198,12 @@ option.WATER_SURFACE_DETAIL=Fine Water Ripples
 value.WATER_SURFACE_DETAIL.0=Off
 value.WATER_SURFACE_DETAIL.1=On
 option.WATER_SURFACE_DETAIL.comment=Adds fine ripples to filtered broad-wave normals. Off keeps broad waves. No geometry displacement or simulated water flow.
+
+option.WATER_SCREEN_REFLECTIONS=Screen-Space Water Reflections
+value.WATER_SCREEN_REFLECTIONS.0=Off
+value.WATER_SCREEN_REFLECTIONS.1=On
+option.WATER_SCREEN_REFLECTIONS.comment=Reflects supported visible surfaces. Hidden or off-screen content is unavailable; misses use the available sky fallback. Native transparency still attenuates reflections.
+option.WATER_REFLECTION_STEPS=Reflection Trace Budget
+value.WATER_REFLECTION_STEPS.64=64 Steps
+value.WATER_REFLECTION_STEPS.128=128 Steps
+option.WATER_REFLECTION_STEPS.comment=Larger budgets can reach more on-screen surfaces at extra cost. They cannot reveal hidden or off-screen geometry.

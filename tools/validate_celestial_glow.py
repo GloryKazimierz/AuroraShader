@@ -7,6 +7,7 @@ from pathlib import Path
 from itertools import product
 from validate_water_snapshot import restore_water_snapshot_source
 from validate_water_filtered_waves import FILTER_OPTIONS
+from validate_water_screen_reflection import REFLECTION_OPTIONS
 
 M18_BASELINE = '60871f45b7e84e331bacaf541874c7ae4df86090'
 GLOW_OPTIONS = {'CELESTIAL_GLOW','SUN_GLOW_STRENGTH','MOON_GLOW_STRENGTH'}
@@ -285,7 +286,7 @@ def validate_celestial_glow(root,expand,preprocess,compact,function_body):
         previous=subprocess.check_output(['git','-C',str(root),'show',M18_BASELINE+':'+path]).decode('utf-8').replace('\r\n','\n')
         assert restore_celestial_glow_source(relative,read(relative))==previous,relative
     current_files={str(path.relative_to(root)).replace('\\','/') for path in shaders.rglob('*') if path.is_file()}
-    assert current_files-set(old_files)=={'shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl','shaders/lib/water_scene_snapshot.glsl','shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl'}
+    assert current_files-set(old_files)=={'shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl','shaders/lib/water_scene_snapshot.glsl','shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl','shaders/lib/water_screen_reflection.glsl','shaders/lib/water_screen_reflection_settings.glsl'}
     assert len(list(shaders.glob('*.vsh')))==len(list(shaders.glob('*.fsh')))==24
     helper=read('lib/celestial_glow.glsl')
     code=compact(helper)
@@ -316,7 +317,7 @@ def validate_celestial_glow(root,expand,preprocess,compact,function_body):
                             overrides={'SCENE_COLOR_MODE':mode,'CELESTIAL_GLOW':enabled,'SKY_STYLE':style})
         if not mode or not enabled or not style or debug:
             assert body(selected,'applyCelestialGlow')=='returnscene;'
-    options={key:value for key,value in option_definitions(root).items() if key not in FILTER_OPTIONS}
+    options={key:value for key,value in option_definitions(root).items() if key not in (FILTER_OPTIONS | REFLECTION_OPTIONS)}
     properties=parse_properties(restore_water_snapshot_source('shaders.properties',read('shaders.properties')))
     controls,screens=menu_options(properties,options)
     assert len(options)==len(controls)==57 and len(screens)==12

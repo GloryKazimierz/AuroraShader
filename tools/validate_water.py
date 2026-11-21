@@ -237,7 +237,7 @@ def validate_water(root,expand,preprocess,compact,function_body):
             assert 'mc_Entity' not in vs and 'applyWaterStyle(' not in fs,path.stem
     for mode,style,sky_style,debug in product((0,1),(0,1),(0,1),range(7)):
         fs = preprocess(expand(shaders/'gbuffers_water.fsh'),debug,False,
-                        overrides={'SCENE_COLOR_MODE':mode,'WATER_STYLE':style,'SKY_STYLE':sky_style})
+                        overrides={'SCENE_COLOR_MODE':mode,'WATER_STYLE':style,'SKY_STYLE':sky_style,'WATER_SCREEN_REFLECTIONS':0})
         effect = body(fs,'applyWaterStyle')
         if not mode or not style or debug:
             assert effect == 'returnscene;'

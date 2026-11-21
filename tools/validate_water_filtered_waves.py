@@ -6,6 +6,7 @@ import subprocess
 from functools import lru_cache
 from itertools import product
 from pathlib import Path
+from validate_water_screen_reflection import REFLECTION_OPTIONS, restore_water_screen_reflection_source
 
 W1_BASELINE = '5d3e91761beaa3747052c11aa429e27be8d42df4'
 FILTER_OPTIONS = {'WATER_SURFACE_DETAIL'}
@@ -217,6 +218,7 @@ def restore_water_filtered_source(relative, source):
     relative = relative.replace('\\','/')
     if relative.startswith('shaders/'):
         relative = relative[len('shaders/'):]
+    source = restore_water_screen_reflection_source(relative,source)
     if relative == 'lib/water.glsl':
         for current,previous in (('#include "/lib/water_filtered_waves.glsl"\n',''),
                                  (NEW_STYLE_SIGNATURE,OLD_STYLE_SIGNATURE),
@@ -270,7 +272,7 @@ def validate_water_filtered_waves(root, expand, preprocess, compact, function_bo
     old_files=subprocess.check_output(['git','-C',str(root),'ls-tree','-r','--name-only',W1_BASELINE,'shaders']).decode().splitlines()
     assert len(old_files)==100
     current_files={str(path.relative_to(root)).replace('\\','/') for path in shaders.rglob('*') if path.is_file()}
-    assert current_files==set(old_files)|{'shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl'}
+    assert current_files==set(old_files)|{'shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl','shaders/lib/water_screen_reflection.glsl','shaders/lib/water_screen_reflection_settings.glsl'}
     for path in old_files:
         relative=path[len('shaders/'):]
         assert restore_water_filtered_source(relative,read(relative))==previous(relative),relative
@@ -320,8 +322,8 @@ def validate_water_filtered_waves(root, expand, preprocess, compact, function_bo
         assert len(uniforms)==len(set(uniforms)),path.name
     for path in shaders.glob('*.vsh'):
         assert 'waterFilteredWaveNormal(' not in preprocess(expand(path),0,False),path.name
-    options=option_definitions(root)
-    props=parse_properties(read('shaders.properties'))
+    options={key:value for key,value in option_definitions(root).items() if key not in REFLECTION_OPTIONS}
+    props=parse_properties(restore_water_screen_reflection_source('shaders.properties',read('shaders.properties')))
     controls,screens=menu_options(props,options)
     assert len(options)==len(controls)==58 and len(screens)==12
     assert options['WATER_SURFACE_DETAIL']==dict(kind='number',default='1',values=('0','1'))
@@ -333,7 +335,7 @@ def validate_water_filtered_waves(root, expand, preprocess, compact, function_bo
     for name,profile in profiles.items():
         for detail in ('0','1'):
             assert matching_profiles(profiles,dict(defaults,**profile,WATER_SURFACE_DETAIL=detail))==(name,)
-    en,zh=(parse_language(read('lang/'+language)) for language in ('en_us.lang','zh_cn.lang'))
+    en,zh=(parse_language(restore_water_screen_reflection_source('lang/'+language,read('lang/'+language))) for language in ('en_us.lang','zh_cn.lang'))
     assert len(en)==len(zh)==183 and set(en)==set(zh) and FILTER_LABELS<=set(en)
     assert all(re.search(r'[\u3400-\u9fff]',zh[key]) for key in FILTER_LABELS)
     validate_filtered_math()

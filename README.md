@@ -6,17 +6,20 @@ textures and lightmaps with directional lighting, shadows, atmosphere and gentle
 water effects. The aim is a coherent, playable pack with its own identity.
 
 **Current priority: convincing, beautiful water from every view.**
-W2 on `codex/water-02-filtered-waves` starts from W1 commit `5d3e917`.
-It adds three small ripples to the original three broad waves and filters their
-normals by the screen-pixel footprint. W1 provides matched pre-camera-fog color
-and depth for future reflection/transmission; no snapshot consumer exists yet.
-There are 58 controls and three quality profiles. The water roadmap covers
-screen-space traced reflections, transmission/absorption, verified flow, underwater
-optics, shoreline effects and measured quality/performance.
+W3 on `codex/water-03-screen-reflections` starts from W2 commit `db67a74`.
+It adds bounded screen-space scene reflections using W1's matched color/depth
+and W2's filtered wave normals. Unknown foreground depth blocks unsupported hits;
+misses keep the existing fallback. CPU, offline and native compilation checks pass;
+native ray tests and three-view synthetic comparisons also pass. These checks do
+not confirm Minecraft/Iris runtime integration or performance.
+There are 60 controls and three quality profiles. The next water systems are
+owned reflection/transmission composition, attenuation/refraction, verified flow,
+underwater optics, shoreline effects and measured quality/performance.
 
 [中文路线图](docs/AURORA_ROADMAP.zh-CN.md) ·
 [中文水体专项路线](docs/WATER_ROADMAP.zh-CN.md) ·
 [波纹过滤原理](docs/WATER_02_FILTERED_WAVES.zh-CN.md) ·
+[场景反射原理](docs/WATER_03_SCREEN_REFLECTIONS.zh-CN.md) ·
 [English roadmap](docs/AURORA_ROADMAP.md)
 
 ## Current features
@@ -30,20 +33,26 @@ optics, shoreline effects and measured quality/performance.
 | Bloom | Four-pass half-resolution bright-pixel extraction, separable blur and recombination |
 | Aurora | Bounded procedural teal/violet sky ribbons at night, with weather/vision fallbacks |
 | Water | Fluid classification, gentle tint, analytic sky-color reflection, world-anchored, pixel-filtered multiscale wave normals and luminance-preserving background-depth color |
-| Water tracing foundation | Matched eligible opaque color/depth snapshot; water ray tracing and physical transmission remain planned |
+| Water scene reflection | Matched eligible opaque color/depth snapshot, bounded 64/128-cell screen traversal, unknown-occluder guard and confidence-weighted fallback |
 | Foliage | Eleven vanilla leaf types, short grass and joined tall grass; shared terrain/shadow wind with fixed grass roots |
 | Settings | English/Simplified Chinese, grouped pages, three quality profiles and seven debug views |
 
-Water reflection uses an analytic sky palette. Waves change reflection normals;
-they do not move the mesh or shoreline. Water Surface Detail 1 (default) uses six
+Water reflection can replace its analytic sky fallback with a valid recorded scene
+hit. Local scene reflection works independently of sky-style/blend and local sky
+light; the existing dimension, fluid and upward-face scope remains. Waves change
+reflection normals; they do not move the mesh or shoreline. Water Surface Detail 1 (default) uses six
 filtered waves; 0 restores the original three-wave normal path exactly. Filtering
 does not yet convert unresolved waves into reflection roughness or eliminate
 nonlinear highlight aliasing. Depth color uses a background height gap, not measured
 water-volume thickness. Native water alpha is retained.
 Sun/moon glow adds bounded light to the sky background. It fades with horizon,
 weather and vision conditions; it is not physical scattering or terrain illumination.
-There is no SSR, physical water transmission/refraction, PBR, SSAO, volumetric
-lighting or custom volumetric cloud geometry in this stage.
+Screen-space tracing has no hidden or off-screen geometry. Its finite depth
+tolerance is an approximation; it is not hardware RTX or path tracing. Reflected
+water-to-hit atmospheric attenuation remains unmodeled; existing camera-to-water
+fog is applied once. The analytic fallback still omits actual aurora, discs and
+cloud shapes. Physical transmission/refraction, PBR, SSAO, volumetric lighting
+and custom volumetric cloud geometry remain planned.
 
 ## Settings and quality profiles
 
@@ -59,7 +68,9 @@ clouds, aurora, bloom, fog, foliage, grading and advanced/debug controls.
 
 Profiles change exactly seven settings: shadow enable/filter and the five feature
 switches above. All three enable shadows. Exposure, grading, artistic strengths,
-fog, celestial-glow controls, debug and pipeline choices remain as you set them.
+fog, celestial-glow controls, water scene-reflection controls, debug and pipeline
+choices remain as you set them. Light does not automatically disable the new SSR
+control; performance tiers for tracing require measurements.
 Adding profiles does not
 overwrite saved settings; the seven source defaults match Balanced.
 Iris matches only the listed controls. A manual edit can match another profile or
@@ -104,7 +115,8 @@ Original baked face shading and lightmap influence remain in the source.
 The new snapshot is written with deferred lighting and remains unchanged during
 later geometry. Sky, unqualified data, hand-nearer pixels and invalid values become
 explicit misses; it contains neither all transparent layers nor hidden/off-screen
-geometry. The two new double-buffered attachments have a nominal cost of about
+geometry. The water consumer reads only buffers 5/6 for hits; raw pre-translucent
+depth is an additional occlusion guard for unrecorded foreground surfaces. The two new double-buffered attachments have a nominal cost of about
 47.46 MiB at 1920x1080; this is an allocation estimate, not measured frame time.
 
 Exposure and display encoding run once in normal final output. Data buffers are
@@ -142,7 +154,7 @@ Run from this D: checkout:
 python -B tools/validate.py
 python -B tools/compile_glsl.py --compiler C:/VulkanSDK/1.4.363.0/Bin/glslangValidator.exe
 python -B tools/compile_glsl.py --profiles-only --compiler C:/VulkanSDK/1.4.363.0/Bin/glslangValidator.exe
-python -B tools/validate_gpu.py --cxx C:/msys64/ucrt64/bin/g++.exe --suite filtered-waves
+python -B tools/validate_gpu.py --cxx C:/msys64/ucrt64/bin/g++.exe --suite screen-reflections
 git diff --check
 ```
 
@@ -153,7 +165,7 @@ or launches Minecraft. Generated inputs, binaries and compiler temporary files
 stay on the project drive and are removed after the run.
 
 Native suites: `probe`, `compile`, `profiles`, `render`, `depth`, `foliage`,
-`celestial`, `snapshot`, `filtered-waves`, or default `all`.
+`celestial`, `snapshot`, `filtered-waves`, `screen-reflections`, or default `all`.
 Use `--report docs/validation/NEW_NAME.json` to retain a new result; existing
 reports are never overwritten. Synthetic rendering covers bloom, water normals,
 final color, water-depth color, foliage math and celestial glow. Foliage wrappers exercise the

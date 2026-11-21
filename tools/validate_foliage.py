@@ -7,6 +7,7 @@ from pathlib import Path
 from itertools import product
 from validate_celestial_glow import GLOW_OPTIONS, restore_celestial_glow_source
 from validate_water_filtered_waves import FILTER_OPTIONS
+from validate_water_screen_reflection import REFLECTION_OPTIONS
 
 M17_BASELINE = 'b26755b1c3e611dd18a4836db305d6188dafd052'
 FOLIAGE_OPTIONS = {'FOLIAGE_WIND','FOLIAGE_WIND_STRENGTH','FOLIAGE_WIND_SPEED'}
@@ -400,7 +401,7 @@ def validate_foliage(root,expand,preprocess,compact,function_body):
         previous=subprocess.check_output(['git','-C',str(root),'show',M17_BASELINE+':'+path]).decode('utf-8').replace('\r\n','\n')
         assert restore_foliage_source(relative,read(relative))==previous,relative
     current_files={str(path.relative_to(root)).replace('\\','/') for path in shaders.rglob('*') if path.is_file()}
-    assert current_files-set(old_files)=={'shaders/lib/foliage.glsl','shaders/lib/foliage_settings.glsl','shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl','shaders/lib/water_scene_snapshot.glsl','shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl'}
+    assert current_files-set(old_files)=={'shaders/lib/foliage.glsl','shaders/lib/foliage_settings.glsl','shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl','shaders/lib/water_scene_snapshot.glsl','shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl','shaders/lib/water_screen_reflection.glsl','shaders/lib/water_screen_reflection_settings.glsl'}
     assert len(list(shaders.glob('*.vsh')))==len(list(shaders.glob('*.fsh')))==24
     helper=read('lib/foliage.glsl')
     code=compact(helper)
@@ -449,7 +450,7 @@ def validate_foliage(root,expand,preprocess,compact,function_body):
     assert mappings['block.10003']=='minecraft:short_grass'
     assert mappings['block.10004']=='minecraft:tall_grass:half=lower'
     assert mappings['block.10005']=='minecraft:tall_grass:half=upper'
-    options={key:value for key,value in option_definitions(root).items() if key not in (GLOW_OPTIONS | FILTER_OPTIONS)}
+    options={key:value for key,value in option_definitions(root).items() if key not in (GLOW_OPTIONS | FILTER_OPTIONS | REFLECTION_OPTIONS)}
     properties=parse_properties(restore_celestial_glow_source('shaders.properties',read('shaders.properties')))
     controls,screens=menu_options(properties,options)
     assert len(options)==len(controls)==54 and len(screens)==12

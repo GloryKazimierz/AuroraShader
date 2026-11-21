@@ -678,3 +678,7 @@ validate_water_snapshot(ROOT, expand, preprocess, compact, function_body)
 # W2 adds footprint-filtered surface normals while preserving the W1 snapshot.
 from validate_water_filtered_waves import validate_water_filtered_waves
 validate_water_filtered_waves(ROOT, expand, preprocess, compact, function_body)
+
+# W3 adds bounded screen reflections and independent analytic ray-hit truth.
+from validate_water_screen_reflection import validate_water_screen_reflection
+validate_water_screen_reflection(ROOT, expand, preprocess, compact, function_body)

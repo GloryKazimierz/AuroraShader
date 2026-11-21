@@ -10,6 +10,7 @@ import subprocess
 from validate_foliage import FOLIAGE_OPTIONS, restore_foliage_source
 from validate_celestial_glow import GLOW_OPTIONS
 from validate_water_filtered_waves import FILTER_OPTIONS
+from validate_water_screen_reflection import REFLECTION_OPTIONS
 
 M16_BASELINE = '581ffa86d0800b70cdab2d486a65606b2bc9e160'
 # Primary parsing/matching contract, pinned independently of pack implementation:
@@ -213,7 +214,7 @@ def validate_settings_profiles(root,*unused):
     shaders=root/'shaders'
     # M17 contracts remain pinned to their six-control, 51-option view.
     # Public loading/compile generators above always use the current full options.
-    options={key:value for key,value in option_definitions(root).items() if key not in (FOLIAGE_OPTIONS | GLOW_OPTIONS | FILTER_OPTIONS)}
+    options={key:value for key,value in option_definitions(root).items() if key not in (FOLIAGE_OPTIONS | GLOW_OPTIONS | FILTER_OPTIONS | REFLECTION_OPTIONS)}
     properties=parse_properties(restore_foliage_source('shaders.properties',
                                 (shaders/'shaders.properties').read_text(encoding='utf-8')))
     profiles=parse_profiles(properties,options)
@@ -292,7 +293,7 @@ def validate_settings_profiles(root,*unused):
             assert restore_settings_profiles_source(relative,current)==before,relative
             pinned+=1
     current_files={str(path.relative_to(root)).replace('\\','/') for path in shaders.rglob('*') if path.is_file()}
-    assert current_files-set(old_files)=={'shaders/lang/zh_cn.lang','shaders/lib/foliage.glsl','shaders/lib/foliage_settings.glsl','shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl','shaders/lib/water_scene_snapshot.glsl','shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl'}
+    assert current_files-set(old_files)=={'shaders/lang/zh_cn.lang','shaders/lib/foliage.glsl','shaders/lib/foliage_settings.glsl','shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl','shaders/lib/water_scene_snapshot.glsl','shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl','shaders/lib/water_screen_reflection.glsl','shaders/lib/water_screen_reflection_settings.glsl'}
     assert len(list(profile_configurations(root)))==72
     print('PASS: M17 {} prior shader/property files pinned; all GLSL/defaults and rendering properties unchanged'.format(pinned))
     print('PASS: M17 3 distinct six-control profiles; inheritance, types, invalid tokens, subset matching and 45 retained artistic controls')

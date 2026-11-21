@@ -2,11 +2,12 @@
 
 Updated: 2026-11-21. [中文路线图](WATER_ROADMAP.zh-CN.md).
 Starting implementation: M19 commit `74c7164874e446ebd8e763f146286c2c6908b820`.
-Current work: **W2 filtered multiscale wave normals**, branch `codex/water-02-filtered-waves`.
+Current work: **W3 bounded screen-space reflections**, branch `codex/water-03-screen-reflections`.
+W3 is implemented; CPU/offline/native checks passed and three static synthetic views are recorded. [W3 notes](WATER_03_SCREEN_REFLECTIONS.md).
 W2 is implemented with CPU/offline/native checks passed; historical native depth
 regression also passed. [W2 evidence](WATER_02_FILTERED_WAVES.md).
-W1 is implemented and CPU/offline/native checks passed; no water consumer or
-Minecraft/Iris runtime result exists yet. See [W1 evidence](WATER_01_SNAPSHOT.md).
+W1 is implemented with CPU/offline/native checks passed; W3 is its first
+water consumer. Minecraft/Iris runtime remains unobserved. See [W1 evidence](WATER_01_SNAPSHOT.md).
 
 ## Visual direction
 
@@ -27,13 +28,15 @@ projects and existing junctions remain unchanged. Project and generated files st
 
 | Existing system | Current scope | Important gap |
 |---|---|---|
-| M13 water style | Fluid classification, source tint, Fresnel-shaped analytic sky-color mix | Native alpha also attenuates reflection; no scene reflection or optical composition |
+| M13 base water style | Fluid classification, source tint, Fresnel-shaped analytic sky-color mix | Native alpha also attenuates reflection; owned optical composition remains absent |
+| W3 scene reflections (automated checks passed) | First W1 consumer, guarded screen-space ray and existing-result fallback | Off-screen/hidden data absent; native alpha and unmodeled reflected-segment atmosphere remain |
 | M14 / W2 waves | Three broad waves plus three pixel-footprint-filtered ripples; original broad-wave fallback | No flow field, refraction, silhouette movement or unresolved-variance roughness |
 | M16 depth color | Same-pixel vertical background gap shifts source chroma while preserving luminance | Not water-path length, absorption or transmitted-background attenuation |
-| Shared gates | Water style is restricted by sky access, camera fluid state and upward-facing surface eligibility | Cave water, underwater views and waterfall faces need distinct treatment |
+| Shared gates | Sky/color fallback retains sky access; W3 scene hits are independent of sky style/blend/access, with dimension/fluid/upward-face gates retained | Underwater and waterfall faces still need distinct treatment; cave reflections depend on supported captured surfaces |
 
 These implementations have recorded numerical/compiler/native-driver evidence in
-[M13](MILESTONE_13.md), [M14](MILESTONE_14.md) and [M16](MILESTONE_16.md).
+[M13](MILESTONE_13.md), [M14](MILESTONE_14.md), [M16](MILESTONE_16.md) and
+[W3](WATER_03_SCREEN_REFLECTIONS.md).
 Their Minecraft water appearance is not recorded as passed. Sky aurora, clouds and
 sun/moon textures are not currently present in water's analytic reflection palette.
 The proposed M20 Iris-preprocessing bridge was **not implemented**; water work now
@@ -46,19 +49,24 @@ each row fits one commit. Debuggable, reversible increments come before extra ef
 
 | Stage | Deliverable | Dependency and completion question |
 |---|---|---|
-| **W1 — implemented; automated checks passed** | Matched linear scene-color and depth snapshots before the applicable distance-fog step; explicit producer/consumer contracts | CPU/offline/native checks verified the producer contract and original-output preservation within their test scope. No consumer; actual Iris binding/flip and Minecraft rendering remain unobserved. A snapshot is not yet reflection or transmission. |
+| **W1 — implemented; automated checks passed** | Matched linear scene-color and depth snapshots before the applicable distance-fog step; explicit producer/consumer contracts | CPU/offline/native checks verified the producer contract and original-output preservation within their test scope. W3 consumer implemented; actual Iris binding/flip and Minecraft rendering remain unobserved. A snapshot is not yet reflection or transmission. |
 | **W2 — implemented; CPU/offline/native checks passed** | Shared multiscale water normals with pixel-footprint filtering | Synthetic affine-footprint and actual-fragment comparisons passed; historical native depth regression passed. Minecraft appearance unobserved. Geometry displacement and unresolved-variance roughness remain planned. |
-| **W3 — planned** | Screen-space ray-traced reflection, confidence and environment fallback | Needs W1 depth/color agreement and W2 normals. Validate hits independently, then blend failures smoothly. Cover borders, occlusion, thin objects and moving cameras. |
-| **W4 — planned** | Owned water composition: Fresnel reflection/transmission balance, depth attenuation and guarded refraction | Needs reliable scene inputs and water coverage. Define water-path estimates, layered-transparency limits and fog ownership before replacing native source blending. |
+| **W3 — implemented; CPU/offline/native checks passed** | Bounded screen-space ray-traced reflection, confidence and environment fallback | W1/W2 integration verified within synthetic scope: 270 ray/budget cases; 1,854 offline/native compile configurations; three static perspective views. Actual Iris binding, moving-camera appearance and performance remain unobserved. |
+| **W4 — planned** | Separate shared water parameters/optics, surface-data capture and composite composition; Fresnel/transmission, attenuation and guarded refraction | Needs reliable scene inputs and water coverage. Define water-path estimates, layered-transparency limits and fog ownership before replacing native source blending. |
 | **W5 — planned** | Distinct still-water, directional-flow and waterfall motion | Use verified fluid inputs where available; label any inferred flow. Join top/side motion and keep banks attached. A global scrolling pattern is not measured river flow. |
 | **W6 — planned** | Underwater and waterline transitions | Define entry/exit media, underwater extinction, surface underside and total internal reflection. Reuse W4 transport rather than applying a second unrelated color overlay. |
 | **W7 — planned** | Shore/impact foam, rain response and optional caustics | Require credible contact, turbulence/weather and receiver-light information. Add only where signals support the effect; foam is not a permanent bright rim around every bank. |
 | **W8 — planned across stages** | Performance tiers, compatibility and artistic tuning | Measure actual GPU time and scene stability. Tune ray budgets, resolution and filtering from evidence; preserve a useful fallback path. |
 
-W3 can establish ray hits before W4, but its integration must retain the stated
-native-alpha limitation until composition changes. Water material reflection should
-eventually work independently of the Aurora-sky style switch: sky availability
-controls the environment fallback, while a valid local-scene hit has its own evidence.
+W3 establishes ray hits before W4 and explicitly retains native-alpha attenuation
+and unmodeled water-to-hit atmospheric fog. Its scene-hit path is independent
+of sky-style/sky-access controls; those govern the environment fallback. W4 owns
+the subsequent reflection/transmission and fog-composition work. After that contract,
+finish the reflection appearance with a shared sky environment (including Aurora
+identity), sun/moon glints and roughness informed by filtered-out wave variance.
+Those systems remain planned: the current palette fallback contains no actual
+aurora, glow, discs or later cloud layer. Measure their continuity and cost before
+adding quality tiers.
 
 ## Optical model and tracing scope
 

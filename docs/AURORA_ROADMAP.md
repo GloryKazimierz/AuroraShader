@@ -15,11 +15,12 @@ puts waves, flow, reflections/refraction and all-view stability first, while ret
 Aurora's fantasy identity. [The water roadmap](WATER_ROADMAP.md) owns the ranked
 dependencies and controlled observation matrix. W1 matched scene/depth capture is
 implemented on `codex/water-01-scene-snapshot`, with CPU/offline/native checks passed.
-There is no water consumer yet; Minecraft/Iris runtime remains unobserved.
-[W1 implementation and evidence](WATER_01_SNAPSHOT.md). Current work is W2 filtered
-multiscale wave normals on `codex/water-02-filtered-waves`, implemented with
-CPU/offline/native checks passed; historical native depth regression also passed.
-[W2 evidence](WATER_02_FILTERED_WAVES.md). Minecraft/Iris appearance is unobserved.
+W3 is the first water consumer; Minecraft/Iris runtime remains unobserved.
+[W1 implementation and evidence](WATER_01_SNAPSHOT.md). W2 filtered multiscale
+normals passed CPU/offline/native checks and historical depth regression.
+[W2 evidence](WATER_02_FILTERED_WAVES.md). Current work is W3 bounded screen-space
+reflection on `codex/water-03-screen-reflections`; implementation, CPU/offline/native
+checks and three static synthetic perspective views are complete. [W3 notes](WATER_03_SCREEN_REFLECTIONS.md). Minecraft/Iris appearance is unobserved.
 The proposed M20 Iris-preprocessing bridge was not implemented and is deferred
 behind this water-first work.
 
@@ -61,8 +62,9 @@ rather than turning every surface into a uniform color wash.
 | M17 | Grouped settings, complete Simplified Chinese labels and three six-setting profiles | CPU/offline/native profile checks recorded; Iris UI/runtime confirmation pending |
 | M18 | Shared world-anchored leaf/grass displacement and matching shadows; profiles expanded to seven controls | CPU/offline/native checks recorded; Minecraft/Iris observation remains pending |
 | M19 | Independent angular sun/moon sky glow with bounded color and artistic lunar-phase brightness | CPU/offline/native checks recorded; Minecraft/Iris observation remains pending |
-| W1 | Matched pre-fog scene color/depth snapshot producer; no consumer yet | CPU/offline/native checks passed; Minecraft/Iris observation remains pending |
+| W1 | Matched pre-fog scene color/depth snapshot producer; W3 consumer implemented | CPU/offline/native checks passed; Minecraft/Iris observation remains pending |
 | W2 | Multiscale water normals with per-wave pixel-footprint filtering and original-wave fallback | CPU/offline/native W2 checks passed; historical native depth regression passed; Minecraft/Iris unobserved |
+| W3 | Bounded, guarded screen-space water reflection with confidence and fallback | CPU/offline/native checks and three static synthetic views passed; actual Iris integration, Minecraft appearance and performance unobserved |
 
 M6–M18 remain available as historical branches. M19 builds on M18 without
 upgrading any runtime status merely because development continues.
@@ -129,11 +131,12 @@ Each step should ship a small, reviewable increment with its own learning notes.
    lunar-phase brightness. Retain native discs, terrain lighting and shared fog/water
    palettes; explain angular width versus pixel footprint and finite fallbacks.
 14. **Water-first specialization — current priority.** W1 implements matched
-   scene/depth capture before the deferred fog call. Planned work follows with
-   implemented W2 filtered multiscale normals, then planned guarded SSR,
-   owned reflection/transmission composition and then flow/waterfall/underwater detail.
+   scene/depth capture before the deferred fog call; W2 implements filtered multiscale
+   normals. W3 guarded screen-space reflection has passed automated checks. W4 next separates shared optics, surface capture and composite optical
+   composition, followed by planned flow/waterfall/underwater detail.
    [The dedicated water roadmap](WATER_ROADMAP.md) records the full dependencies,
-   tracing limits, shore/foam/rain/caustics plans and scene/performance observations.
+   tracing limits, shared sky reflections, glints and unresolved-wave roughness,
+   plus shore/foam/rain/caustics plans and scene/performance observations.
    Existing M13/M14/M16 water remains the starting point, not a claim that these
    planned systems are already implemented.
 15. **Broader completeness — secondary.** Dimension palettes, vegetation expansion

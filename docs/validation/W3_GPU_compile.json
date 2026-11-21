@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "started_utc": "2026-11-21T15:24:12.330012+00:00",
+  "suite": "compile",
+  "shader_sha256": "c5caa7e0d8a6149f53d4725fd5d492993f4182d9684e1c1fe44fa1358e58d34e",
+  "scope": "Native OpenGL synthetic inputs only: no Iris patcher, Minecraft world, render-order/texture-binding integration, screenshots or performance measurement.",
+  "ok": true,
+  "gl": {
+    "vendor": "Intel",
+    "renderer": "Intel(R) Iris(R) Xe Graphics",
+    "version": "3.3.0 - Build 31.0.101.3962",
+    "glsl_version": "3.30 - Build 31.0.101.3962",
+    "major": 3,
+    "minor": 3,
+    "profile_mask": 2,
+    "profile": "compatibility",
+    "max_texture_size": 16384,
+    "max_texture_units": 32,
+    "max_draw_buffers": 8,
+    "max_color_attachments": 8
+  },
+  "build": {
+    "compiler": "g++.exe",
+    "flags": [
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-static"
+    ],
+    "diagnostics": ""
+  },
+  "driver_compile": {
+    "configurations": 1854,
+    "program_pairs": 24,
+    "input": "Actual expanded pack pairs with the existing offline option matrix; Iris transforms absent"
+  },
+  "finished_utc": "2026-11-21T15:28:15.618762+00:00"
+}

@@ -133,15 +133,15 @@ value.CLOUD_FOG.0=关
 value.CLOUD_FOG.1=开
 option.CLOUD_FOG.comment=在混合前为每个云片元应用已有高度／距离雾，还需要启用全局大气雾。
 
-screen.WATER=水面颜色与天空反射
+screen.WATER=水面与反射
 option.WATER_STYLE=水面风格
 value.WATER_STYLE.0=M12 基线
 value.WATER_STYLE.1=Aurora
 option.WATER_STYLE.comment=只处理已分类的原版水流体。玻璃、岩浆和未知流体保留原有源颜色。不移动顶点、不折射、不改变透明度。
 option.WATER_TINT_STRENGTH=水面颜色强度
 option.WATER_TINT_STRENGTH.comment=为有天空光的水面添加轻柔青色倾向，方块光会减弱色调。零只关闭此颜色乘数。
-option.WATER_REFLECTION_STRENGTH=水面天空反射
-option.WATER_REFLECTION_STRENGTH.comment=在朝上的水面上加入随角度变化的解析天空色。需要 Aurora 天空和天空光；不反射地形、云、太阳／月亮或极光。原生 alpha 仍参与混合。
+option.WATER_REFLECTION_STRENGTH=水面反射强度
+option.WATER_REFLECTION_STRENGTH.comment=控制屏幕空间场景反射与解析天空回退。场景命中不需要开启 Aurora 天空，也不要求天空光。原生 alpha 仍参与混合。
 
 option.WATER_WAVES=水面反射波动
 value.WATER_WAVES.0=关
@@ -198,3 +198,12 @@ option.WATER_SURFACE_DETAIL=水面细波纹
 value.WATER_SURFACE_DETAIL.0=关
 value.WATER_SURFACE_DETAIL.1=开
 option.WATER_SURFACE_DETAIL.comment=在过滤后的长波法线上增加细波纹。关闭后保留长波；不移动水面或模拟水流。
+
+option.WATER_SCREEN_REFLECTIONS=水面屏幕空间反射
+value.WATER_SCREEN_REFLECTIONS.0=关
+value.WATER_SCREEN_REFLECTIONS.1=开
+option.WATER_SCREEN_REFLECTIONS.comment=反射受支持的可见表面。无法追踪被遮挡或屏幕外的内容；未命中时使用可用的天空回退。原生透明混合仍会减弱反射。
+option.WATER_REFLECTION_STEPS=反射追踪步数
+value.WATER_REFLECTION_STEPS.64=64 步
+value.WATER_REFLECTION_STEPS.128=128 步
+option.WATER_REFLECTION_STEPS.comment=更多步数可覆盖更多屏幕内表面，但会增加开销。不会补出被遮挡或屏幕外的几何体。

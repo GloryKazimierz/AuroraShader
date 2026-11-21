@@ -166,6 +166,16 @@ def configurations():
                                     WATER_REFLECTION_STRENGTH=reflection, FOG_ENABLED=fog,
                                     WATER_SURFACE_DETAIL=0)
 
+    # W3: current entries cover default SSR64. Add SSR-off and SSR128 gate paths,
+    # plus the small shared wave/fog matrix without multiplying unrelated controls.
+    for enabled, budget in ((0, 64), (1, 128)):
+        for mode, style, sky, debug in product((0, 1), (0, 1), (0, 1), range(7)):
+            yield 'gbuffers_water', dict(WATER_SCREEN_REFLECTIONS=enabled, WATER_REFLECTION_STEPS=budget,
+                                        SCENE_COLOR_MODE=mode, WATER_STYLE=style, SKY_STYLE=sky, DEBUG_VIEW=debug)
+        for detail, waves, fog in product((0, 1), (0, 1), (0, 1)):
+            yield 'gbuffers_water', dict(WATER_SCREEN_REFLECTIONS=enabled, WATER_REFLECTION_STEPS=budget,
+                                        WATER_SURFACE_DETAIL=detail, WATER_WAVES=waves, FOG_ENABLED=fog)
+
     # M17 adds actual profile selections without replacing prior configurations.
     from validate_settings_profiles import profile_configurations
     yield from profile_configurations(ROOT)

@@ -118,7 +118,7 @@ void main() {
         forced_bypass=False
         if case.get('integrated'):
             wrapper=integrated
-            options.update(SKY_STYLE=0,WATER_TINT_STRENGTH=0.0,WATER_REFLECTION_STRENGTH=0.0)
+            options.update(WATER_SCREEN_REFLECTIONS=0,SKY_STYLE=0,WATER_TINT_STRENGTH=0.0,WATER_REFLECTION_STRENGTH=0.0)
             sky=case.get('sky',1.0);block=case.get('block',0.0)
             uniforms += [('hasSkylight','i1',(case.get('skylight',1),)),('hasCeiling','i1',(0,)),
                          ('isEyeInWater','i1',(case.get('eye',0),)),('blindness','f1',(case.get('vision',0.0),)),

@@ -131,7 +131,7 @@ def validate_water_snapshot(root, expand, preprocess, compact, function_body):
     assert len(old_files) == 99
     current_files = {str(path.relative_to(root)).replace('\\', '/')
                      for path in shaders.rglob('*') if path.is_file()}
-    assert current_files == set(old_files) | {'shaders/lib/water_scene_snapshot.glsl','shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl'}
+    assert current_files == set(old_files) | {'shaders/lib/water_scene_snapshot.glsl','shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl','shaders/lib/water_screen_reflection.glsl','shaders/lib/water_screen_reflection_settings.glsl'}
     for path in old_files:
         previous = subprocess.check_output(['git', '-C', str(root), 'show', M19_BASELINE + ':' + path]).decode('utf-8').replace('\r\n', '\n')
         assert restore_water_snapshot_source(path, read(path[len('shaders/'):])) == previous, path
@@ -165,7 +165,7 @@ def validate_water_snapshot(root, expand, preprocess, compact, function_body):
     props = read('shaders.properties')
     assert not re.search(r'^(?:size\.buffer\.colortex[56]|flip\.\w+\.colortex[56])\s*=', props, re.M)
     for path in shaders.rglob('*'):
-        if not path.is_file() or path.name == 'deferred.fsh':
+        if not path.is_file() or path.name in ('deferred.fsh','water_screen_reflection.glsl'):
             continue
         assert not re.search(r'\bcolortex[56]\b', path.read_text(encoding='utf-8')), str(path)
     assert restore_water_snapshot_plumbing(restore_water_snapshot_plumbing(deferred)) == restore_water_snapshot_plumbing(deferred)

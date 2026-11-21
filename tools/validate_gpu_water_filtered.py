@@ -232,7 +232,7 @@ void main(){
               ('blendFunc','i4',(770,771,1,0)),('fogColor','f3',(.2,.3,.4))]
     texture=[[(.125,.25,.375,0 if (x+y)%3==0 else .5) for x in range(width)] for y in range(height)]
     textures=[('gtexture',texture,'RGBA32F'),('lightmap',[[(1,1,1,1)]],'RGBA32F')]
-    common=dict(FOG_ENABLED=0,WATER_DEPTH_TINT=0,WATER_TINT_STRENGTH=0.0,WATER_REFLECTION_STRENGTH=1.0)
+    common=dict(WATER_SCREEN_REFLECTIONS=0,FOG_ENABLED=0,WATER_DEPTH_TINT=0,WATER_TINT_STRENGTH=0.0,WATER_REFLECTION_STRENGTH=1.0)
     comparisons=[];changed=0
     for label,options in (
             ('original',dict(WATER_SURFACE_DETAIL=0)),
