@@ -16,6 +16,11 @@ In a pool with one visible bottom this view helps diagnose water path estimates.
 [Three debug views on a synthetic pool](docs/validation/WATER_M0_views.png) ·
 [Native GPU results, including window scaling](docs/validation/WATER_M0_GPU_final.json).
 
+For repeated in-game comparisons, the [water test lab](tests/water_lab/README.md)
+provides a separate dimension and fixed camera positions for Java 1.21.11.
+Use its [中文场景说明](tests/water_lab/README.zh-CN.md) to compare the same pool,
+waterfall and translucent edges at different depths, times and weather conditions.
+
 [水体架构与实现顺序](docs/WATER_ARCHITECTURE.zh-CN.md) ·
 [Water architecture and milestones](docs/WATER_ARCHITECTURE.md) ·
 [中文路线图](docs/AURORA_ROADMAP.zh-CN.md) ·
