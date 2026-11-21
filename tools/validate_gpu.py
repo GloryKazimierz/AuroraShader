@@ -408,14 +408,14 @@ def shader_digest():
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--cxx',help='Installed MinGW g++ compiler; no download')
-    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial','snapshot','filtered-waves','screen-reflections','water-debug','water-transport'),default='all')
+    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial','snapshot','filtered-waves','screen-reflections','water-debug','water-transport','water-stability'),default='all')
     parser.add_argument('--report',help='New JSON report path under the project; existing files are never overwritten')
     parser.add_argument('--debug-plate',help='Save the selected water suite comparison to a new project PNG')
     args=parser.parse_args()
     plate_path=None
     if args.debug_plate:
         plate_path=(ROOT/args.debug_plate).resolve()
-        require(args.suite in ('water-debug','water-transport') and ROOT.resolve() in plate_path.parents
+        require(args.suite in ('water-debug','water-transport','water-stability') and ROOT.resolve() in plate_path.parents
                 and plate_path.suffix.lower()=='.png' and plate_path.parent.is_dir()
                 and not plate_path.exists(),'Water debug plate requires a new project PNG path')
 
@@ -496,6 +496,10 @@ def main():
             report['water_optics_capture']=capture_tests(runner)
             report['water_transport']=transport_tests(runner,plate_path)
             print('PASS: water optical transport on the native driver',flush=True)
+        if args.suite in ('all','render','water-stability'):
+            from validate_gpu_water_reflection_stability import stability_tests
+            report['water_reflection_stability']=stability_tests(runner,plate_path)
+            print('PASS: reflection footprint and known roof occlusion',flush=True)
         require(shader_digest()==report['shader_sha256'],'Shader source changed during validation; report invalid')
         report['ok']=True
         report['finished_utc']=datetime.now(timezone.utc).isoformat()

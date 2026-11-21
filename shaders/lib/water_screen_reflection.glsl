@@ -43,9 +43,21 @@ bool waterTracePoint(vec3 q0, vec3 q1, float k0, float k1, float fraction, out v
 // A bounded screen-space grid trace, not an off-screen scene representation.
 // Visit crossed pixels including diagonal entries. Discard only corner slivers
 // below the declared FP32 pixel precision bound, plus zero-area corner contacts.
+#ifdef AURORA_WATER_OPTICS_ACTIVE
+const int WATER_TRACE_UNRESOLVED = 0;
+const int WATER_TRACE_HIT = 1;
+const int WATER_TRACE_OCCLUDED = 2;
+const int WATER_TRACE_INVALID = 3;
+// A miss never proves open sky. Only the owned optics path needs this diagnosis.
+bool traceWaterSceneClassified(vec3 originView, vec3 directionView, out ivec2 hitPixel,
+                     out vec3 hitView, out vec3 hitRGB, out float hitDistance,
+                     out float hitConfidence, out int stepsTaken, out int outcome) {
+    outcome = WATER_TRACE_INVALID;
+#else
 bool traceWaterScene(vec3 originView, vec3 directionView, out ivec2 hitPixel,
                      out vec3 hitView, out vec3 hitRGB, out float hitDistance,
                      out float hitConfidence, out int stepsTaken) {
+#endif
     hitPixel = ivec2(-1);
     hitView = vec3(0.0);
     hitRGB = vec3(0.0);
@@ -53,6 +65,9 @@ bool traceWaterScene(vec3 originView, vec3 directionView, out ivec2 hitPixel,
     hitConfidence = 0.0;
     stepsTaken = 0;
 #if WATER_SCREEN_REFLECTIONS == 0
+#ifdef AURORA_WATER_OPTICS_ACTIVE
+    outcome = WATER_TRACE_UNRESOLVED;
+#endif
     return false;
 #else
     const float minimumTravel = 0.05;
@@ -77,17 +92,37 @@ bool traceWaterScene(vec3 originView, vec3 directionView, out ivec2 hitPixel,
     if (originView.z >= nearZ) return false;
     float endTravel = maximumTravel;
     if (direction.z > 0.0) endTravel = min(endTravel, (nearZ - originView.z) / direction.z);
+#ifdef AURORA_WATER_OPTICS_ACTIVE
+    if (isnan(endTravel) || isinf(endTravel)) return false;
+    if (endTravel <= minimumTravel) { outcome = WATER_TRACE_UNRESOLVED; return false; }
+#else
     if (isnan(endTravel) || isinf(endTravel) || endTravel <= minimumTravel) return false;
+#endif
 
     vec2 sourceScreen, p0, p1;
     vec3 sourceQ, q0, q1;
     float sourceK, k0, k1;
+#ifdef AURORA_WATER_OPTICS_ACTIVE
+    if (!waterTraceProject(originView, size, sourceScreen, sourceQ, sourceK)) return false;
+    if (any(lessThan(sourceScreen, vec2(0.0))) || any(greaterThanEqual(sourceScreen, vec2(size)))) {
+        outcome = WATER_TRACE_UNRESOLVED; return false;
+    }
+#else
     if (!waterTraceProject(originView, size, sourceScreen, sourceQ, sourceK)
         || any(lessThan(sourceScreen, vec2(0.0))) || any(greaterThanEqual(sourceScreen, vec2(size)))) return false;
+#endif
     ivec2 sourcePixel = ivec2(floor(sourceScreen));
+#ifdef AURORA_WATER_OPTICS_ACTIVE
+    if (!waterTraceProject(originView + direction * minimumTravel, size, p0, q0, k0)
+        || !waterTraceProject(originView + direction * endTravel, size, p1, q1, k1)) return false;
+    if (any(lessThan(p0, vec2(0.0))) || any(greaterThanEqual(p0, vec2(size)))) {
+        outcome = WATER_TRACE_UNRESOLVED; return false;
+    }
+#else
     if (!waterTraceProject(originView + direction * minimumTravel, size, p0, q0, k0)
         || !waterTraceProject(originView + direction * endTravel, size, p1, q1, k1)
         || any(lessThan(p0, vec2(0.0))) || any(greaterThanEqual(p0, vec2(size)))) return false;
+#endif
 
     // Clip only the projected endpoint, carrying homogeneous interpolation data
     // with the same fraction. Every subsequent fetch still checks integer bounds.
@@ -103,7 +138,11 @@ bool traceWaterScene(vec3 originView, vec3 directionView, out ivec2 hitPixel,
     k1 = mix(k0, k1, screenEnd);
     delta = p1 - p0;
     float projectedSpan = max(abs(delta.x), abs(delta.y));
+#ifdef AURORA_WATER_OPTICS_ACTIVE
+    if (projectedSpan < 1e-5) { outcome = WATER_TRACE_UNRESOLVED; return false; }
+#else
     if (projectedSpan < 1e-5) return false;
+#endif
     // Four FP32 epsilons at viewport scale, with a tiny absolute floor. This
     // removes numerically ambiguous corner slivers rather than changing a tie
     // comparison or charging unstable extra cells to the confidence budget.
@@ -139,7 +178,14 @@ bool traceWaterScene(vec3 originView, vec3 directionView, out ivec2 hitPixel,
         }
         stepsTaken += 1;
         ivec2 pixel = cell;
+#ifdef AURORA_WATER_OPTICS_ACTIVE
+        if (any(lessThan(pixel, ivec2(0))) || any(greaterThanEqual(pixel, size))) {
+            if (outcome != WATER_TRACE_OCCLUDED) outcome = WATER_TRACE_UNRESOLVED;
+            return false;
+        }
+#else
         if (any(lessThan(pixel, ivec2(0))) || any(greaterThanEqual(pixel, size))) return false;
+#endif
         vec3 segmentStart, segmentEnd;
         if (!waterTracePoint(q0, q1, k0, k1, enterFraction, segmentStart)
             || !waterTracePoint(q0, q1, k0, k1, exitFraction, segmentEnd)) return false;
@@ -160,7 +206,11 @@ bool traceWaterScene(vec3 originView, vec3 directionView, out ivec2 hitPixel,
             if (opaqueDepth < 1.0) {
                 vec3 unknownView;
                 if (!waterTraceUnproject(pixel, opaqueDepth, size, unknownView)) return false;
+#ifdef AURORA_WATER_OPTICS_ACTIVE
+                if (rayDepthMax >= -unknownView.z) { outcome = WATER_TRACE_OCCLUDED; return false; }
+#else
                 if (rayDepthMax >= -unknownView.z) return false;
+#endif
             }
         } else {
             if (payload.a != 1.0 || any(lessThan(payload.rgb, vec3(0.0)))
@@ -201,6 +251,10 @@ bool traceWaterScene(vec3 originView, vec3 directionView, out ivec2 hitPixel,
                         if (!waterTraceProject(candidate, size, candidateScreen, candidateQ, candidateK)) return false;
                     }
                     if (all(equal(ivec2(floor(candidateScreen)), pixel))) {
+#ifdef AURORA_WATER_OPTICS_ACTIVE
+                        // A zero-confidence color sample still establishes blockage.
+                        outcome = WATER_TRACE_OCCLUDED;
+#endif
                         vec2 edge = min(candidateScreen, vec2(size) - candidateScreen);
                         float edgeWeight = smoothstep(0.0, 8.0, min(edge.x, edge.y));
                         float rangeWeight = 1.0 - smoothstep(48.0, 64.0, firstT);
@@ -212,6 +266,9 @@ bool traceWaterScene(vec3 originView, vec3 directionView, out ivec2 hitPixel,
                             hitRGB = payload.rgb;
                             hitDistance = firstT;
                             hitConfidence = confidence;
+#ifdef AURORA_WATER_OPTICS_ACTIVE
+                            outcome = WATER_TRACE_HIT;
+#endif
                             return true;
                         }
                     }
@@ -225,9 +282,21 @@ bool traceWaterScene(vec3 originView, vec3 directionView, out ivec2 hitPixel,
             if (crossings[axis] <= exitFraction) cell[axis] += stepDirection[axis];
         }
     }
+#ifdef AURORA_WATER_OPTICS_ACTIVE
+    if (outcome != WATER_TRACE_OCCLUDED) outcome = WATER_TRACE_UNRESOLVED;
+#endif
     return false;
 #endif
 }
+#ifdef AURORA_WATER_OPTICS_ACTIVE
+bool traceWaterScene(vec3 originView, vec3 directionView, out ivec2 hitPixel,
+                     out vec3 hitView, out vec3 hitRGB, out float hitDistance,
+                     out float hitConfidence, out int stepsTaken) {
+    int outcome;
+    return traceWaterSceneClassified(originView, directionView, hitPixel, hitView,
+                                    hitRGB, hitDistance, hitConfidence, stepsTaken, outcome);
+}
+#endif
 vec3 applyWaterScreenReflection(vec3 tinted, vec3 fallback, vec3 surfaceView,
                                 vec3 originalNormalView, vec3 reflectedDirection, float localWeight) {
 #if WATER_SCREEN_REFLECTIONS == 0

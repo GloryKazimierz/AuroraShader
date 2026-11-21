@@ -1,5 +1,7 @@
 # AuroraShader: water-first development
 
+The first reflection-stability stage distinguishes known obstruction from an unresolved ray and filters reflected color on a continuous surface. [M2 evidence](WATER_M2_REFLECTION_STABILITY.md).
+
 The water M1 development branch adds two-segment absorption, bounded scattering and configurable clarity. [Using and verifying water optics](WATER_M1_OPTICS.md).
 
 Updated: 2026-11-21. [中文路线图](WATER_ROADMAP.zh-CN.md).

@@ -1,5 +1,7 @@
 # AuroraShader
 
+The optional optical pass now filters subpixel reflected color across a continuous surface and suppresses sky reflection behind a known roof. [Reflection stability](docs/WATER_M2_REFLECTION_STABILITY.md) · [中文原理](docs/WATER_M2_REFLECTION_STABILITY.zh-CN.md).
+
 AuroraShader is an Iris shader pack developing a rich fantasy style: azure days,
 coral/gold sunsets, indigo nights and teal/violet aurora. It combines Minecraft's
 textures and lightmaps with directional lighting, shadows, atmosphere and gentle

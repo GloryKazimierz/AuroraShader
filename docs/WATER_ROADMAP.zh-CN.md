@@ -1,5 +1,7 @@
 # AuroraShader：水体优先开发路线
 
+反射稳定性阶段已经区分可证实的遮挡与视野外未知区域，并在连续表面上过滤反射颜色。[M2 原理与验证](WATER_M2_REFLECTION_STABILITY.zh-CN.md)。
+
 水体 M1 开发分支已经接入双程吸收、受光源限制的散射和清澈度调节。[启用方法与验证记录](WATER_M1_OPTICS.zh-CN.md)。
 
 更新日期：2026-11-21。[English roadmap](WATER_ROADMAP.md)。

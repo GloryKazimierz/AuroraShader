@@ -6,10 +6,9 @@
 #include "/lib/lighting_settings.glsl"
 #include "/lib/fog.glsl"
 #include "/lib/water_transport.glsl"
-#include "/lib/water_screen_reflection.glsl"
+#include "/lib/water_reflection_filter.glsl"
 uniform sampler2D colortex7;
 uniform sampler2D colortex8;
-uniform sampler2D colortex9;
 uniform sampler2D depthtex0;
 uniform vec3 shadowLightPosition;
 
@@ -142,14 +141,20 @@ vec3 resolveWaterOptics(vec3 nativeScene, ivec2 pixel, ivec2 size) {
         ivec2 hitPixel;
         vec3 hitView, hitRGB;
         float hitDistance, hitConfidence;
-        int steps;
-        if (traceWaterScene(surfaceView + up * 0.01, reflectedDirection,
-                            hitPixel, hitView, hitRGB, hitDistance, hitConfidence, steps)) {
+        int steps, outcome;
+        bool hit = traceWaterSceneClassified(surfaceView + up * 0.01, reflectedDirection,
+                            hitPixel, hitView, hitRGB, hitDistance, hitConfidence, steps, outcome);
+        // A known opaque intersection or malformed source cannot reveal sky.
+        // Missing off-screen/range information remains an explicitly approximate fallback.
+        if (outcome == WATER_TRACE_HIT || outcome == WATER_TRACE_OCCLUDED || outcome == WATER_TRACE_INVALID)
+            resolved = transmitted;
+        if (hit) {
             // A valid W1 pair can still contain unresolved early transparent color.
             // M1's negative share sentinel rejects that source for reflections too.
             float reflectedShare = texelFetch(colortex9, hitPixel, 0).r;
             if (waterResolveScalar(reflectedShare) && reflectedShare >= 0.0 && reflectedShare <= 1.0) {
-                vec3 segmentRadiance = waterReflectedAtmosphere(hitRGB, surfaceView, hitView);
+                vec3 filteredRadiance = waterFilteredReflectionRadiance(hitPixel, hitView, hitRGB);
+                vec3 segmentRadiance = waterReflectedAtmosphere(filteredRadiance, surfaceView, hitView);
                 resolved = mix(resolved, mix(transmitted, segmentRadiance, reflectionWeight), hitConfidence);
             }
         }

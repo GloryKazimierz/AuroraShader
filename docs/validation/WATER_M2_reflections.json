@@ -1,0 +1,335 @@
+{
+  "scope": "M2 synthetic native reflection stability tests; no Minecraft or Iris execution.",
+  "footprint": {
+    "cases": [
+      {
+        "scene": "flat-x",
+        "comparison": {
+          "label": "M2 footprint flat-x",
+          "channels": 256,
+          "max_absolute_error": 1.2389761868902838e-05,
+          "max_tolerance_fraction": 0.07931743753803021,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 7e-05,
+            "relative": 2e-05
+          }
+        },
+        "nearest_rms_error": 2.0322458156668732,
+        "nearest_max_frame_step": 8.0,
+        "filtered_rms_error": 7.124896401360042e-06,
+        "filtered_max_frame_step": 0.7051849365234375
+      },
+      {
+        "scene": "flat-y",
+        "comparison": {
+          "label": "M2 footprint flat-y",
+          "channels": 256,
+          "max_absolute_error": 2.22497845676628e-05,
+          "max_tolerance_fraction": 0.17697384245490042,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 7e-05,
+            "relative": 2e-05
+          }
+        },
+        "nearest_rms_error": 2.0322458156668732,
+        "nearest_max_frame_step": 8.0,
+        "filtered_rms_error": 1.0343749591385398e-05,
+        "filtered_max_frame_step": 0.7051849365234375
+      },
+      {
+        "scene": "flat-corner",
+        "comparison": {
+          "label": "M2 footprint flat-corner",
+          "channels": 256,
+          "max_absolute_error": 1.2809285330817044e-05,
+          "max_tolerance_fraction": 0.1648295934456122,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 7e-05,
+            "relative": 2e-05
+          }
+        },
+        "nearest_rms_error": 1.3206627124288774,
+        "nearest_max_frame_step": 0.0,
+        "filtered_rms_error": 5.2541062351039115e-06,
+        "filtered_max_frame_step": 0.3150753378868103,
+        "nearest_lost_subpixel_detail": true
+      },
+      {
+        "scene": "flat-slanted",
+        "comparison": {
+          "label": "M2 footprint flat-slanted",
+          "channels": 256,
+          "max_absolute_error": 1.2389761868902838e-05,
+          "max_tolerance_fraction": 0.07931743753803021,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 7e-05,
+            "relative": 2e-05
+          }
+        },
+        "nearest_rms_error": 2.0322458156668732,
+        "nearest_max_frame_step": 8.0,
+        "filtered_rms_error": 7.124896401360042e-06,
+        "filtered_max_frame_step": 0.7051849365234375
+      },
+      {
+        "scene": "depth-step",
+        "comparison": {
+          "label": "M2 footprint depth-step",
+          "channels": 256,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 7e-05,
+            "relative": 2e-05
+          }
+        }
+      },
+      {
+        "scene": "crease",
+        "comparison": {
+          "label": "M2 footprint crease",
+          "channels": 256,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 7e-05,
+            "relative": 2e-05
+          }
+        }
+      },
+      {
+        "scene": "constant",
+        "comparison": {
+          "label": "M2 footprint constant",
+          "channels": 256,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 7e-05,
+            "relative": 2e-05
+          }
+        }
+      },
+      {
+        "scene": "invalid-neighbor",
+        "comparison": {
+          "label": "M2 footprint invalid-neighbor",
+          "channels": 256,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 7e-05,
+            "relative": 2e-05
+          }
+        }
+      }
+    ],
+    "frames_per_case": 64,
+    "reference": "Independent unit-pixel box integral of a moving step/corner; depth steps and normal creases remain unfiltered"
+  },
+  "classifications": [
+    {
+      "scene": "unknown-occluder",
+      "outcome": 2,
+      "queries": 1
+    },
+    {
+      "scene": "diagonal-unknown-pixel",
+      "outcome": 2,
+      "queries": 1
+    },
+    {
+      "scene": "unknown-sky-gap",
+      "outcome": 1,
+      "queries": 1
+    },
+    {
+      "scene": "diagonal-sky-pixel",
+      "outcome": 1,
+      "queries": 1
+    },
+    {
+      "scene": "invalid-alpha",
+      "outcome": 3,
+      "queries": 1
+    },
+    {
+      "scene": "invalid-depth",
+      "outcome": 3,
+      "queries": 1
+    },
+    {
+      "scene": "valid-black",
+      "outcome": 1,
+      "queries": 1
+    },
+    {
+      "scene": "observed-sky-still-unresolved",
+      "outcome": 0,
+      "queries": 1
+    }
+  ],
+  "cave_fallback": {
+    "cases": [
+      {
+        "kind": "unknown",
+        "known_opaque_pixels": 1399,
+        "max_sky_leak_error": 0.0,
+        "visible_roof_pixels": 2176
+      },
+      {
+        "kind": "contaminated",
+        "known_opaque_pixels": 154,
+        "max_sky_leak_error": 0.0,
+        "visible_roof_pixels": 2176
+      },
+      {
+        "kind": "open",
+        "known_opaque_pixels": 0,
+        "max_sky_leak_error": 0.0,
+        "visible_roof_pixels": 2176
+      }
+    ],
+    "paired_opaque_vs_unresolved_pixels": 1326,
+    "max_removed_false_sky_change": 0.008400458842515945,
+    "scope": "Actual composite, analytical horizontal roof above the camera. Local sky access64/255 in both cases; unresolved exits are not proof of open sky."
+  },
+  "driver": {
+    "vendor": "Intel",
+    "renderer": "Intel(R) Iris(R) Xe Graphics",
+    "version": "3.3.0 - Build 31.0.101.3962",
+    "glsl_version": "3.30 - Build 31.0.101.3962",
+    "major": 3,
+    "minor": 3,
+    "profile_mask": 2,
+    "profile": "compatibility",
+    "max_texture_size": 16384,
+    "max_texture_units": 32,
+    "max_draw_buffers": 8,
+    "max_color_attachments": 8
+  },
+  "shader_sha256": {
+    "shaders/block.properties": "7347a66c2f0e1ec1b183b44f2590198eeab95cf687f56e6778979928c099239b",
+    "shaders/composite.fsh": "e1e54a68dfd8c06279532a1f70da45b72d19a0298bcf0ecddfb686b3c289d3de",
+    "shaders/composite.vsh": "89cc3480628c0f80b8f99f7bd2890c8e887dc47d49540cb0d8a952d20b03f70c",
+    "shaders/composite1.fsh": "c66dcdabec468f08f866a10b543014bdf899585c5298fe3c3e84a8d9105ba322",
+    "shaders/composite1.vsh": "89cc3480628c0f80b8f99f7bd2890c8e887dc47d49540cb0d8a952d20b03f70c",
+    "shaders/composite2.fsh": "80d0d2822a5869d8b53f9e8b376f419578d92d7b8daa12d9be3bc09e27d94c49",
+    "shaders/composite2.vsh": "89cc3480628c0f80b8f99f7bd2890c8e887dc47d49540cb0d8a952d20b03f70c",
+    "shaders/composite3.fsh": "12ecc7fe8a2455644fb7d73014d225fad46dc2f709964cfa6d0936d36c71e848",
+    "shaders/composite3.vsh": "89cc3480628c0f80b8f99f7bd2890c8e887dc47d49540cb0d8a952d20b03f70c",
+    "shaders/composite4.fsh": "84dbf8844a9e710ac2c4c765958bd4585927470c4e1a48d524d193123f3c94a2",
+    "shaders/composite4.vsh": "89cc3480628c0f80b8f99f7bd2890c8e887dc47d49540cb0d8a952d20b03f70c",
+    "shaders/deferred.fsh": "d1c8c0938f63f968334e2cd1a51581e789ea0523616924ddda36b7cb8474166e",
+    "shaders/deferred.vsh": "abc97ecb453ad58b77630a18187062e4317beae1d20a042f3c645410789abea3",
+    "shaders/final.fsh": "395f4a0d775c78afb653dfc3c165f628e911ba3ec9059a3281cea940458563a7",
+    "shaders/final.vsh": "c7df30d3f71fc2cfe1897ac163915c4abd973752021310e68388b99f4b916662",
+    "shaders/gbuffers_armor_glint.fsh": "09ee5b22b08b3f2ad956dcd69e351d37debd456050bf20c1235fd43558a27d9b",
+    "shaders/gbuffers_armor_glint.vsh": "516e3fc0e184ab8a9fb42047d34a5dcde3fef0c8cae4fac7999bfe7cb52b4e2d",
+    "shaders/gbuffers_basic.fsh": "911d36db42dcda136014347f49be3546fe747cea5e5ec6f63f8c64cae6692185",
+    "shaders/gbuffers_basic.vsh": "2790eacd121a44dec60a75f947dc7e2e387121ad3cd40710eefd8f6562caf2be",
+    "shaders/gbuffers_beaconbeam.fsh": "1388ac70b38ceae0c1ba3384d294cdc537fa1c3a2158a8aed1bf0e2d0e0d1642",
+    "shaders/gbuffers_beaconbeam.vsh": "22d79553fdb77e358d88801459cbfde61d609e31ba565805699e15d8ae79d7ac",
+    "shaders/gbuffers_block.fsh": "b4b9c9eb01f0bc39c346447674b8bf5ea5aba5b7c3abd3cd8d954923f82a92c3",
+    "shaders/gbuffers_block.vsh": "516e3fc0e184ab8a9fb42047d34a5dcde3fef0c8cae4fac7999bfe7cb52b4e2d",
+    "shaders/gbuffers_clouds.fsh": "99317d0e977280e1177731e05b2d69c06422d78778b8eb65588c23bcbb6eab92",
+    "shaders/gbuffers_clouds.vsh": "22d79553fdb77e358d88801459cbfde61d609e31ba565805699e15d8ae79d7ac",
+    "shaders/gbuffers_entities.fsh": "1d9be949a0911b69dea80cc22e2f4ceadf207abae6ade97aa070b782a4613b49",
+    "shaders/gbuffers_entities.vsh": "516e3fc0e184ab8a9fb42047d34a5dcde3fef0c8cae4fac7999bfe7cb52b4e2d",
+    "shaders/gbuffers_hand.fsh": "09ee5b22b08b3f2ad956dcd69e351d37debd456050bf20c1235fd43558a27d9b",
+    "shaders/gbuffers_hand.vsh": "516e3fc0e184ab8a9fb42047d34a5dcde3fef0c8cae4fac7999bfe7cb52b4e2d",
+    "shaders/gbuffers_hand_water.fsh": "09ee5b22b08b3f2ad956dcd69e351d37debd456050bf20c1235fd43558a27d9b",
+    "shaders/gbuffers_hand_water.vsh": "516e3fc0e184ab8a9fb42047d34a5dcde3fef0c8cae4fac7999bfe7cb52b4e2d",
+    "shaders/gbuffers_skybasic.fsh": "542ddd49c4b7c077ebab4956896c687fa7f0ec31f3e009cd071bfc6085f741dc",
+    "shaders/gbuffers_skybasic.vsh": "09f272ae25564cbd42e18527ed3b7179126639c55aa6a66eca89e59f63f9ed4e",
+    "shaders/gbuffers_skytextured.fsh": "1388ac70b38ceae0c1ba3384d294cdc537fa1c3a2158a8aed1bf0e2d0e0d1642",
+    "shaders/gbuffers_skytextured.vsh": "22d79553fdb77e358d88801459cbfde61d609e31ba565805699e15d8ae79d7ac",
+    "shaders/gbuffers_spidereyes.fsh": "1388ac70b38ceae0c1ba3384d294cdc537fa1c3a2158a8aed1bf0e2d0e0d1642",
+    "shaders/gbuffers_spidereyes.vsh": "22d79553fdb77e358d88801459cbfde61d609e31ba565805699e15d8ae79d7ac",
+    "shaders/gbuffers_terrain.fsh": "b4b9c9eb01f0bc39c346447674b8bf5ea5aba5b7c3abd3cd8d954923f82a92c3",
+    "shaders/gbuffers_terrain.vsh": "f5123ad21e3b8faa58be3f30ef5d27931ddd8f82af73e4d959c4625048ab76e9",
+    "shaders/gbuffers_textured.fsh": "1257315331f84948baf60e547828566271f53e6c6550d60eb842bf59d1d838eb",
+    "shaders/gbuffers_textured.vsh": "516e3fc0e184ab8a9fb42047d34a5dcde3fef0c8cae4fac7999bfe7cb52b4e2d",
+    "shaders/gbuffers_textured_lit.fsh": "1257315331f84948baf60e547828566271f53e6c6550d60eb842bf59d1d838eb",
+    "shaders/gbuffers_textured_lit.vsh": "516e3fc0e184ab8a9fb42047d34a5dcde3fef0c8cae4fac7999bfe7cb52b4e2d",
+    "shaders/gbuffers_water.fsh": "6203202869d8db57aafdfdb9473c80b3a5928718053165d44ec4a9f89fd233f3",
+    "shaders/gbuffers_water.vsh": "9b96240382381655c3c60e46f69b0e9459ca0d7c9ef2e3cb47f833ac41905e74",
+    "shaders/gbuffers_weather.fsh": "1257315331f84948baf60e547828566271f53e6c6550d60eb842bf59d1d838eb",
+    "shaders/gbuffers_weather.vsh": "516e3fc0e184ab8a9fb42047d34a5dcde3fef0c8cae4fac7999bfe7cb52b4e2d",
+    "shaders/lang/en_us.lang": "6b7599c460e2119c4a3b9260fffb22c058583e4ec39f4ea69429b301dcd47944",
+    "shaders/lang/zh_cn.lang": "673ce7f4cb9785be2fb4add3954d7a83e6471551b51774cf17770d46dca13739",
+    "shaders/lib/atmosphere_settings.glsl": "df136de072252baa364aedf8bed50adc26a5454c4a9eca775b73cb0a0816e091",
+    "shaders/lib/aurora.glsl": "2a594eb4274e10dd8feaaca4323a7f25d5eea8d806e014c2ff5fa82a0e4d91c5",
+    "shaders/lib/aurora_settings.glsl": "85c7515867fab5e386e56269eeebc73183dda02a446845e2b3dc87a29fefde4c",
+    "shaders/lib/bloom.glsl": "9ef22dc2aa28e46e7da4341e451574643df23a7ab534cace283b715f2de8721c",
+    "shaders/lib/bloom_settings.glsl": "16f98e72f6e3a121f3d25218930a07f9ddc41c397df9feb9b2388b06016bd0a9",
+    "shaders/lib/camera_anchor.glsl": "957de5713df244cd140581050d4c581b6be08be79ca1a66b25e1ff8683ed98f1",
+    "shaders/lib/celestial.glsl": "06307901626bb4eee7869ad62ee5b4be8d7e5ae424bca8ce98e52b98fab82f93",
+    "shaders/lib/celestial_glow.glsl": "d60bebaac1561a85f4d0a793d6fb9d63497a95facb6c4de753ceb8723362b1d4",
+    "shaders/lib/celestial_glow_settings.glsl": "67b67e0b60d36c1d45a70cac06bbc9cfccc6ac8f5892da5357c7fe202a0104bd",
+    "shaders/lib/celestial_lighting.glsl": "f5f234edd94fa4edacb46528d302cc9aa047ac27f52625016cfd377f9aecf400",
+    "shaders/lib/cloud_settings.glsl": "509b344459b086fef1ada3953cad34c622c83d47f1e04e99128f2a43459ee4c3",
+    "shaders/lib/clouds.glsl": "2f5438d12ada99688ba1dfce4e77582268828edea15d7b2d44d5eb7d41bf8d8c",
+    "shaders/lib/color.glsl": "e3aebcbfe27ec4f1312674fd4ffd909cd4090e3f497b0dc0b47145b850beaf4f",
+    "shaders/lib/color_space.glsl": "8635c2f31236a5a578f9e97fd83d71fd40720ad74730cbc35504af3e13bcd323",
+    "shaders/lib/fog.glsl": "3a1bc1e304b67b47dff84861dc892b6c7294f314d8b4b363eb9c714b7b739dc0",
+    "shaders/lib/fog_settings.glsl": "2ee38ab57d02d237302d0d3eac0280267b00ca728e5fd32146575e6af0a2f385",
+    "shaders/lib/foliage.glsl": "f73771102c502f67a2e73516b2a687007b9aaea528c4aa7b71f8e0c45389fb3c",
+    "shaders/lib/foliage_settings.glsl": "6d68c7eb32371260a8139c6c77fb439355afaccc4d252b1ccd69a16f461f21a2",
+    "shaders/lib/fullscreen_vertex.glsl": "ff36fd4553d6f73ae615ee981f55155e04a26d836cd8863634275cef4ceffa2b",
+    "shaders/lib/gbuffer_write.glsl": "f3dacac3efeb34d0ac4ee4b0986c3ad95f6689812a9f90a4b196017116e78c0a",
+    "shaders/lib/geometry/basic_fragment.glsl": "65ba43bcf9cadc121a4c2834fa262fae4bb964aa524ec4baccb335ec90e51300",
+    "shaders/lib/geometry/basic_vertex.glsl": "3d0ed4c6292bbddabcecb9e84f4108e9ff9eca04dbcc4d23484e876fb466516a",
+    "shaders/lib/geometry/entity_fragment.glsl": "300995eb2d866d47aff4f4b81148681c3a7ff15d3c3e95467a625eaa08cf9a7e",
+    "shaders/lib/geometry/lit_fragment.glsl": "8cd36c45bf7534afea0018918ba3c169626f1292babe3be3f5cc84031c6b8076",
+    "shaders/lib/geometry/lit_vertex.glsl": "091bbfc370ea7b71b2de48c0006d8d705cea384f0d7afcb26077c7d35ed03689",
+    "shaders/lib/geometry/sky_fragment.glsl": "f6e3ef21be4a3409a6c90f065f72e0263ef11ab023984b13e9c334d143bde5ae",
+    "shaders/lib/geometry/sky_vertex.glsl": "221b48eb42b11fc22e11189cd60516c07778da71bcd48f7af73febd3977e27d1",
+    "shaders/lib/geometry/textured_fragment.glsl": "73d4d5a76e1e97460a8f07ff3f57a5f15c268b437eef58d91f5257c4e5444141",
+    "shaders/lib/geometry/textured_vertex.glsl": "809cb1d0cb29d419fd1f6c22ba05b2d3785ffbef2cb4776fdc5045ed607987e2",
+    "shaders/lib/lighting.glsl": "487c790862aece23dfbb7170357743e144df6a02f54ab88d62f871c995c74487",
+    "shaders/lib/lighting_settings.glsl": "38f6a05a32d331d32f2b26e7dd80e984dbdd675e1fd7755cee68dbd1096c63d2",
+    "shaders/lib/normal.glsl": "780c3034d1d752bfc86d7c3044f7241d406741a9d750809ba68ce4e5dbeae9f7",
+    "shaders/lib/pipeline_settings.glsl": "b93db33d1b683fd7b301964cb9e29ddff6530ddbb0f7060c82131c5fc1ec7b2a",
+    "shaders/lib/position.glsl": "db47798f673310d1c046e8db27580e9383743c35dd6b8bbf62c74a4a9a7852af",
+    "shaders/lib/scene_color.glsl": "e099aefc929b7b66645fec2e1fec9465cfa80b41a9b04ed12332ea55871ec67d",
+    "shaders/lib/settings.glsl": "b095f314b15b14f7daf18fa03170857559cb5b34853a938420fa420ffdf0aa0e",
+    "shaders/lib/shadow.glsl": "c7896a685fa816050000d597060b892ba5097b0ee6d8443b5a0902df092d48fd",
+    "shaders/lib/shadow_bias.glsl": "ed38224c3b44f23833d6e75702c4951a58be9df36307748fabc9298e12d264ae",
+    "shaders/lib/shadow_settings.glsl": "f44b5b98bd03094552ee45a12b0b184e81194fd9e75511a589f0214f42525f96",
+    "shaders/lib/sky_palette.glsl": "19ea11e2ecf2cfcf595bd7051ff35dea4039cdbf45a831464bf173b8190bff65",
+    "shaders/lib/tone_mapping.glsl": "63cea400746eb14120647330f9256bd77b0a3ed83c708a5cb6080c726b6db02b",
+    "shaders/lib/water.glsl": "687266e9baca68f3fb463f568928896136e2acf9cdfb7329ebdd3821587cb99a",
+    "shaders/lib/water_debug_capture.glsl": "878d8f22ba422a0506be30418c56178822c72f50920ec40aa651600618ed5aad",
+    "shaders/lib/water_debug_view.glsl": "d8b010ec8cbfd08ee22081f6e06519905139c504e3020b46a2f52030481fe5c2",
+    "shaders/lib/water_depth.glsl": "19fb676b21d5e409d627c0ccb102d114bc653a12821e966682351a36f4cf872c",
+    "shaders/lib/water_depth_settings.glsl": "d082479af6b3a2a8a2b30a95ad6756f6320d72122a58928e091366ea2ec93d03",
+    "shaders/lib/water_filtered_waves.glsl": "aeb160693defb48e2f8a03a0791eb85b43b1e7448421419354ab2b2cc2154ba1",
+    "shaders/lib/water_optics_capture.glsl": "12572939e152d79706268d9d8d426867046e848983c47864ba677191497882e7",
+    "shaders/lib/water_optics_settings.glsl": "76a93f2bf6bc9b9f17c62e136ad9c10882ae68b5c3693f1fc2c2ff3b25e0c918",
+    "shaders/lib/water_params.glsl": "f86a24a832ddef3feca8e2e2e7657799d4ac35093507f96a09636892768706cd",
+    "shaders/lib/water_reflection_filter.glsl": "a66d48eea3a4d4ae2389ff692da9765ca5dafc66897557722894843a1d612184",
+    "shaders/lib/water_resolve.glsl": "75583f01a4b8b5bd13127b0491976066cde6d919e3637c69d9cd883a5f09c0af",
+    "shaders/lib/water_scene_snapshot.glsl": "f9e25340bc6ae83805b2f9131fb5eeaf2ee44179deab625a6b4ee1f00099d208",
+    "shaders/lib/water_screen_reflection.glsl": "91360ca2207f466e6f70fc372b9beae8bb8f9e0ff82be58372da728dac1091bd",
+    "shaders/lib/water_screen_reflection_settings.glsl": "1409b635c8ad5fe6b8053fa77b121d9a0cdc350b579fe12e825654574d3bb8a3",
+    "shaders/lib/water_settings.glsl": "c43ebc8fb905971400a2e15c06d28008d8e32f580f60fe799aad5e7c2fbce389",
+    "shaders/lib/water_surface_settings.glsl": "0fb8eba2d7af32c4fe6269eab8692e95c03560043def1e6e5b219e77a0323390",
+    "shaders/lib/water_transport.glsl": "883c15869119502e6f4c4da94636e15d4e46c2aa509ef6cbbb5707d845732e4c",
+    "shaders/lib/water_wave_settings.glsl": "2505abbb2f7600196ef6a687d479bfcd22822b3fa340faa6a211820b9e6f4224",
+    "shaders/lib/water_waves.glsl": "876edf5b98a49542e2545a050d503cdc5a7100f9a6a43cae680726458811fc59",
+    "shaders/prepare.fsh": "8874b2ba138ebef234dbc5d25cb49b4474a45d5aaa42b20ae78482f3a388eb03",
+    "shaders/prepare.vsh": "915d95de6bb9d77a0a5cf6573d71c994d1d3cfb34a99b83cd681cf5a600013ea",
+    "shaders/shaders.properties": "8ebc0bba29d9d21d51b4849f03e755b7451df637f892502a48a241762803cac2",
+    "shaders/shadow.fsh": "d44cfa3b5efdd9b40ecfed08225e3febfbb3af8c4e125e6bf6fc4983f4bc6412",
+    "shaders/shadow.vsh": "b4f6f1ec669934ecfe0026b64e53d54e1e00a96861ea37ea8131714fcfc89026"
+  }
+}

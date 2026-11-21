@@ -1,0 +1,96 @@
+{
+  "scope": "Exact fixed-affine-footprint tile/phase mean; not instantaneous local variance or implemented roughness.",
+  "modes": 6,
+  "quadrature_grid": [
+    37,
+    41
+  ],
+  "cases": [
+    {
+      "dx": [
+        0.25,
+        0
+      ],
+      "dy": [
+        0,
+        0.25
+      ],
+      "strength": 0.3,
+      "analytic": 5.028501837945638e-06,
+      "quadrature": 5.028501837945675e-06,
+      "error": 3.7269449679189215e-20
+    },
+    {
+      "dx": [
+        0.25,
+        0
+      ],
+      "dy": [
+        0,
+        0.25
+      ],
+      "strength": 1.0,
+      "analytic": 5.587224264384042e-05,
+      "quadrature": 5.5872242643840794e-05,
+      "error": 3.7269449679189215e-19
+    },
+    {
+      "dx": [
+        1,
+        0.3
+      ],
+      "dy": [
+        -0.2,
+        0.5
+      ],
+      "strength": 0.3,
+      "analytic": 3.097267034091491e-05,
+      "quadrature": 3.097267034091506e-05,
+      "error": 1.4907779871675686e-19
+    },
+    {
+      "dx": [
+        1,
+        0.3
+      ],
+      "dy": [
+        -0.2,
+        0.5
+      ],
+      "strength": 1.0,
+      "analytic": 0.00034414078156572126,
+      "quadrature": 0.0003441407815657226,
+      "error": 1.3552527156068805e-18
+    },
+    {
+      "dx": [
+        8,
+        0
+      ],
+      "dy": [
+        0,
+        8
+      ],
+      "strength": 0.3,
+      "analytic": 0.00011791482153705439,
+      "quadrature": 0.00011791482153705427,
+      "error": 1.2197274440461925e-19
+    },
+    {
+      "dx": [
+        8,
+        0
+      ],
+      "dy": [
+        0,
+        8
+      ],
+      "strength": 1.0,
+      "analytic": 0.0013101646837450488,
+      "quadrature": 0.00131016468374505,
+      "error": 1.0842021724855044e-18
+    }
+  ],
+  "full_unresolved_variance_at_strength1": 0.0013101646837450488,
+  "max_absolute_error": 1.3552527156068805e-18
+}

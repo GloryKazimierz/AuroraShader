@@ -1,0 +1,343 @@
+{
+  "schema": 1,
+  "started_utc": "2026-11-21T17:38:51.569773+00:00",
+  "suite": "water-stability",
+  "shader_sha256": "76e7f35c7fc5b85d27065bc0d36081e3d289a21e2f5b2c2f24bb820829d57f4b",
+  "scope": "Native OpenGL synthetic inputs only: no Iris patcher, Minecraft world, render-order/texture-binding integration, screenshots or performance measurement.",
+  "ok": true,
+  "gl": {
+    "vendor": "Intel",
+    "renderer": "Intel(R) Iris(R) Xe Graphics",
+    "version": "3.3.0 - Build 31.0.101.3962",
+    "glsl_version": "3.30 - Build 31.0.101.3962",
+    "major": 3,
+    "minor": 3,
+    "profile_mask": 2,
+    "profile": "compatibility",
+    "max_texture_size": 16384,
+    "max_texture_units": 32,
+    "max_draw_buffers": 8,
+    "max_color_attachments": 8
+  },
+  "build": {
+    "compiler": "g++.exe",
+    "flags": [
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-static"
+    ],
+    "diagnostics": ""
+  },
+  "water_reflection_stability": {
+    "footprint": {
+      "cases": [
+        {
+          "scene": "flat-x",
+          "comparison": {
+            "label": "M2 footprint flat-x",
+            "channels": 256,
+            "max_absolute_error": 1.2389761868902838e-05,
+            "max_tolerance_fraction": 0.07931743753803021,
+            "tolerance": {
+              "half_ulps": 0,
+              "absolute": 7e-05,
+              "relative": 2e-05
+            }
+          },
+          "nearest_rms_error": 2.0322458156668732,
+          "nearest_max_frame_step": 8.0,
+          "filtered_rms_error": 7.124896401360042e-06,
+          "filtered_max_frame_step": 0.7051849365234375
+        },
+        {
+          "scene": "flat-y",
+          "comparison": {
+            "label": "M2 footprint flat-y",
+            "channels": 256,
+            "max_absolute_error": 2.22497845676628e-05,
+            "max_tolerance_fraction": 0.17697384245490042,
+            "tolerance": {
+              "half_ulps": 0,
+              "absolute": 7e-05,
+              "relative": 2e-05
+            }
+          },
+          "nearest_rms_error": 2.0322458156668732,
+          "nearest_max_frame_step": 8.0,
+          "filtered_rms_error": 1.0343749591385398e-05,
+          "filtered_max_frame_step": 0.7051849365234375
+        },
+        {
+          "scene": "flat-corner",
+          "comparison": {
+            "label": "M2 footprint flat-corner",
+            "channels": 256,
+            "max_absolute_error": 1.2809285330817044e-05,
+            "max_tolerance_fraction": 0.1648295934456122,
+            "tolerance": {
+              "half_ulps": 0,
+              "absolute": 7e-05,
+              "relative": 2e-05
+            }
+          },
+          "nearest_rms_error": 1.3206627124288774,
+          "nearest_max_frame_step": 0.0,
+          "filtered_rms_error": 5.2541062351039115e-06,
+          "filtered_max_frame_step": 0.3150753378868103,
+          "nearest_lost_subpixel_detail": true
+        },
+        {
+          "scene": "flat-slanted",
+          "comparison": {
+            "label": "M2 footprint flat-slanted",
+            "channels": 256,
+            "max_absolute_error": 1.2389761868902838e-05,
+            "max_tolerance_fraction": 0.07931743753803021,
+            "tolerance": {
+              "half_ulps": 0,
+              "absolute": 7e-05,
+              "relative": 2e-05
+            }
+          },
+          "nearest_rms_error": 2.0322458156668732,
+          "nearest_max_frame_step": 8.0,
+          "filtered_rms_error": 7.124896401360042e-06,
+          "filtered_max_frame_step": 0.7051849365234375
+        },
+        {
+          "scene": "depth-step",
+          "comparison": {
+            "label": "M2 footprint depth-step",
+            "channels": 256,
+            "max_absolute_error": 0.0,
+            "max_tolerance_fraction": 0.0,
+            "tolerance": {
+              "half_ulps": 0,
+              "absolute": 7e-05,
+              "relative": 2e-05
+            }
+          }
+        },
+        {
+          "scene": "crease",
+          "comparison": {
+            "label": "M2 footprint crease",
+            "channels": 256,
+            "max_absolute_error": 0.0,
+            "max_tolerance_fraction": 0.0,
+            "tolerance": {
+              "half_ulps": 0,
+              "absolute": 7e-05,
+              "relative": 2e-05
+            }
+          }
+        },
+        {
+          "scene": "constant",
+          "comparison": {
+            "label": "M2 footprint constant",
+            "channels": 256,
+            "max_absolute_error": 0.0,
+            "max_tolerance_fraction": 0.0,
+            "tolerance": {
+              "half_ulps": 0,
+              "absolute": 7e-05,
+              "relative": 2e-05
+            }
+          }
+        },
+        {
+          "scene": "invalid-neighbor",
+          "comparison": {
+            "label": "M2 footprint invalid-neighbor",
+            "channels": 256,
+            "max_absolute_error": 0.0,
+            "max_tolerance_fraction": 0.0,
+            "tolerance": {
+              "half_ulps": 0,
+              "absolute": 7e-05,
+              "relative": 2e-05
+            }
+          }
+        }
+      ],
+      "frames_per_case": 64,
+      "reference": "Independent unit-pixel box integral of a moving step/corner; depth steps and normal creases remain unfiltered"
+    },
+    "classifications": [
+      {
+        "scene": "unknown-occluder",
+        "outcome": 2,
+        "queries": 1
+      },
+      {
+        "scene": "diagonal-unknown-pixel",
+        "outcome": 2,
+        "queries": 1
+      },
+      {
+        "scene": "unknown-sky-gap",
+        "outcome": 1,
+        "queries": 1
+      },
+      {
+        "scene": "diagonal-sky-pixel",
+        "outcome": 1,
+        "queries": 1
+      },
+      {
+        "scene": "invalid-alpha",
+        "outcome": 3,
+        "queries": 1
+      },
+      {
+        "scene": "invalid-depth",
+        "outcome": 3,
+        "queries": 1
+      },
+      {
+        "scene": "valid-black",
+        "outcome": 1,
+        "queries": 1
+      },
+      {
+        "scene": "observed-sky-still-unresolved",
+        "outcome": 0,
+        "queries": 1
+      }
+    ],
+    "cave_fallback": {
+      "cases": [
+        {
+          "kind": "unknown",
+          "known_opaque_pixels": 1399,
+          "max_sky_leak_error": 0.0,
+          "visible_roof_pixels": 2176
+        },
+        {
+          "kind": "contaminated",
+          "known_opaque_pixels": 154,
+          "max_sky_leak_error": 0.0,
+          "visible_roof_pixels": 2176
+        },
+        {
+          "kind": "open",
+          "known_opaque_pixels": 0,
+          "max_sky_leak_error": 0.0,
+          "visible_roof_pixels": 2176
+        }
+      ],
+      "paired_opaque_vs_unresolved_pixels": 1326,
+      "max_removed_false_sky_change": 0.008400458842515945,
+      "scope": "Actual composite, analytical horizontal roof above the camera. Local sky access64/255 in both cases; unresolved exits are not proof of open sky."
+    },
+    "slope_variance": {
+      "scope": "Exact fixed-affine-footprint tile/phase mean; not instantaneous local variance or implemented roughness.",
+      "modes": 6,
+      "quadrature_grid": [
+        37,
+        41
+      ],
+      "cases": [
+        {
+          "dx": [
+            0.25,
+            0
+          ],
+          "dy": [
+            0,
+            0.25
+          ],
+          "strength": 0.3,
+          "analytic": 5.028501837945638e-06,
+          "quadrature": 5.028501837945675e-06,
+          "error": 3.7269449679189215e-20
+        },
+        {
+          "dx": [
+            0.25,
+            0
+          ],
+          "dy": [
+            0,
+            0.25
+          ],
+          "strength": 1.0,
+          "analytic": 5.587224264384042e-05,
+          "quadrature": 5.5872242643840794e-05,
+          "error": 3.7269449679189215e-19
+        },
+        {
+          "dx": [
+            1,
+            0.3
+          ],
+          "dy": [
+            -0.2,
+            0.5
+          ],
+          "strength": 0.3,
+          "analytic": 3.097267034091491e-05,
+          "quadrature": 3.097267034091506e-05,
+          "error": 1.4907779871675686e-19
+        },
+        {
+          "dx": [
+            1,
+            0.3
+          ],
+          "dy": [
+            -0.2,
+            0.5
+          ],
+          "strength": 1.0,
+          "analytic": 0.00034414078156572126,
+          "quadrature": 0.0003441407815657226,
+          "error": 1.3552527156068805e-18
+        },
+        {
+          "dx": [
+            8,
+            0
+          ],
+          "dy": [
+            0,
+            8
+          ],
+          "strength": 0.3,
+          "analytic": 0.00011791482153705439,
+          "quadrature": 0.00011791482153705427,
+          "error": 1.2197274440461925e-19
+        },
+        {
+          "dx": [
+            8,
+            0
+          ],
+          "dy": [
+            0,
+            8
+          ],
+          "strength": 1.0,
+          "analytic": 0.0013101646837450488,
+          "quadrature": 0.00131016468374505,
+          "error": 1.0842021724855044e-18
+        }
+      ],
+      "full_unresolved_variance_at_strength1": 0.0013101646837450488,
+      "max_absolute_error": 1.3552527156068805e-18
+    },
+    "plate": {
+      "pixel_changes": {
+        "unknown": 782,
+        "contaminated": 73,
+        "open": 32
+      },
+      "previous_commit": "7c32ba602a104efcfb9a6067b03fe207ffe3e3f8"
+    }
+  },
+  "finished_utc": "2026-11-21T17:40:43.240063+00:00"
+}
