@@ -1,0 +1,395 @@
+{
+  "schema": 1,
+  "started_utc": "2026-11-21T19:46:22.683986+00:00",
+  "suite": "water-materials",
+  "shader_sha256": "3816b349aa535a4c8564523005db45d86d7ec417cfcefa8e43a75286f73d535e",
+  "scope": "Native OpenGL synthetic inputs only: no Iris patcher, Minecraft world, render-order/texture-binding integration, screenshots or performance measurement.",
+  "ok": true,
+  "gl": {
+    "vendor": "Intel",
+    "renderer": "Intel(R) Iris(R) Xe Graphics",
+    "version": "3.3.0 - Build 31.0.101.3962",
+    "glsl_version": "3.30 - Build 31.0.101.3962",
+    "major": 3,
+    "minor": 3,
+    "profile_mask": 2,
+    "profile": "compatibility",
+    "max_texture_size": 16384,
+    "max_texture_units": 32,
+    "max_draw_buffers": 8,
+    "max_color_attachments": 8
+  },
+  "build": {
+    "compiler": "g++.exe",
+    "flags": [
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-static"
+    ],
+    "diagnostics": ""
+  },
+  "water_materials": {
+    "pixels": 80640,
+    "samples": [
+      {
+        "body": "FRESHWATER",
+        "depth_m": 0.35,
+        "center_linear": [
+          0.4656473398208618,
+          0.501636803150177,
+          0.509874165058136
+        ],
+        "comparison": {
+          "label": "FRESHWATER",
+          "channels": 26880,
+          "max_absolute_error": 5.426376331052474e-06,
+          "max_tolerance_fraction": 0.018432857222177433,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0004
+          }
+        }
+      },
+      {
+        "body": "GLACIAL",
+        "depth_m": 0.35,
+        "center_linear": [
+          0.4438990354537964,
+          0.480795294046402,
+          0.47488734126091003
+        ],
+        "comparison": {
+          "label": "GLACIAL",
+          "channels": 26880,
+          "max_absolute_error": 7.013982500692073e-06,
+          "max_tolerance_fraction": 0.0252063049298891,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0004
+          }
+        }
+      },
+      {
+        "body": "AMBER STREAM",
+        "depth_m": 0.35,
+        "center_linear": [
+          0.4820915162563324,
+          0.4652446508407593,
+          0.419202983379364
+        ],
+        "comparison": {
+          "label": "AMBER STREAM",
+          "channels": 26880,
+          "max_absolute_error": 8.721842123082801e-06,
+          "max_tolerance_fraction": 0.03353593386257419,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0004
+          }
+        }
+      },
+      {
+        "body": "BLUE SEA",
+        "depth_m": 0.35,
+        "center_linear": [
+          0.42747268080711365,
+          0.4958740472793579,
+          0.509437084197998
+        ],
+        "comparison": {
+          "label": "BLUE SEA",
+          "channels": 26880,
+          "max_absolute_error": 8.2319148034804e-06,
+          "max_tolerance_fraction": 0.030907126644508252,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0004
+          }
+        }
+      },
+      {
+        "body": "FRESHWATER",
+        "depth_m": 2.0,
+        "center_linear": [
+          0.38506895303726196,
+          0.5811596512794495,
+          0.6368222832679749
+        ],
+        "comparison": {
+          "label": "FRESHWATER",
+          "channels": 26880,
+          "max_absolute_error": 3.0991302823468736e-06,
+          "max_tolerance_fraction": 0.02047147065789794,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0004
+          }
+        }
+      },
+      {
+        "body": "GLACIAL",
+        "depth_m": 2.0,
+        "center_linear": [
+          0.3005487024784088,
+          0.46807539463043213,
+          0.43636569380760193
+        ],
+        "comparison": {
+          "label": "GLACIAL",
+          "channels": 26880,
+          "max_absolute_error": 3.016785353027185e-06,
+          "max_tolerance_fraction": 0.02360529440269243,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0004
+          }
+        }
+      },
+      {
+        "body": "AMBER STREAM",
+        "depth_m": 2.0,
+        "center_linear": [
+          0.4709019362926483,
+          0.38714227080345154,
+          0.22188836336135864
+        ],
+        "comparison": {
+          "label": "AMBER STREAM",
+          "channels": 26880,
+          "max_absolute_error": 2.9869257238135383e-06,
+          "max_tolerance_fraction": 0.026357549753256933,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0004
+          }
+        }
+      },
+      {
+        "body": "BLUE SEA",
+        "depth_m": 2.0,
+        "center_linear": [
+          0.2432985156774521,
+          0.544819712638855,
+          0.6342017650604248
+        ],
+        "comparison": {
+          "label": "BLUE SEA",
+          "channels": 26880,
+          "max_absolute_error": 3.0150012284568817e-06,
+          "max_tolerance_fraction": 0.026875822685974826,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0004
+          }
+        }
+      },
+      {
+        "body": "FRESHWATER",
+        "depth_m": 8.0,
+        "center_linear": [
+          0.071612149477005,
+          0.2893599569797516,
+          0.4053409695625305
+        ],
+        "comparison": {
+          "label": "FRESHWATER",
+          "channels": 26880,
+          "max_absolute_error": 2.9624961524477023e-06,
+          "max_tolerance_fraction": 0.022684744882989827,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0004
+          }
+        }
+      },
+      {
+        "body": "GLACIAL",
+        "depth_m": 8.0,
+        "center_linear": [
+          0.04576429724693298,
+          0.18969056010246277,
+          0.1491459310054779
+        ],
+        "comparison": {
+          "label": "GLACIAL",
+          "channels": 26880,
+          "max_absolute_error": 1.4173358102165245e-06,
+          "max_tolerance_fraction": 0.013752956528435759,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0004
+          }
+        }
+      },
+      {
+        "body": "AMBER STREAM",
+        "depth_m": 8.0,
+        "center_linear": [
+          0.16974057257175446,
+          0.09199076890945435,
+          0.021062105894088745
+        ],
+        "comparison": {
+          "label": "AMBER STREAM",
+          "channels": 26880,
+          "max_absolute_error": 1.714133531033335e-06,
+          "max_tolerance_fraction": 0.016857487750744103,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0004
+          }
+        }
+      },
+      {
+        "body": "BLUE SEA",
+        "depth_m": 8.0,
+        "center_linear": [
+          0.018552571535110474,
+          0.22947782278060913,
+          0.40373027324676514
+        ],
+        "comparison": {
+          "label": "BLUE SEA",
+          "channels": 26880,
+          "max_absolute_error": 2.777649045548891e-06,
+          "max_tolerance_fraction": 0.02449812970608016,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0004
+          }
+        }
+      }
+    ],
+    "automatic": [
+      {
+        "case": "fresh",
+        "comparison": {
+          "label": "fresh",
+          "channels": 5376,
+          "max_absolute_error": 2.6319382779305123e-06,
+          "max_tolerance_fraction": 0.01584809652076416,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0004
+          }
+        }
+      },
+      {
+        "case": "frozen river",
+        "comparison": {
+          "label": "frozen river",
+          "channels": 5376,
+          "max_absolute_error": 2.581854475658396e-06,
+          "max_tolerance_fraction": 0.01863808464354017,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0004
+          }
+        }
+      },
+      {
+        "case": "swamp",
+        "comparison": {
+          "label": "swamp",
+          "channels": 5376,
+          "max_absolute_error": 2.5341565293990342e-06,
+          "max_tolerance_fraction": 0.021751371850995446,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0004
+          }
+        }
+      },
+      {
+        "case": "ocean",
+        "comparison": {
+          "label": "ocean",
+          "channels": 5376,
+          "max_absolute_error": 2.5738286750787154e-06,
+          "max_tolerance_fraction": 0.021524697877451364,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0004
+          }
+        }
+      },
+      {
+        "case": "river to swamp",
+        "comparison": {
+          "label": "river to swamp",
+          "channels": 5376,
+          "max_absolute_error": 2.5550187346956577e-06,
+          "max_tolerance_fraction": 0.014594081534945524,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0004
+          }
+        }
+      },
+      {
+        "case": "melting coast",
+        "comparison": {
+          "label": "melting coast",
+          "channels": 5376,
+          "max_absolute_error": 2.60530829929162e-06,
+          "max_tolerance_fraction": 0.02059653761798285,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0004
+          }
+        }
+      },
+      {
+        "case": "lagged blend",
+        "comparison": {
+          "label": "lagged blend",
+          "channels": 5376,
+          "max_absolute_error": 2.5658773747383457e-06,
+          "max_tolerance_fraction": 0.017849793635304756,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0004
+          }
+        }
+      },
+      {
+        "case": "invalid",
+        "comparison": {
+          "label": "invalid",
+          "channels": 5376,
+          "max_absolute_error": 2.6319382779305123e-06,
+          "max_tolerance_fraction": 0.01584809652076416,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 4e-05,
+            "relative": 0.0004
+          }
+        }
+      }
+    ],
+    "input": "Native full composite and final, synthetic neutral checker bed and identical lighting"
+  },
+  "finished_utc": "2026-11-21T19:47:48.972540+00:00"
+}

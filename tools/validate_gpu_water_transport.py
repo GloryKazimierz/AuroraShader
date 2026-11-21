@@ -17,12 +17,18 @@ def analytical_transport(source, share, view_m, light_m, block, sky, sky_rgb, cl
     # Radiative-transfer approximation specified by M1: attenuate the separated
     # custom direct share along the incoming leg, then every source component
     # along the outgoing leg. Scatter is bounded by available illumination.
-    sigma_a,sigma_s = (
+    media = (
         ((.18,.055,.025),(.012,.020,.025)),
         ((.24,.052,.09),(.032,.105,.083)),
         ((.08,.155,.34),(.066,.044,.022)),
         ((.32,.075,.018),(.008,.018,.035)),
-    )[body]
+    )
+    if isinstance(body,tuple):
+        # Weighted mixture of calibrated coefficients, independently accumulated in FP64.
+        sigma_a,sigma_s=[[sum(weight*medium[k][c] for weight,medium in zip(body,media))
+                          for c in range(3)] for k in range(2)]
+    else:
+        sigma_a,sigma_s=media[body]
     share, block, sky = [min(1., max(0., x)) for x in (share, block, sky)]
     result = []
     for channel in range(3):

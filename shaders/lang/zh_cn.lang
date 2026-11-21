@@ -249,6 +249,7 @@ value.WATER_BODY.0=清澈淡水
 value.WATER_BODY.1=冰川青
 value.WATER_BODY.2=琥珀林溪
 value.WATER_BODY.3=深蓝海水
+value.WATER_BODY.4=自动（相机所在群系）
 
 screen.WATER_MOTION=波浪、流动与泡沫
 screen.WATER_LIGHT=水上和水底光照

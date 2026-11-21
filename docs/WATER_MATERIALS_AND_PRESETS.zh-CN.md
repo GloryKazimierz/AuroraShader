@@ -40,3 +40,9 @@
 极致档还开启经过几何验证的平面折射和[双尺度频谱波](WATER_M6_SPECTRAL_NORMALS.zh-CN.md)。缺少计算或自定义图像能力时，使用解析波。
 
 [频谱波计时](validation/WATER_FFT_TIMING.json) · [跨帧滤波计时](validation/K_timing.json)
+
+## 自动跟随群系
+
+水体色调增加了“自动（相机所在群系）”。结冰的河流与海洋使用冰川青，沼泽与红树林使用琥珀色，其他海洋使用海蓝，其余群系使用淡水。跨过边界时，Iris 平滑过渡三个权重，着色器先混合每米吸收和散射系数，再按光程计算颜色。远处另一片水也会使用相机所在群系的介质。手动选择四种水体之一可以固定整片场景的水色。
+
+[Iris 群系输入](https://shaders.properties/current/reference/uniforms/biome/) · [Iris 自定义均匀变量](https://shaders.properties/current/reference/shadersproperties/custom_uniforms/) · [各端点与渐变的显卡验证](validation/WATER_BIOME_GPU.json)

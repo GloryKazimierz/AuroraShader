@@ -8,7 +8,7 @@
 #define WATER_OPTICS 0 // [0 1]
 #define WATER_TRACE_TILES 1 // [0 1]
 #define WATER_FLOW 0 // [0 1]
-#define WATER_BODY 0 // [0 1 2 3] Freshwater, glacial, forest or open sea.
+#define WATER_BODY 0 // [0 1 2 3 4] Freshwater, glacial, woodland, sea or camera biome.
 #define WATER_CLARITY 1.0 // [0.5 1.0 2.0]
 // Iris defines the feature macro only on drivers with independent blending.
 #ifdef IRIS_FEATURE_PER_BUFFER_BLENDING

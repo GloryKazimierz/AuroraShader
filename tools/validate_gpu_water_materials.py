@@ -34,7 +34,19 @@ def material_tests(runner, plate=None):
             fresh,glacial,amber,blue=colors
             require(amber[0]>amber[1]>amber[2] and blue[2]>blue[1]>blue[0]
                     and glacial[1]>glacial[0],'Deep-water channel ordering is inconsistent')
+    transitions=[]
+    small=slab_scene(48,28,depth=2.,pitch=60.,source_rgb=(.75,.75,.75))
+    for label,upload,weights in (
+        ('fresh',(0,0,0),(1,0,0,0)),('frozen river',(1,0,0),(0,1,0,0)),
+        ('swamp',(0,1,0),(0,0,1,0)),('ocean',(0,0,1),(0,0,0,1)),
+        ('river to swamp',(0,.25,0),(.75,0,.25,0)),('melting coast',(.4,0,.6),(0,.4,0,.6)),
+        ('lagged blend',(.8,.8,0),(0,.5,.5,0)),('invalid',(float('nan'),0,0),(1,0,0,0))):
+        scene=dict(small,uniforms=small['uniforms']+[('auroraWaterBiomeWeights','f3',upload)])
+        actual=render_resolve(runner,scene,{'WATER_BODY':4},label=label)
+        result=compare(actual,slab_expected(scene,body=weights),label,absolute=4e-5,relative=4e-4)
+        require(all(p[3]==q[3] for row,old in zip(actual,scene['textures']['colortex0']) for p,q in zip(row,old)),'Automatic water changed scene alpha')
+        transitions.append(dict(case=label,comparison=result))
     if plate:
         png(plate,sheet)
-    return dict(pixels=len(samples)*width*height,samples=samples,
+    return dict(pixels=len(samples)*width*height,samples=samples,automatic=transitions,
                 input='Native full composite and final, synthetic neutral checker bed and identical lighting')

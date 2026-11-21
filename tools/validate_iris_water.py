@@ -1,5 +1,7 @@
 """Verify installed Iris preprocessing and draw-buffer parsing without starting a game."""
 import argparse
+import json
+import re
 from itertools import product
 import os
 from pathlib import Path
@@ -23,6 +25,22 @@ class WaterDirectives {
         int programs = 0, settings = 0;
         for (String line : Files.readAllLines(root.resolve("cases.tsv"))) {
             String[] c = line.split("\t");
+            if (c[0].equals("biome_weights")) {
+                var props=new Properties();
+                props.load(new StringReader(PropertiesPreprocessor.preprocessSource(properties,List.of(
+                    new StringPair("WATER_BODY",c[1]),new StringPair("WATER_OPTICS",c[2])))));
+                var names=List.of("variable.bool.auroraIcyWater","variable.bool.auroraTanninWater",
+                    "variable.bool.auroraOpenSea","variable.float.auroraGlacialWeight","variable.float.auroraTanninWeight",
+                    "variable.float.auroraSeaWeight","uniform.vec3.auroraWaterBiomeWeights");
+                for(var name:names) {
+                    var value=props.getProperty(name);
+                    if((value!=null)!=(c[1].equals("4") && c[2].equals("1")))
+                        throw new AssertionError("Biome property gate "+name);
+                    if(value!=null)kroppeb.stareval.parser.Parser.parse(value,net.irisshaders.iris.parsing.IrisOptions.options);
+                }
+                settings++;
+                continue;
+            }
             if (c[0].equals("fft_settings")) {
                 var env=new ArrayList<StringPair>();
                 for (int i=2;i<c.length;i++) {
@@ -160,13 +178,31 @@ class WaterDirectives {
 '''
 
 
-def verify(work, iris_jar, slf4j_jar):
+def expression_dependency(iris_jar, explicit):
+    if explicit is not None:
+        if explicit.is_file():return explicit.resolve()
+        raise ValueError('Missing --fastutil-jar file')
+    version=re.search(r'mc(\d+(?:\.\d+)+)',iris_jar.name)
+    game_dir=iris_jar.resolve().parent.parent
+    if version:
+        name=version.group(1)
+        metadata=game_dir/'versions'/name/(name+'.json')
+        if metadata.is_file():
+            for lib in json.loads(metadata.read_text('utf-8')).get('libraries',[]):
+                if lib.get('name','').startswith('it.unimi.dsi:fastutil:'):
+                    libraries=(game_dir/'libraries').resolve()
+                    jar=(libraries/lib['downloads']['artifact']['path']).resolve()
+                    if libraries in jar.parents and jar.is_file():return jar
+    raise ValueError('Pass --fastutil-jar using the fastutil library from your Minecraft version manifest')
+
+
+def verify(work, iris_jar, slf4j_jar, fastutil_jar):
     java=work/'WaterDirectives.java'
     java.write_text(JAVA,encoding='utf-8')
     with ZipFile(iris_jar) as iris:
         jcpp, = [n for n in iris.namelist() if n.startswith('META-INF/jars/jcpp-') and n.endswith('.jar')]
         (work/'jcpp.jar').write_bytes(iris.read(jcpp))
-    cp=os.pathsep.join(map(str,(work,iris_jar.resolve(),work/'jcpp.jar',slf4j_jar.resolve())))
+    cp=os.pathsep.join(map(str,(work,iris_jar.resolve(),work/'jcpp.jar',slf4j_jar.resolve(),fastutil_jar)))
     lines=[]
     for support,enabled,hdr,style,debug in product((0,1),(0,1),(0,1),(0,1),(0,7,8,9)):
         active=bool(support and enabled and hdr and style and not debug)
@@ -287,6 +323,8 @@ def verify(work, iris_jar, slf4j_jar):
         name='temporal-'+''.join(map(str,(mode,support,optics,style,hdr,debug)))+'.fsh'
         (work/name).write_text(configure(expand(SHADERS/'composite5.fsh'),opts),encoding='utf-8')
         lines.append(['shader',name,'0,12' if active else '0','RGBA32F' if active else '-',str(int(active)),'resolveWaterTemporal('])
+    for body,optics in product(range(5),range(2)):
+        lines.append(['biome_weights',str(body),str(optics)])
     (work/'cases.tsv').write_text('\n'.join('\t'.join(row) for row in lines),encoding='utf-8')
     env=dict(os.environ,TEMP=str(work),TMP=str(work),TMPDIR=str(work))
     subprocess.run(['javac','-J-XX:-UsePerfData',f'-J-Djava.io.tmpdir={work}','-cp',cp,str(java)],
@@ -299,10 +337,11 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--iris-jar', type=Path, required=True)
     parser.add_argument('--slf4j-jar', type=Path, required=True)
+    parser.add_argument('--fastutil-jar',type=Path,help='Optional explicit Minecraft fastutil library for the Iris expression parser')
     args=parser.parse_args()
     parent=ROOT.parent.resolve()
     with TemporaryDirectory(prefix='aurora-iris-',dir=parent) as directory:
         work=Path(directory).resolve()
         if work.parent!=parent or not work.name.startswith('aurora-iris-'):
             raise ValueError('Unexpected scratch directory')
-        verify(work,args.iris_jar,args.slf4j_jar)
+        verify(work,args.iris_jar,args.slf4j_jar,expression_dependency(args.iris_jar,args.fastutil_jar))

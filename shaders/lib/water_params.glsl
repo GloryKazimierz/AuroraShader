@@ -12,22 +12,33 @@ struct WaterParams {
     vec3 scatteringPerMeter;
 #endif
 };
+#if defined(AURORA_WATER_OPTICS_ACTIVE) && WATER_BODY == 4
+uniform vec3 auroraWaterBiomeWeights;
+#endif
 WaterParams waterParams() {
 #ifdef AURORA_WATER_OPTICS_ACTIVE
-    // Art-directed coefficients per metre in linear RGB. Dissolved colored
-    // matter absorbs light; suspended material increases the scattered fraction.
+    // Coefficients per metre in linear RGB. Interpolate the medium before Beer attenuation.
+    const vec3 freshA=vec3(.18,.055,.025), freshS=vec3(.012,.020,.025);
+    const vec3 glacierA=vec3(.24,.052,.090), glacierS=vec3(.032,.105,.083);
+    const vec3 woodlandA=vec3(.080,.155,.340), woodlandS=vec3(.066,.044,.022);
+    const vec3 oceanA=vec3(.32,.075,.018), oceanS=vec3(.008,.018,.035);
 #if WATER_BODY == 1
-    const vec3 absorption = vec3(0.24, 0.052, 0.090);
-    const vec3 scattering = vec3(0.032, 0.105, 0.083);
+    vec3 absorption=glacierA, scattering=glacierS;
 #elif WATER_BODY == 2
-    const vec3 absorption = vec3(0.080, 0.155, 0.340);
-    const vec3 scattering = vec3(0.066, 0.044, 0.022);
+    vec3 absorption=woodlandA, scattering=woodlandS;
 #elif WATER_BODY == 3
-    const vec3 absorption = vec3(0.32, 0.075, 0.018);
-    const vec3 scattering = vec3(0.008, 0.018, 0.035);
+    vec3 absorption=oceanA, scattering=oceanS;
+#elif WATER_BODY == 4
+    vec3 weights=auroraWaterBiomeWeights;
+    if(any(isnan(weights))||any(isinf(weights)))weights=vec3(0.0);
+    weights=clamp(weights,0.0,1.0);
+    float sum=dot(weights,vec3(1.0));
+    weights/=max(sum,1.0);
+    float fresh=max(1.0-sum,0.0);
+    vec3 absorption=fresh*freshA+weights.x*glacierA+weights.y*woodlandA+weights.z*oceanA;
+    vec3 scattering=fresh*freshS+weights.x*glacierS+weights.y*woodlandS+weights.z*oceanS;
 #else
-    const vec3 absorption = vec3(0.18, 0.055, 0.025);
-    const vec3 scattering = vec3(0.012, 0.020, 0.025);
+    vec3 absorption=freshA, scattering=freshS;
 #endif
     return WaterParams(0.02, 1.0, 16.0, 1.333, absorption, scattering);
 #else

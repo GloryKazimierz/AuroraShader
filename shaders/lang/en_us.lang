@@ -249,6 +249,7 @@ value.WATER_BODY.0=Freshwater
 value.WATER_BODY.1=Glacial Turquoise
 value.WATER_BODY.2=Amber Woodland Stream
 value.WATER_BODY.3=Deep Blue Sea
+value.WATER_BODY.4=Automatic (Camera Biome)
 
 screen.WATER_MOTION=Wave Motion and Foam
 screen.WATER_LIGHT=Light Below and Above Water
