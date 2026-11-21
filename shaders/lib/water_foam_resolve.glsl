@@ -93,6 +93,16 @@ vec3 resolveWaterFoam(vec3 resolvedScene, ivec2 pixel, ivec2 size, out vec4 hist
     vec3 direct=mix(vec3(.08,.11,.2),vec3(3.5,3.2,2.7),celestialPhases().x);
     vec3 radiance=waterFoamDiffuse(sky,direct,vec3(3.2,1.7,.65),owner.b,owner.g,
                                   max(dot(normal,light),0.0),visibility);
+#if WATER_BIOLUMINESCENCE == 1
+    // A creative surface emission from disturbed plankton. The existing foam
+    // footprint and material velocity confine the light to active, resolved surf.
+    float sunHeight=dot(celestialUnit(sunPosition),up);
+    float darkness=1.0-smoothstep(-.22,-.04,sunHeight);
+    float agitation=smoothstep(.003,.030,length(flow.velocity));
+    float flecks=smoothstep(.36,.88,grain);
+    float openWater=smoothstep(.15,.75,owner.b)*(1.0-.75*smoothstep(.22,.84,owner.g));
+    radiance+=vec3(.006,.58,1.18)*(darkness*agitation*flecks*openWater);
+#endif
     radiance=applyAtmosphericFog(radiance,point);
     if(!waterFoamFinite3(radiance))return resolvedScene;
     // Both colors already have the identical surface-to-camera fog operation.

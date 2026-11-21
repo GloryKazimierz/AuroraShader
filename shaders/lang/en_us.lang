@@ -268,3 +268,5 @@ option.WATER_TEMPORAL=Water Temporal Stability
 option.WATER_TEMPORAL.comment=Filters confirmed water before bloom. Requires Water Optics. Reduces subtle flicker; large light changes reject history. Not full TAA. About 63 MiB extra at 1080p.
 value.WATER_TEMPORAL.0=Off
 value.WATER_TEMPORAL.1=On
+option.WATER_BIOLUMINESCENCE=Bioluminescent Surf
+option.WATER_BIOLUMINESCENCE.comment=Blue-green light in moving surface foam after dusk. Requires local or persistent foam.

@@ -268,3 +268,5 @@ option.WATER_TEMPORAL=水面时域稳定
 option.WATER_TEMPORAL.comment=在泛光前过滤已确认水面，需要开启水体光学。减少细微闪烁，大幅光照变化会丢弃历史。不是完整 TAA。1080p 约额外占用 63 MiB。
 value.WATER_TEMPORAL.0=关闭
 value.WATER_TEMPORAL.1=开启
+option.WATER_BIOLUMINESCENCE=夜光浪花
+option.WATER_BIOLUMINESCENCE.comment=日落后，正在运动的浪花会发出蓝绿色微光。需要开启本地或跨帧泡沫。
