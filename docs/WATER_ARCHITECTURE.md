@@ -245,6 +245,24 @@ Reject individual samples on depth/normal/material/medium mismatch, disocclusion
 and out-of-bounds reprojection. Initialize both sides before reads; store previous
 transforms, exposure convention and world origin. Decay is time-based, not frame-count based.
 
+### Candidate storage for the first optical resolve
+
+Store the fraction of the pack's directional lighting at each eligible opaque
+receiver. If `L` is the existing lit RGB, `q` its modeled directional share,
+and `Ti` / `Tv` the incoming and outgoing RGB transmittances, the bottom
+contribution is `Tv * (L * (1-q) + Ti * L * q)`. The scattering source needs
+its own illumination. At `q=0` the incoming solar leg has no effect on torch-lit
+color. The outgoing water still attenuates the light reaching the viewer.
+
+A candidate layout uses an RG32UI record for the octahedral normal and original
+depth bits, an R8 overlap counter, and an R16F fraction with −1 for missing data
+and 0 for a valid unlit receiver. At 1080p, two sides at 11 bytes per pixel cost
+43.51 MiB beyond W1. This estimate assumes the water draw can reuse colortex2
+after deferred for its light levels. Before enabling it, test typed initialization,
+exact depth readback, late writers in both draw orders and native fallback at
+blocked pixels. The M0 diagnostic attachment keeps its separate format.
+
+
 ## Water M0–M7 implementation order
 
 | Stage | Deliverable | Current status / acceptance question |
