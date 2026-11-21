@@ -232,3 +232,11 @@ option.WATER_FLOW=水流方向
 option.WATER_FLOW.comment=根据实际水面坡度让细纹顺流移动，瀑布水纹沿重力方向下落。需开启水体光学和细节波形。
 option.WATER_INTERACTIONS=雨滴与涉水涟漪
 option.WATER_INTERACTIONS.comment=在可见水面生成雨圈，保留玩家涉水和乘具移动留下的短暂水纹。
+
+option.WATER_FOAM=水面泡沫
+option.WATER_FOAM.comment=需要水体光学。本地档使用有证据的岸边与模型挤压；持续档增加重投影和衰减历史（1080p 约 63 MiB）。不移动网格，也不模拟流体。
+value.WATER_FOAM.0=关闭
+value.WATER_FOAM.1=本地
+value.WATER_FOAM.2=持续（高档）
+option.WATER_CELESTIAL_GLINT=日月水面高光
+option.WATER_CELESTIAL_GLINT.comment=按太阳、月相、遮阴和距离计算水面亮带；未解析的细波会让远处高光变宽。

@@ -144,3 +144,5 @@ later reflection and transmission reviewable without confusing depth or fog spac
 [Above-water refraction and dispersion](WATER_M3_REFRACTION.md) now follow the captured water surface to a matched background hit.
 
 [Slope flow, rain and contact ripples](WATER_CURRENTS.md) add camera-independent surface movement and a 15-impulse local history.
+
+[Foam and directional highlights](WATER_M5_FOAM.md) share surface shadows and pixel footprints.

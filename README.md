@@ -254,3 +254,5 @@ equations and interface contracts in the learning notes.
 [Water refraction](docs/WATER_M3_REFRACTION.md) · [水面折射与三视角对照](docs/WATER_M3_REFRACTION.zh-CN.md)
 
 [Animated currents and water contact](docs/WATER_CURRENTS.md) · [河流、瀑布和涉水涟漪](docs/WATER_CURRENTS.zh-CN.md)
+
+[Foam, sun and moon glints](docs/WATER_M5_FOAM.md) · [岸边泡沫与日月高光](docs/WATER_M5_FOAM.zh-CN.md)

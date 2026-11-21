@@ -1,0 +1,18 @@
+{
+  "configurations": 12,
+  "scope": "Temporary M4+M5 header and actual combined-composite coexistence; no GPU run",
+  "m4_overlay": [
+    "shaders/shaders.properties",
+    "shaders/shadow.fsh",
+    "shaders/shadow.vsh",
+    "shaders/lib/water_transport.glsl",
+    "shaders/lib/water_resolve.glsl",
+    "shaders/lib/water_refraction_transport.glsl",
+    "shaders/lib/water_caustics_settings.glsl",
+    "shaders/lib/water_caustics_capture.glsl",
+    "shaders/lib/water_caustics_packing.glsl",
+    "shaders/lib/water_caustics.glsl",
+    "shaders/lib/water_shadow_bindings.glsl"
+  ],
+  "scratch": "D:\\MinecraftShaders\\offline-m2345-gksglo3e"
+}

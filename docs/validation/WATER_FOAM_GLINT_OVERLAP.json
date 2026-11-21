@@ -1,0 +1,9 @@
+{
+  "shader_sha256": "86539c17d1018b4047f6debdc972cdf26c8caeb20b33c26ba7dda3084f219dbb",
+  "ok": true,
+  "gl": null,
+  "overlap": {
+    "frames": 3,
+    "attenuated_channels": 1870
+  }
+}

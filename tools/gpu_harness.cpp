@@ -406,6 +406,7 @@ GLint storageFormat(const std::string& name) {
     if (name == "RGBA16F") return GL_RGBA16F;
     if (name == "RGBA32F") return GL_RGBA32F;
     if (name == "R32F") return GL_R32F;
+    if (name == "RG32F") return GL_RG32F;
     if (name == "R16F") return GL_R16F;
     if (name == "RGBA8") return GL_RGBA8;
     throw Failure("manifest", "Unsupported storage format: " + name);

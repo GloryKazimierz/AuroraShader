@@ -60,6 +60,15 @@ def water_optics_configurations():
     for variant in variants:
         for path in sorted(SHADERS.glob('*.vsh')):
             yield path.stem, dict(enabled, **variant)
+    # Foam is an independent overlay after optical transport; local/history paths
+    # are exercised with and without refraction and actual receiver shadows.
+    for foam, refraction, shadows in product((1,2),(0,1,3),(False,True)):
+        yield 'composite', dict(enabled,WATER_FOAM=foam,WATER_REFRACTION=refraction,
+                                SHADOWS_ENABLED=shadows)
+    for foam in (1,2):
+        for variant in ({'IRIS_FEATURE_PER_BUFFER_BLENDING':False},{'WATER_OPTICS':0},
+                        {'WATER_STYLE':0},{'SCENE_COLOR_MODE':0},{'DEBUG_VIEW':7}):
+            yield 'composite', dict(enabled,WATER_FOAM=foam,**variant)
     for mode, hdr, debug, support in product((0,1,2,3),(0,1),(0,8),(False,True)):
         yield 'composite', dict(WATER_OPTICS=1,WATER_REFRACTION=mode,SCENE_COLOR_MODE=hdr,
                                 DEBUG_VIEW=debug,IRIS_FEATURE_PER_BUFFER_BLENDING=support)
@@ -67,6 +76,8 @@ def water_optics_configurations():
         for name in ('gbuffers_water','prepare1'):
             yield name, dict(WATER_OPTICS=1,WATER_FLOW=current,WATER_INTERACTIONS=contacts,
                              WATER_SURFACE_DETAIL=detail,IRIS_FEATURE_PER_BUFFER_BLENDING=bool(capability))
+    for glints,foam,shadows,fog in product((0,1),(0,1,2),(False,True),(0,1)):
+        yield 'composite',dict(enabled,WATER_CELESTIAL_GLINT=glints,WATER_FOAM=foam,SHADOWS_ENABLED=shadows,FOG_ENABLED=fog)
     for tiles, ssr, budget in product((0,1),(0,1),(64,128)):
         for name in ('deferred1','gbuffers_water','composite'):
             yield name, dict(enabled,WATER_TRACE_TILES=tiles,WATER_SCREEN_REFLECTIONS=ssr,

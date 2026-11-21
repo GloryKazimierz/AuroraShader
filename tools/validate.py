@@ -252,11 +252,35 @@ def test_pack():
     print('PASS: 64 live capability/setting combinations, writer routing, formats, profiles and translations')
 
 
+def test_foam_routes():
+    options=option_definitions(ROOT)
+    require(options['WATER_FOAM']['default']=='0','Foam must remain opt-in')
+    require(all('WATER_FOAM' not in p for p in load_profiles(ROOT).values()),'Unrequested foam profile override')
+    source=expand(SHADERS/'composite.fsh')
+    checks=0
+    for foam,support,optics,style,hdr,debug in product((0,1,2),(False,True),(0,1),(0,1),(0,1),(0,7)):
+        case=dict(WATER_FOAM=foam,IRIS_FEATURE_PER_BUFFER_BLENDING=support,WATER_OPTICS=optics,
+                  WATER_STYLE=style,SCENE_COLOR_MODE=hdr,DEBUG_VIEW=debug)
+        selected,macros=select(source,case)
+        active=bool(foam and support and optics and style and hdr and not debug)
+        history=active and foam==2
+        require(('AURORA_WATER_FOAM_ACTIVE' in macros)==active,'Foam gate mismatch')
+        require(('AURORA_WATER_FOAM_HISTORY' in macros)==history,'Foam history gate mismatch')
+        require(routing(selected)==((0,13,14) if history else (0,)),'Foam MRT routing')
+        for text in ('const int colortex13Format = RGBA16F;','const int colortex14Format = RG32F;',
+                     'const bool colortex13Clear = false;','const bool colortex14Clear = false;',
+                     'uniform sampler2D colortex13;','uniform sampler2D colortex14;'):
+            require((text in selected)==history,'Unexpected persistent attachment declaration')
+        checks+=1
+    print(f'PASS: {checks} opt-in foam routing, persistent formats and default-off checks',flush=True)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--historical', action='store_true', help='Also replay the complete pinned M0 suite')
     args = parser.parse_args()
     test_pack()
+    test_foam_routes()
     test_lab()
     if args.historical:
         print('Replaying original M0 checks from '+BASE, flush=True)

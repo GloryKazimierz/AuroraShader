@@ -232,3 +232,11 @@ option.WATER_FLOW=Water Currents
 option.WATER_FLOW.comment=Animate ripples downhill on sloping fluid surfaces and falling sheets. Requires optics and detailed waves.
 option.WATER_INTERACTIONS=Rain and Contact Ripples
 option.WATER_INTERACTIONS.comment=Add rain rings and short-lived ripples from the moving player or ridden vehicle.
+
+option.WATER_FOAM=Water Foam
+option.WATER_FOAM.comment=Requires Water Optics. Local uses supported shoreline and model compression; Persistent adds decaying reprojected coverage (about 63 MiB at 1080p). No mesh displacement or fluid simulation.
+value.WATER_FOAM.0=Off
+value.WATER_FOAM.1=Local
+value.WATER_FOAM.2=Persistent (High)
+option.WATER_CELESTIAL_GLINT=Sun and Moon Glints
+option.WATER_CELESTIAL_GLINT.comment=Directional water highlights with moon phases, shadowing and roughness from unresolved waves.

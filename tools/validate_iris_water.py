@@ -45,12 +45,20 @@ class WaterDirectives {
                 if (!route.equals(c[2])) throw new AssertionError(c[1] + " routes to " + route);
                 var formats = new TreeMap<String,String>();
                 for (var v : ConstDirectiveParser.findDirectives(source)) {
-                    if (v.getKey().matches("colortex(7|8|9|10|15)Format")) formats.put(v.getKey(),v.getValue());
+                    if (v.getKey().matches("colortex(7|8|9|10|13|14|15)Format")) formats.put(v.getKey(),v.getValue());
                 }
                 if (!String.join(",", formats.values()).equals(c[3].replace("-","")))
                     throw new AssertionError(c[1] + " formats " + formats);
                 if (c.length>4 && source.contains(c.length>5 ? c[5] : "applyWaterRefractionTransport(") != c[4].equals("1"))
                     throw new AssertionError("Refraction mode expansion: "+c[1]);
+                if (c[1].startsWith("foam-")) {
+                    var clear=new TreeMap<String,String>();
+                    for(var v:ConstDirectiveParser.findDirectives(source)) {
+                        if(v.getKey().matches("colortex1[34]Clear"))clear.put(v.getKey(),v.getValue());
+                    }
+                    if(!String.join(",",clear.values()).equals(c[2].contains("13")?"false,false":""))
+                        throw new AssertionError("Foam persistence: "+c[1]+clear);
+                }
                 programs++;
                 continue;
             }
@@ -154,6 +162,14 @@ def verify(work, iris_jar, slf4j_jar):
         (work/filename).write_text(configure(expand(SHADERS/'prepare1.fsh'),opts),encoding='utf-8')
         active=bool(mode and support and detail)
         lines.append(['shader',filename,'15' if active else '0','RGBA32F' if active else '-'])
+    for foam,glint,support,optics in product((0,1,2),(0,1),(0,1),(0,1)):
+        opts={'WATER_OPTICS':optics,FEATURE:bool(support),'WATER_FOAM':foam,'WATER_CELESTIAL_GLINT':glint}
+        filename=f'foam-{foam}-{glint}-{support}-{optics}.fsh'
+        (work/filename).write_text(configure(expand(SHADERS/'composite.fsh'),opts),encoding='utf-8')
+        history=bool(foam==2 and support and optics)
+        highlight=bool(glint and support and optics)
+        lines.append(['shader',filename,'0,13,14' if history else '0','RGBA16F,RG32F' if history else '-',
+                      str(int(highlight)),'applyWaterGlint('])
     (work/'cases.tsv').write_text('\n'.join('\t'.join(row) for row in lines),encoding='utf-8')
     env=dict(os.environ,TEMP=str(work),TMP=str(work),TMPDIR=str(work))
     subprocess.run(['javac','-J-XX:-UsePerfData',f'-J-Djava.io.tmpdir={work}','-cp',cp,str(java)],
