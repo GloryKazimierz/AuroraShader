@@ -1,6 +1,7 @@
 #ifndef AURORA_WATER_FOAM_MODEL_INCLUDED
 #define AURORA_WATER_FOAM_MODEL_INCLUDED
 #include "/lib/water_filtered_waves.glsl"
+#include "/lib/water_fft_dynamics.glsl"
 
 // This is a bounded horizontal material-flow model for optical foam. Minecraft
 // vertices remain unchanged: it is not a breaking-wave mesh or a fluid solver.
@@ -27,9 +28,8 @@ WaterFoamFlow waterFoamFlowAt(vec2 materialXZ, float seconds, float strength,
         || seconds < 0.0 || seconds > 3600.0
         || !waterWaveFootprintValid(worldDx, worldDy)) return result;
 #ifdef AURORA_WATER_FFT_ACTIVE
-    // Height/slopes alone define no horizontal material displacement. Retain
-    // shoreline evidence/history without inventing FFT compression foam.
-    result.valid = true;
+    result.valid=waterFftMaterialFlow(materialXZ,seconds,strength,worldDx,worldDy,
+        result.displacement,result.velocity,result.jacobian,result.areaRatio);
     return result;
 #else
     strength = clamp(strength, 0.0, 1.0);

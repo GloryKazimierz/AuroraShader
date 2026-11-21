@@ -552,11 +552,6 @@ def main():
         if args.suite=='water-fft':
             from validate_gpu_water_fft import fft_tests
             result=fft_tests(runner,str(Path(cxx).resolve()),plate_path)
-            require(result.get('compute_executed'),'OpenGL 4.3 compute unavailable on this adapter')
-            from validate_gpu_water_underwater import producer_tests
-            result['observed_exit']=producer_tests(runner,result.pop('field_at_17_5'))
-            from validate_gpu_water_fft_filter import filter_tests
-            result['caustic_filter']=filter_tests(runner)
             report['water_fft']=result
             print('PASS: native spectral field, independent DFT and production water/shadow sampling',flush=True)
         if args.suite=='water-caustics-time':

@@ -1,0 +1,415 @@
+{
+  "schema": 1,
+  "started_utc": "2026-11-21T20:01:17.836639+00:00",
+  "suite": "water-fft",
+  "shader_sha256": "f6bd75674ba181a44d673114ae37018dd641316f2c495092851c6b0a6b96ca80",
+  "scope": "Native OpenGL synthetic inputs only: no Iris patcher, Minecraft world, render-order/texture-binding integration, screenshots or performance measurement.",
+  "ok": true,
+  "gl": {
+    "vendor": "Intel",
+    "renderer": "Intel(R) Iris(R) Xe Graphics",
+    "version": "3.3.0 - Build 31.0.101.3962",
+    "glsl_version": "3.30 - Build 31.0.101.3962",
+    "major": 3,
+    "minor": 3,
+    "profile_mask": 2,
+    "profile": "compatibility",
+    "max_texture_size": 16384,
+    "max_texture_units": 32,
+    "max_draw_buffers": 8,
+    "max_color_attachments": 8
+  },
+  "build": {
+    "compiler": "g++.exe",
+    "flags": [
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-static"
+    ],
+    "diagnostics": ""
+  },
+  "water_fft": {
+    "speed_and_mode_controls": [
+      {
+        "case": "freeze",
+        "speed": 0,
+        "frames": 3,
+        "grid_samples": 8192,
+        "max_dft_error": 9.418479068878938e-08
+      },
+      {
+        "case": "fast",
+        "speed": 2,
+        "frames": 3,
+        "grid_samples": 8192,
+        "max_dft_error": 7.221267989410141e-07
+      },
+      {
+        "case": "isolated_modes",
+        "speed": 1,
+        "frames": 1,
+        "grid_samples": 8192,
+        "max_dft_error": 1.2756188161322513e-08
+      }
+    ],
+    "production": {
+      "resolution": [
+        64,
+        64
+      ],
+      "actual_water_max_normal_error": 6.716291234276639e-08,
+      "actual_shadow_quantized_max_normal_error": 7.653370713470165e-06,
+      "camera_anchor_max_error": 0.0,
+      "varied_water_pixels": 4096,
+      "exact_fallbacks": [
+        {
+          "label": "Missing compute=False images=False",
+          "channels": 16384,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0,
+            "relative": 0.0
+          }
+        },
+        {
+          "label": "Missing compute=False images=True",
+          "channels": 16384,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0,
+            "relative": 0.0
+          }
+        },
+        {
+          "label": "Missing compute=True images=False",
+          "channels": 16384,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0,
+            "relative": 0.0
+          }
+        },
+        {
+          "label": "Invalid FFT image falls back exactly",
+          "channels": 16384,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0,
+            "relative": 0.0
+          }
+        }
+      ],
+      "zero_strength_exact": true,
+      "spectral_foam_checked_in_consumer_suite": true,
+      "scope": "Actual water/shadow fragment programs on authored geometry, with actual native compute output; no Iris scheduling or Minecraft runtime claim"
+    },
+    "consumers": {
+      "cases": [
+        {
+          "frame_index": 2,
+          "previous": false,
+          "footprint": 0.0,
+          "queries": 24,
+          "max_D_error": 3.756590150061356e-09,
+          "max_J_error": 5.98374754190445e-08,
+          "max_area_error": 1.296166025621659e-07,
+          "max_velocity_error": 0.0,
+          "max_missing_power_error": 2.512954289102254e-10,
+          "max_inverse_residual": 3.806415755564896e-06
+        },
+        {
+          "frame_index": 3,
+          "previous": false,
+          "footprint": 0.0,
+          "queries": 24,
+          "max_D_error": 3.849943211453599e-09,
+          "max_J_error": 5.871847230665139e-08,
+          "max_area_error": 9.185671245859339e-08,
+          "max_velocity_error": 2.690735657895349e-07,
+          "max_missing_power_error": 1.784585812458772e-10,
+          "max_inverse_residual": 3.7416988190298805e-06
+        },
+        {
+          "frame_index": 3,
+          "previous": true,
+          "footprint": 0.0,
+          "queries": 24,
+          "max_D_error": 3.756590150061356e-09,
+          "max_J_error": 5.98374754190445e-08,
+          "max_area_error": 1.296166025621659e-07,
+          "max_velocity_error": 2.690735657895349e-07,
+          "max_missing_power_error": 1.784585812458772e-10,
+          "max_inverse_residual": 3.806415755564896e-06
+        },
+        {
+          "frame_index": 3,
+          "previous": false,
+          "footprint": 0.5,
+          "queries": 24,
+          "max_D_error": 3.0354217264716432e-09,
+          "max_J_error": 6.042873379463742e-08,
+          "max_area_error": 1.0744094169901075e-07,
+          "max_velocity_error": 2.7771168666437807e-07,
+          "max_missing_power_error": 2.0574435839922078e-10,
+          "max_inverse_residual": 3.066572869228754e-06
+        },
+        {
+          "frame_index": 3,
+          "previous": false,
+          "footprint": 4.0,
+          "queries": 24,
+          "max_D_error": 0.0,
+          "max_J_error": 0.0,
+          "max_area_error": 0.0,
+          "max_velocity_error": 0.0,
+          "max_missing_power_error": 2.3283064365386963e-10,
+          "max_inverse_residual": 0.0
+        },
+        {
+          "frame_index": 7,
+          "previous": false,
+          "footprint": 0.0,
+          "queries": 24,
+          "max_D_error": 9.313225746154785e-09,
+          "max_J_error": 5.762558430433273e-08,
+          "max_area_error": 1.5991891011424286e-07,
+          "max_velocity_error": 6.854534149169922e-07,
+          "max_missing_power_error": 2.1915974525617277e-10,
+          "max_inverse_residual": 2.670878805902834e-06
+        },
+        {
+          "frame_index": 7,
+          "previous": true,
+          "footprint": 0.0,
+          "queries": 24,
+          "max_D_error": 4.71482053399086e-09,
+          "max_J_error": 5.960464477539063e-08,
+          "max_area_error": 1.1971604263472102e-07,
+          "max_velocity_error": 6.854534149169922e-07,
+          "max_missing_power_error": 2.1915974525617277e-10,
+          "max_inverse_residual": 3.2814452505363168e-06
+        }
+      ],
+      "rejections": [
+        "stale-time",
+        "invalid-current",
+        "wrong-moment-size",
+        "missing-previous",
+        "wrong-current-size",
+        "wrong-previous-size",
+        "oversized-D",
+        "nonmodel-J",
+        "invalid-power",
+        "extreme-footprint",
+        "unavailable-time"
+      ],
+      "gl": {
+        "vendor": "Intel",
+        "renderer": "Intel(R) Iris(R) Xe Graphics",
+        "version": "3.3.0 - Build 31.0.101.3962",
+        "glsl_version": "3.30 - Build 31.0.101.3962",
+        "major": 3,
+        "minor": 3,
+        "profile_mask": 2,
+        "profile": "compatibility",
+        "max_texture_size": 16384,
+        "max_texture_units": 32,
+        "max_draw_buffers": 8,
+        "max_color_attachments": 8
+      },
+      "scope": "Native exact bilinear material mapping, Jacobian, previous-field advection and global filtered spectral power; not full resolved-water visual test"
+    },
+    "driver": {
+      "ok": true,
+      "gl": {
+        "vendor": "Intel",
+        "renderer": "Intel(R) Iris(R) Xe Graphics",
+        "version": "4.3.0 - Build 31.0.101.3962",
+        "glsl_version": "4.30 - Build 31.0.101.3962",
+        "major": 4,
+        "minor": 3,
+        "profile_mask": 2,
+        "profile": "compatibility",
+        "max_texture_size": 16384,
+        "max_texture_units": 32,
+        "max_draw_buffers": 8,
+        "max_color_attachments": 8
+      },
+      "frames": 8,
+      "image_bytes": 526400,
+      "peak_bound_images": 5,
+      "shared_bytes_per_fft_group": 1536,
+      "elapsed_nanoseconds": []
+    },
+    "frames": [
+      {
+        "seconds": 0.0,
+        "max_full_dft_error": 9.418479068878938e-08,
+        "max_spectral_moment_error": 9.792770717595434e-11,
+        "max_actual_field_bilinear_power_error": 1.1090628155435711e-10,
+        "previous_displacement_exact": true
+      },
+      {
+        "seconds": 2.0,
+        "max_full_dft_error": 7.236220263551196e-07,
+        "max_spectral_moment_error": 1.7860245233713296e-09,
+        "max_actual_field_bilinear_power_error": 3.5495883099131986e-10,
+        "previous_displacement_exact": true
+      },
+      {
+        "seconds": 17.0,
+        "max_full_dft_error": 4.975356709679968e-07,
+        "max_spectral_moment_error": 2.257525088741885e-09,
+        "max_actual_field_bilinear_power_error": 1.7222193072694014e-10,
+        "previous_displacement_exact": true
+      },
+      {
+        "seconds": 17.016666412353516,
+        "max_full_dft_error": 8.276655626832108e-07,
+        "max_spectral_moment_error": 1.1809899629847825e-08,
+        "max_actual_field_bilinear_power_error": 1.30866695952081e-10,
+        "previous_displacement_exact": true
+      },
+      {
+        "seconds": 48.0,
+        "max_full_dft_error": 9.91048428544694e-07,
+        "max_spectral_moment_error": 2.2442670334979486e-10,
+        "max_actual_field_bilinear_power_error": 2.142162983456708e-10,
+        "previous_displacement_exact": true
+      },
+      {
+        "seconds": 600.0,
+        "max_full_dft_error": 9.418479068878938e-08,
+        "max_spectral_moment_error": 9.792770717595434e-11,
+        "max_actual_field_bilinear_power_error": 1.1090628155435711e-10,
+        "previous_displacement_exact": true
+      },
+      {
+        "seconds": 3599.984375,
+        "max_full_dft_error": 1.3073718710260307e-05,
+        "max_spectral_moment_error": 4.977546292197002e-08,
+        "max_actual_field_bilinear_power_error": 2.5340403646961773e-10,
+        "previous_displacement_exact": true
+      },
+      {
+        "seconds": 0.0,
+        "max_full_dft_error": 9.418479068878938e-08,
+        "max_spectral_moment_error": 9.792770717595434e-11,
+        "max_actual_field_bilinear_power_error": 1.1090628155435711e-10,
+        "previous_displacement_exact": true
+      }
+    ],
+    "actual_seed_column_bounds": [
+      0.9359514335098535,
+      0.8162188133052835
+    ],
+    "actual_sampled_map_bound": 1.2418607961775083,
+    "guaranteed_min_singular_at_lambda_half": 0.37906960191124583,
+    "reset600_and3600_exact": true,
+    "times": [
+      0.0,
+      2.0,
+      17.0,
+      17.016666412353516,
+      48.0,
+      600.0,
+      3599.984375,
+      0.0
+    ],
+    "scope": "Actual persistent compute plus DFT/filtered-field truth; production foam/glint and whole-surface visual checks are separate",
+    "observed_exit": {
+      "cases": [
+        {
+          "case": "exit-reversed",
+          "covered": 2112,
+          "color": {
+            "label": "Exit metadata color0 exit-reversed",
+            "channels": 12288,
+            "max_absolute_error": 0.0,
+            "max_tolerance_fraction": 0.0,
+            "tolerance": {
+              "half_ulps": 0,
+              "absolute": 0.0,
+              "relative": 0.0
+            }
+          }
+        },
+        {
+          "case": "exit-up",
+          "covered": 2112,
+          "color": {
+            "label": "Exit metadata color0 exit-up",
+            "channels": 12288,
+            "max_absolute_error": 0.0,
+            "max_tolerance_fraction": 0.0,
+            "tolerance": {
+              "half_ulps": 0,
+              "absolute": 0.0,
+              "relative": 0.0
+            }
+          }
+        },
+        {
+          "case": "real-bottom",
+          "covered": 2112,
+          "color": {
+            "label": "Exit metadata color0 real-bottom",
+            "channels": 12288,
+            "max_absolute_error": 0.0,
+            "max_tolerance_fraction": 0.0,
+            "tolerance": {
+              "half_ulps": 0,
+              "absolute": 0.0,
+              "relative": 0.0
+            }
+          }
+        }
+      ],
+      "spectral_exit_normals": 3840
+    },
+    "caustic_filter": {
+      "cases": 16,
+      "fft_shortest_wavelength_m": 1.5,
+      "legacy_detail_wavelength_m": 0.713205374517255,
+      "scope": "Actual caustic helper native readback; footprint filter only, not full FFT caustic flux quality"
+    },
+    "views": [
+      {
+        "pitch": 68.0,
+        "water_pixels": 14727,
+        "changed_display_pixels_over_two": [
+          2523,
+          2838
+        ]
+      },
+      {
+        "pitch": 35.0,
+        "water_pixels": 13408,
+        "changed_display_pixels_over_two": [
+          1979,
+          2035
+        ]
+      },
+      {
+        "pitch": 10.0,
+        "water_pixels": 5309,
+        "changed_display_pixels_over_two": [
+          2608,
+          2632
+        ]
+      }
+    ]
+  },
+  "finished_utc": "2026-11-21T20:09:43.121362+00:00"
+}

@@ -52,7 +52,7 @@ def integration_checks(compiler,baseline):
       require(pp(text,stage)==pp(old,stage),'FFT fallback source changed: '+str((program,suffix,options)))
       exact.append(dict(program=program,stage=stage,options=options))
     execute(['-l']+pair);compiled.append(dict(program=program,options=options))
-   for program in ('setup','begin','begin1'):
+   for program in ('setup','begin','begin1','begin2'):
     path=scratch/('{}-'.format(index)+program+'.comp');write_text(path,configure(expand(SHADERS/(program+'.csh')),options));execute(['-S','comp',path])
     compiled.append(dict(program=program,options=options))
   return dict(compilations=len(compiled),exact_disabled_stage_comparisons=len(exact),

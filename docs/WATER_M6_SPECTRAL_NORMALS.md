@@ -1,5 +1,7 @@
 # M6: optional dual-cascade spectral water normals
 
+This note records the original normals-only implementation at `5ab6f4c`. The current spectral path also transports foam and estimates unresolved glint energy from the simulated slopes. It has seven images and three frame dispatches. [Current implementation and measurements](WATER_SPECTRAL_FOAM.zh-CN.md)
+
 This first spectral release computes a periodic height and analytic-slope field with actual GPU compute, then uses its slopes in the existing water normal path. It does not displace Minecraft vertices. The same helper drives eligible water metadata, native water shading, debug normals and the caustic shadow normal capture.
 
 ## Player controls and capability fallback

@@ -6,6 +6,7 @@
 #if WATER_CELESTIAL_GLINT == 1
 #define AURORA_WATER_GLINT_ACTIVE
 #include "/lib/water_glint_model.glsl"
+#include "/lib/water_fft_dynamics.glsl"
 #include "/lib/water_interface_lighting.glsl"
 uniform int moonPhase;
 vec3 applyWaterGlint(vec3 scene,ivec2 pixel,ivec2 size) {
@@ -32,7 +33,11 @@ vec3 applyWaterGlint(vec3 scene,ivec2 pixel,ivec2 size) {
     float roughness=mix(.060,.135,clamp(rainStrength,0.0,1.0));
     float alpha2=roughness*roughness;
 #if WATER_WAVES == 1 && WATER_SURFACE_DETAIL == 1
+#ifdef AURORA_WATER_FFT_ACTIVE
+    alpha2+=waterFftMissingSlopeVariance(viewToPlayerPosition(point),dx,dy,float(WATER_WAVE_STRENGTH));
+#else
     alpha2+=waterUnresolvedSlopeVariance(dx,dy,float(WATER_WAVE_STRENGTH));
+#endif
 #endif
     float brdf=waterGlintBRDF(n,v,l,alpha2,waterParams().refractiveIndex);
     if(brdf<=0.0)return scene;

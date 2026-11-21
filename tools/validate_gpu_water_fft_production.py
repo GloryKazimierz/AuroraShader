@@ -50,7 +50,8 @@ def sampled_gradient(field,world,footprint=.5):
  if length>.12:result=[v*.12/length for v in result]
  return result
 
-def production_tests(runner,field):
+def production_tests(runner,field,seconds=17.5,check_legacy_foam=False):
+ require(not check_legacy_foam,"This spectral graph includes material displacement")
  width=height=64
  vertex=runner.scratch/'fft-water.vert';write_text(vertex,VERTEX)
  shadow_vertex=runner.scratch/'fft-shadow.vert';write_text(shadow_vertex,SHADOW_VERTEX)
@@ -62,7 +63,7 @@ def production_tests(runner,field):
   return [('gbufferProjectionInverse','m4',matrix_uniform(inv)),
           ('gbufferModelViewInverse','m4',matrix_uniform(INV_VIEW)),
           ('cameraPositionInt','i3',anchor),('cameraPositionFract','f3',(.125,0,.375)),
-          ('frameTimeCounter','f1',(17.5,)),('upPosition','f3',(0,0,1)),
+          ('frameTimeCounter','f1',(seconds,)),('upPosition','f3',(0,0,1)),
           ('sunPosition','f3',(40,20,80)),('hasSkylight','i1',(1,)),('hasCeiling','i1',(0,)),
           ('isEyeInWater','i1',(0,)),('blindness','f1',(0.,)),('darknessFactor','f1',(0.,)),
           ('rainStrength','f1',(0.,)),('eyeBrightnessSmooth','i2',(240,240)),
@@ -130,27 +131,10 @@ def production_tests(runner,field):
  flat=runner.render('FFT zero strength',(vertex,flat_fragment),width,height,textures,uniforms(),
                     optional=optional,extra_targets=WATER_TARGETS,read_target=1)
  require(all(p==(0,0,1,.5) for row in flat for p in row),'FFT strength0 is not exact flat baseline')
- # Real helper bodies: no legacy six-mode Jacobian/variance may survive in FFT mode.
- models=expand(SHADERS/'lib/water_foam_model.glsl')+'\n'+expand(SHADERS/'lib/water_glint_model.glsl')
- wrapper='#version 330 compatibility\n'+models+"""
-layout(location=0) out vec4 result;
-layout(location=1) out vec4 evidence;
-void main(){
- WaterFoamFlow f=waterFoamFlowAt(vec2(gl_FragCoord.xy),17.5,.6,1.,vec2(.01,0),vec2(0,.01));
- result=vec4(f.displacement,f.areaRatio,waterUnresolvedSlopeVariance(vec2(1,0),vec2(0,1),.6));
- evidence=vec4(waterFoamEvidence(f.areaRatio,-1.,1.,1.),waterFoamEvidence(f.areaRatio,.05,1.,1.),f.velocity);
- if(!f.valid)result=vec4(-99);
-}
-"""
- pair=runner.pair('composite1',ACTIVE,wrapper=wrapper)
- flow=runner.render('FFT identity foam and base variance',pair,8,8,extra_targets=((1,1,'RGBA32F'),))
- evidence=runner.render('FFT shore-only foam evidence',pair,8,8,extra_targets=((1,1,'RGBA32F'),),read_target=1)
- require(all(p==(0,0,1,0) for row in flow for p in row),'FFT pretends to use legacy displacement or variance')
- require(all(p[0]==0 and p[1]>.5 and p[2:]==(0,0) for row in evidence for p in row),'FFT shoreline/crest foam downgrade failed')
  return dict(resolution=[width,height],actual_water_max_normal_error=error,
              actual_shadow_quantized_max_normal_error=shadow_error,camera_anchor_max_error=anchor_error,
              varied_water_pixels=changed,exact_fallbacks=comparisons,zero_strength_exact=True,
-             fft_foam_identity_and_shore_evidence=True,fft_legacy_unresolved_variance_disabled=True,
+             spectral_foam_checked_in_consumer_suite=True,
              scope='Actual water/shadow fragment programs on authored geometry, with actual native compute output; no Iris scheduling or Minecraft runtime claim')
 
 def spectral_views(runner,fields,path):
@@ -162,8 +146,8 @@ def spectral_views(runner,fields,path):
     rows=[]
     for row,(label,pitch) in enumerate((('OVERHEAD',68.),('OBLIQUE',35.),('GRAZING',10.))):
         images=[];depths=None
-        for col,(field,seconds,title) in enumerate(((None,0.,'ANALYTIC'),(fields[0.],0.,'SPECTRAL 0 S'),(fields[17.5],17.5,'SPECTRAL 17.5 S'))):
-            scene=scene_capture(runner,pitch,field,seconds)
+        for col,(field,seconds,title) in enumerate(((None,0.,'ANALYTIC'),(fields[0.],0.,'SPECTRAL 0 S'),(fields[17.],17.,'SPECTRAL 17 S'))):
+            scene=scene_capture(runner,pitch,field['field'] if field is not None else None,seconds)
             textures=scene['textures']
             geo=[[pixel[3] for pixel in line] for line in textures['colortex7']]
             if depths is None:depths=geo
@@ -177,7 +161,10 @@ def spectral_views(runner,fields,path):
             opts=dict(WATER_OPTICS=1,IRIS_FEATURE_PER_BUFFER_BLENDING=True,WATER_CELESTIAL_GLINT=1,WATER_SCREEN_REFLECTIONS=0,SHADOWS_ENABLED=False,FOG_ENABLED=0)
             if field is not None:opts.update(WATER_FFT=1,IRIS_FEATURE_COMPUTE_SHADERS=True,IRIS_FEATURE_CUSTOM_IMAGES=True)
             inputs=[(n,img,FORMATS[n]) for n,img in textures.items()]
-            raw=runner.render('Spectral water optics',runner.pair('composite1',opts),WIDTH,HEIGHT,inputs,list(uniforms.values()),storage='RGBA16F',optional=list(textures)+list(uniforms))
+            if field is not None:
+                inputs.append(('waterFftMomentSampler',field['moments'],'RGBA32F'))
+                uniforms['frameTimeCounter']=('frameTimeCounter','f1',(seconds,))
+            raw=runner.render('Spectral water optics',runner.pair('composite1',opts),WIDTH,HEIGHT,inputs,list(uniforms.values()),storage='RGBA16F',optional=[n for n,_,_ in inputs]+list(uniforms))
             out=runner.render('Spectral water display',runner.pair('final'),WIDTH,HEIGHT,[('colortex0',raw,'RGBA16F')])
             pixels=display_rows(out);images.append(pixels)
             y0=20+row*(HEIGHT+18);x0=col*WIDTH

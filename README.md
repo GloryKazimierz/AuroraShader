@@ -4,8 +4,6 @@ AuroraShader pairs azure days, coral sunsets and indigo nights with world-anchor
 
 [Four water bodies at three depths](docs/validation/WATER_MATERIALS_views.png) · [中文画质与水色指南](docs/WATER_MATERIALS_AND_PRESETS.zh-CN.md) · [水管线、缓冲与观察视角](docs/WATER_PIPELINE.zh-CN.md) · [夜光浪花](docs/WATER_NIGHT_SURF.zh-CN.md) · [双尺度频谱波](docs/WATER_M6_SPECTRAL_NORMALS.zh-CN.md) · [水面时域稳定](docs/WATER_K_TEMPORAL.zh-CN.md) · [Optical transport](docs/WATER_M1_OPTICS.md) · [Reflections](docs/WATER_M2_REFLECTION_STABILITY.md)
 
-Water M0 on `codex/water-04a-optics-foundation` builds on the
-[W3 scene reflection](https://github.com/GloryKazimierz/AuroraShader/commit/df94fe404146c1364920f709569898359c84c8ed).
 Open **Shader Pack Settings → Advanced → Debug View** for the water mask (7),
 filtered view-space normal (8), and distance to the recorded background (9).
 The depth display maps 0–16 modeled metres to black–white. Magenta marks a
@@ -37,28 +35,16 @@ waterfall and translucent edges at different depths, times and weather condition
 | Fog and clouds | Height/distance atmosphere, compatible late-source fog and native-cloud color; original cloud geometry retained |
 | Bloom | Four-pass half-resolution bright-pixel extraction, separable blur and recombination |
 | Aurora | Bounded procedural teal/violet sky ribbons at night, with weather/vision fallbacks |
-| Water | Fluid classification, gentle tint, analytic sky-color reflection, world-anchored, pixel-filtered multiscale wave normals and luminance-preserving background-depth color |
-| Water optical transport | Optional in linear HDR. Two water travel segments, source-limited scattering, three clarity settings and validated transparent-layer ownership |
-| Water scene reflection | Matched eligible opaque color/depth snapshot, bounded 64/128-cell screen traversal, unknown-occluder guard and confidence-weighted fallback |
+| Surface motion | World-anchored filtered waves, slope-driven flow and waterfall normals. Rain and recent player/vehicle contacts disturb the water. Optional compute simulates two spectral bands. Horizontal compression seeds crest foam, and unresolved slope energy widens distant glints. [Spectral foam details](docs/WATER_SPECTRAL_FOAM.zh-CN.md) |
+| Optical transport | Per-metre absorption and scattering, optional camera-biome blending, verified planar refraction and visible underwater exit surfaces with Snell transmission or total internal reflection |
+| Reflections and lighting | Sky fallback, bounded screen-space ray traversal, roughness-aware sun/moon glints and optional shadow-space focusing on directly lit beds |
+| Foam and temporal stability | Shore and wave evidence, optional foam history, blue-green night surf and optional water-only history rejection before bloom |
 | Foliage | Eleven vanilla leaf types, short grass and joined tall grass; shared terrain/shadow wind with fixed grass roots |
-| Settings | English/Simplified Chinese, grouped pages, three quality profiles and ten view selections (scene plus nine diagnostics) |
+| Settings | English/Simplified Chinese, grouped pages, seven quality profiles and dedicated water diagnostics |
 
-The default W3 water reflection can replace its analytic sky fallback with a valid recorded scene
-hit. Local scene reflection works independently of sky-style/blend and local sky
-light; the existing dimension, fluid and upward-face scope remains. Waves change
-reflection normals; they do not move the mesh or shoreline. Water Surface Detail 1 (default) uses six
-filtered waves; 0 restores the original three-wave normal path exactly. Filtering
-does not yet convert unresolved waves into reflection roughness or eliminate
-nonlinear highlight aliasing. Depth color uses a background height gap, not measured
-water-volume thickness. Native water alpha is retained.
-Sun/moon glow adds bounded light to the sky background. It fades with horizon,
-weather and vision conditions; it is not physical scattering or terrain illumination.
-Screen-space tracing has no hidden or off-screen geometry. Its finite depth
-tolerance is an approximation; it is not hardware RTX or path tracing. Reflected
-water-to-hit atmospheric attenuation is added by the optional M1 optical pass; in W3, existing camera-to-water
-fog is applied once. The analytic fallback still omits actual aurora, discs and
-cloud shapes. Stepped refraction, PBR, SSAO, volumetric lighting
-and custom volumetric cloud geometry remain planned.
+Use the Coastal preset for everyday water and the High preset for reflected visible banks. Confirmed screen hits can contribute in caves. A known roof blocks the sky fallback. Occluded and off-screen geometry limit what a screen ray can recover. The optical surface uses the Minecraft mesh as its geometric boundary, so the water depth and shoreline keep their block geometry.
+
+Refraction checks the water layer and the opaque receiver along the displaced ray. Flat, continuously observed beds can use an analytic Snell intersection. Ambiguous edges use a conservative fallback. The spectral update, reflection, refraction and temporal passes have separate measurements on Intel Iris Xe. [Water pass layout and costs](docs/WATER_PIPELINE.zh-CN.md) · [Three-angle wave comparison](docs/validation/WATER_FFT_views.png) · [Off-screen visibility test](docs/validation/offscreen/OFFSCREEN_COVERAGE.md)
 
 ## Settings and quality profiles
 
@@ -74,9 +60,9 @@ In Shader Pack Settings, choose **Water / Coastal (Medium)** for moving water, r
 | Water / Low | Simpler world-anchored waves and sky reflections |
 | Water / Coastal (Medium) | Absorption, scattering, currents, rain and wake normals, local foam and glints |
 | Water / Reflections (High) | Coastal plus screen-space scene reflections and underwater Snell windows at observed exit surfaces |
-| Water / Caustics (Ultra) | High plus shadow-space caustics and persistent foam |
+| Water / Caustics (Ultra) | High plus shadow-space caustics, persistent foam, planar refraction and spectral waves on supported hardware |
 
-Profiles leave water color, clarity, wave strength and grading available for art direction. Refraction can be selected separately under Water → Reflection and Refraction. Each preset resets the performance switches so a previous high-cost selection does not carry over. Optical profiles select the HDR beauty view. The default shader settings match Balanced.
+Profiles leave water color, clarity, wave strength and grading available for art direction. Refraction can be selected separately under Water → Reflection and Refraction. Presets set the main optical features. The temporal filter and night surf remain independent choices. Optical profiles select the HDR beauty view. The default shader settings match Balanced.
 
 The filters use 1/9/25 logical shadow comparisons respectively. The existing
 2048 shadow map and 64-block shadow distance remain fixed. Bloom-off retains four
@@ -90,15 +76,22 @@ post-processing; black can indicate an unrecorded surface.
 
 ## Color flow and buffers
 
-This is a color-flow sketch, not Iris's complete draw schedule:
+The water features enter the frame in this order.
 
 ```mermaid
 flowchart LR
-    G[Geometry color and surface data] --> D[Deferred lighting]
-    S[Depth-only shadow map] --> D
-    D --> L[Later geometry and source atmosphere]
-    L --> B[Half-resolution bloom]
-    B --> F[Exposure, tone map, display encode, grading]
+    W["Optional spectral setup and per-frame update"] --> S["Shadow and caustic capture"]
+    W --> T["Water and other translucents"]
+    G["Opaque geometry"] --> D["Deferred lighting and opaque snapshot"]
+    S --> D
+    D --> T
+    T --> P["Optional flat-bed verification"]
+    P --> O["Water optics, glints and foam"]
+    O --> B["Bloom extraction and blur"]
+    O --> K["Optional temporal filtering of water"]
+    K --> C["Add this frame's bloom"]
+    B --> C
+    C --> F["Final exposure, tone map and grading"]
 ```
 
 Sky, clouds and water retain their category-specific paths. Some geometry arrives
@@ -113,18 +106,16 @@ Original baked face shading and lightmap influence remain in the source.
 | `colortex3`, `colortex4` | Half-resolution RGBA16F bloom intermediates |
 | `colortex5` | Full-resolution RGBA16F: pre-camera-fog lit linear RGB, alpha as snapshot validity |
 | `colortex6` | Full-resolution R32F: matching `depthtex1` value; invalid samples use 1 |
+| `colortex7`, `colortex8` | Full-resolution water surface normal and raw depth, layer ownership, lighting and observed exit marker |
+| `colortex9` | R16F direct-light share at the opaque receiver |
+| `colortex10`, `colortex11` | Optional conservative reflection depths and flat-bed refraction bounds, each at one eighth width and height |
+| `colortex12` | Optional full-resolution temporal RGB and signed raw depth, RGBA32F |
+| `colortex13`, `colortex14` | Optional persistent foam and reprojection metadata |
+| `colortex15` | Optional 16 × 2 contact history |
+| `shadowcolor0` | Packed water-surface normal and source depth for shadow-space caustics |
 | Iris depth snapshots | Existing reconstruction inputs; snapshot checks pre-hand `depthtex2` to reject nearer hand depth |
 
-The new snapshot is written with deferred lighting and remains unchanged during
-later geometry. Sky, unqualified data, hand-nearer pixels and invalid values become
-explicit misses; it contains neither all transparent layers nor hidden/off-screen
-geometry. The water consumer reads only buffers 5/6 for hits; raw pre-translucent
-depth is an additional occlusion guard for unrecorded foreground surfaces. The two new double-buffered attachments have a nominal cost of about
-47.46 MiB at 1920x1080; this is an allocation estimate, not measured frame time.
-
-Exposure and display encoding run once in normal final output. Data buffers are
-not gamma-converted. Water effects preserve alpha, geometry and foreground-fog
-composition; see the notes for exact fallback contracts.
+Opaque snapshots contain pre-fog radiance, matched depth and a direct-light share. Layer ownership keeps the optical solve from replacing ambiguous transparent mixtures. Current water effects operate in linear HDR. The final pass applies exposure and display encoding once. [Water data, dimensions and lifetime](docs/WATER_PIPELINE.zh-CN.md)
 
 ## Project location and Iris testing
 
@@ -142,11 +133,10 @@ separate D: test profile for integration checks;
 [test-profile notes](docs/MILESTONE_6_BENCHMARK.md) describe the setup.
 Selecting the old `MyShader` entry does not test this branch.
 
-The pack supplies GLSL 3.30 compatibility input to Iris. Recent contracts were
+The graphics programs use GLSL 3.30 compatibility. Optional spectral compute uses GLSL 4.30 with Iris custom images. Recent contracts were
 inspected at Iris commit `99d855970316329f2e0e42ac2b79ef763cb77cc3`
 (Iris 1.10.5 / Minecraft 1.21.11 source). Local vanilla 1.21.11 assets were read
-to check leaf IDs and grass model roots; the active game/Iris installation has
-not been run or verified. Other GPUs, mod versions, resource packs and dimensions need
+to check leaf IDs and grass model roots. The installed Iris parser and native Intel driver were exercised independently. Runtime observations for this cumulative water branch are still pending. Other GPUs, mod versions, resource packs and dimensions need
 their own integration observations.
 
 ## Validation and limits
@@ -176,8 +166,7 @@ To exercise the installed Iris GLSL and properties preprocessors without opening
 world, run `python -B tools/validate_iris_water.py --iris-jar PATH --slf4j-jar PATH`
 with the local Iris 1.10.5 mod and SLF4J API jars and JDK 21 on PATH.
 
-Native suites: `probe`, `compile`, `profiles`, `render`, `depth`, `foliage`,
-`celestial`, `snapshot`, `filtered-waves`, `screen-reflections`, `water-debug`, `water-transport`, or default `all`.
+Run `python -B tools/validate_gpu.py --help` for the current suite list. Focused checks include `water-refraction`, `water-caustics`, `water-temporal`, `water-underwater`, `water-materials`, `water-surf-glow` and the capability-specific `water-fft`.
 Use `--report docs/validation/NEW_NAME.json` to retain a new result; existing
 reports are never overwritten. Synthetic rendering covers bloom, water normals,
 final color, water-depth color, foliage math and celestial glow. Foliage wrappers exercise the

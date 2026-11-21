@@ -50,13 +50,16 @@ class WaterDirectives {
                 var props=new Properties();
                 props.load(new StringReader(PropertiesPreprocessor.preprocessSource(properties,env)));
                 boolean active=c[1].equals("1");
-                for (String name:List.of("setup","begin","begin1")) {
+                for (String name:List.of("setup","begin","begin1","begin2")) {
                     if (!Boolean.toString(active).equals(props.getProperty("program."+name+".enabled","true")))
                         throw new AssertionError("Compute dispatch "+name+" "+line);
                 }
-                for (var image:Map.of("waterSpectrumSeed","rg rg32f","waterFftRows","rgba rgba32f",
-                                      "waterFftOutput","rgba rgba32f").entrySet()) {
-                    var required=image.getKey()+"Sampler "+image.getValue()+" float false false 128 64";
+                for (var image:Map.of("waterSpectrumSeed","rg rg32f","waterFftRows","rgba rgba32f","waterFftOutput","rgba rgba32f",
+                                      "waterFftDisplacementRows","rg rg32f","waterFftDisplacement","rg rg32f",
+                                      "waterFftPreviousDisplacement","rg rg32f","waterFftMomentAtlas","rgba rgba32f").entrySet()) {
+                    boolean moments=image.getKey().equals("waterFftMomentAtlas");
+                    var sampler=moments?"waterFftMomentSampler":image.getKey()+"Sampler";
+                    var required=sampler+" "+image.getValue()+" float false false "+(moments?"2 66":"128 64");
                     if (!Objects.equals(props.getProperty("image."+image.getKey()),active?required:null))
                         throw new AssertionError("Compute image declaration "+line+" "+image.getKey());
                 }
@@ -312,7 +315,7 @@ def verify(work, iris_jar, slf4j_jar, fastutil_jar):
         active=bool(compute and images and fft and detail and waves)
         lines.append(['fft_settings',str(int(active)),*(f'{k}={v}' for k,v in opts.items())])
         if active:
-            for program,groups in [('setup','ivec3(16,8,1)'),('begin','ivec3(2,64,1)'),('begin1','ivec3(2,64,1)')]:
+            for program,groups in [('setup','ivec3(16,8,1)'),('begin','ivec3(2,64,1)'),('begin1','ivec3(2,64,1)'),('begin2','ivec3(2,1,1)')]:
                 name=program+'.csh'
                 (work/name).write_text(configure(expand(SHADERS/name),opts),encoding='utf-8')
                 lines.append(['fft_compute',name,groups])
