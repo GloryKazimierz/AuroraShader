@@ -1,5 +1,6 @@
 """M11 procedural-aurora source/numerical contracts; not Minecraft/GPU rendering."""
 import math
+from validate_water_debug import restore_water_debug_source
 import re
 import struct
 import subprocess
@@ -138,7 +139,7 @@ def validate_aurora(root,expand,preprocess,compact,function_body):
             assert restore_aurora_source(relative,read(relative)) == prior(relative),relative
             pinned += 1
     assert len(list(shaders.glob('*.vsh'))) == len(list(shaders.glob('*.fsh'))) == 24
-    labels = read('lang/en_us.lang')
+    labels = restore_water_debug_source('lang/en_us.lang',read('lang/en_us.lang'))
     assert labels.startswith(prior('lang/en_us.lang'))
     source = read('lib/aurora.glsl')
     code = compact(source)

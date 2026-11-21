@@ -408,9 +408,17 @@ def shader_digest():
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--cxx',help='Installed MinGW g++ compiler; no download')
-    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial','snapshot','filtered-waves','screen-reflections'),default='all')
+    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial','snapshot','filtered-waves','screen-reflections','water-debug'),default='all')
     parser.add_argument('--report',help='New JSON report path under the project; existing files are never overwritten')
+    parser.add_argument('--debug-plate',help='Save the water-debug suite comparison to a new project PNG')
     args=parser.parse_args()
+    plate_path=None
+    if args.debug_plate:
+        plate_path=(ROOT/args.debug_plate).resolve()
+        require(args.suite=='water-debug' and ROOT.resolve() in plate_path.parents
+                and plate_path.suffix.lower()=='.png' and plate_path.parent.is_dir()
+                and not plate_path.exists(),'Water debug plate requires a new project PNG path')
+
     require(os.name=='nt','This optional WGL runner requires Windows; no GPU checks performed')
     cxx=args.cxx or shutil.which('g++')
     require(cxx is not None and Path(cxx).is_file(),'Installed g++ unavailable; pass --cxx. No GPU checks performed.')
@@ -476,6 +484,10 @@ def main():
                 report['controls']=harness_controls(runner)
             report['water_screen_reflection']=screen_reflection_tests(runner,compare)
             print('PASS: screen-space water reflection checks',flush=True)
+        if args.suite in ('all','render','water-debug'):
+            from validate_gpu_water_debug import debug_tests
+            report['water_debug']=debug_tests(runner,plate_path)
+            print('PASS: actual water capture and final debug displays',flush=True)
         require(shader_digest()==report['shader_sha256'],'Shader source changed during validation; report invalid')
         report['ok']=True
         report['finished_utc']=datetime.now(timezone.utc).isoformat()

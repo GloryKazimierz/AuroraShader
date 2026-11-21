@@ -1,5 +1,6 @@
 """W2 filtered water-wave references, numerical integration and historical pins."""
 import math
+from validate_water_debug import DEBUG_FILES
 import re
 import struct
 import subprocess
@@ -272,7 +273,7 @@ def validate_water_filtered_waves(root, expand, preprocess, compact, function_bo
     old_files=subprocess.check_output(['git','-C',str(root),'ls-tree','-r','--name-only',W1_BASELINE,'shaders']).decode().splitlines()
     assert len(old_files)==100
     current_files={str(path.relative_to(root)).replace('\\','/') for path in shaders.rglob('*') if path.is_file()}
-    assert current_files==set(old_files)|{'shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl','shaders/lib/water_screen_reflection.glsl','shaders/lib/water_screen_reflection_settings.glsl'}
+    assert current_files==set(old_files)|{'shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl','shaders/lib/water_screen_reflection.glsl','shaders/lib/water_screen_reflection_settings.glsl'} | DEBUG_FILES
     for path in old_files:
         relative=path[len('shaders/'):]
         assert restore_water_filtered_source(relative,read(relative))==previous(relative),relative

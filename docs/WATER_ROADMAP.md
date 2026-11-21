@@ -2,7 +2,8 @@
 
 Updated: 2026-11-21. [中文路线图](WATER_ROADMAP.zh-CN.md).
 Starting implementation: M19 commit `74c7164874e446ebd8e763f146286c2c6908b820`.
-Current work: **W3 bounded screen-space reflections**, branch `codex/water-03-screen-reflections`.
+Current work: **Water M0 / W4A common optics and diagnostic capture**, branch `codex/water-04a-optics-foundation`.
+[The layered architecture](WATER_ARCHITECTURE.md) defines A–L modules, buffer ownership and the active water M0–M7 sequence. M0 is implemented; complete historical CPU, focused offline and native checks passed.
 W3 is implemented; CPU/offline/native checks passed and three static synthetic views are recorded. [W3 notes](WATER_03_SCREEN_REFLECTIONS.md).
 W2 is implemented with CPU/offline/native checks passed; historical native depth
 regression also passed. [W2 evidence](WATER_02_FILTERED_WAVES.md).
@@ -44,8 +45,9 @@ takes priority. It remains a possible validation improvement, not a completed st
 
 ## Ranked work and dependencies
 
-The rows are an implementation order, not fixed delivery dates or a promise that
-each row fits one commit. Debuggable, reversible increments come before extra effects.
+The W1–W3 records below are complete within their evidence scope. W4–W8 retain the
+broader dependency groups; the newer [water M0–M7 sequence](WATER_ARCHITECTURE.md)
+owns the active implementation order. Neither is a fixed delivery schedule.
 
 | Stage | Deliverable | Dependency and completion question |
 |---|---|---|

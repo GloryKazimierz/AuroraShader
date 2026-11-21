@@ -1,5 +1,6 @@
 """M12 native-cloud color/fog contracts. CPU references, not GPU rendering."""
 import math
+from validate_water_debug import restore_water_debug_source
 import re
 import subprocess
 from functools import lru_cache
@@ -109,7 +110,7 @@ def validate_clouds(root,expand,preprocess,compact,function_body):
     # Exact M11 restoration preserves native texture/vertex shading, alpha/discard,
     # all MRT layouts, allocation/flip rules, shadow logic, and the M9 fog functions.
     assert len(list(shaders.glob('*.vsh'))) == len(list(shaders.glob('*.fsh'))) == 24
-    assert read('lang/en_us.lang').startswith(prior('lang/en_us.lang'))
+    assert restore_water_debug_source('lang/en_us.lang',read('lang/en_us.lang')).startswith(prior('lang/en_us.lang'))
     fragment = read('lib/geometry/textured_fragment.glsl')
     assert fragment.count(CLOUD_CALL) == fragment.count(CLOUD_INCLUDE) == 1
     assert fragment.index('discard;') < fragment.index('sceneFromDisplay(color.rgb)') < fragment.index('applyCloudAtmosphere(color.rgb)')

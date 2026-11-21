@@ -2,7 +2,8 @@
 
 更新日期：2026-11-21。[English roadmap](WATER_ROADMAP.md)。
 起点：M19 提交 `74c7164874e446ebd8e763f146286c2c6908b820`。
-当前工作：**W3 有范围限制的屏幕空间反射**，分支 `codex/water-03-screen-reflections`。
+当前工作：**水体 M0／W4A 共用光学与诊断采集**，分支 `codex/water-04a-optics-foundation`。
+[分层架构](WATER_ARCHITECTURE.zh-CN.md)明确 A–L 模块、缓冲职责和当前水体 M0–M7 顺序；M0 已实现，完整历史 CPU／专项离线／本机检查通过。
 W3 已实现，CPU／离线／本机检查通过，并记录三种静态合成视角，见 [W3 学习笔记](WATER_03_SCREEN_REFLECTIONS.zh-CN.md)。
 W2 已实现，CPU／离线／本机检查通过；历史水深颜色本机回归也已通过。
 详见 [W2 验证记录](WATER_02_FILTERED_WAVES.zh-CN.md)。
@@ -41,8 +42,8 @@ junction，项目与生成文件继续位于 D 盘。
 
 ## 优先顺序与依赖
 
-下表是实现顺序，不是发布日期，也不保证一行只需一个提交。
-先做可调试、可回退的完整小步，再增加额外装饰。
+下表保留 W1–W3 在各自证据范围内的完成记录，以及 W4–W8 较大的依赖分组。
+当前实现顺序由新版[水体 M0–M7](WATER_ARCHITECTURE.zh-CN.md)负责，两者都不是固定发布日期。
 
 | 阶段 | 交付内容 | 依赖与完成时要回答的问题 |
 |---|---|---|

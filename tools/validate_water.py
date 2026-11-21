@@ -1,5 +1,6 @@
 """M13 water classification, interfaces and optical-style contracts; no GPU execution."""
 import math
+from validate_water_debug import restore_water_debug_source
 import re
 import subprocess
 from functools import lru_cache
@@ -173,7 +174,7 @@ def validate_water(root,expand,preprocess,compact,function_body):
             assert restore_water_source(relative,read(relative)) == prior(relative),relative
             pinned += 1
     assert len(list(shaders.glob('*.vsh'))) == len(list(shaders.glob('*.fsh'))) == 24
-    assert read('lang/en_us.lang').startswith(prior('lang/en_us.lang'))
+    assert restore_water_debug_source('lang/en_us.lang',read('lang/en_us.lang')).startswith(prior('lang/en_us.lang'))
     assignments = [line.strip() for line in restore_foliage_source('block.properties',read('block.properties')).splitlines() if line.strip() and not line.lstrip().startswith('#')]
     assert assignments == ['block.10001 = minecraft:water']
     # Bind the M13 oracle to the precisely restored waves-off implementation.

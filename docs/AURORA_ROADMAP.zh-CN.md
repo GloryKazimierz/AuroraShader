@@ -16,10 +16,14 @@ W1 匹配的场景／深度快照已在 `codex/water-01-scene-snapshot` 分支�
 CPU／离线／本机检查通过；W3 已成为首个水面消费者，Minecraft／Iris 运行仍未观察。
 详见 [W1 实现与验证](WATER_01_SNAPSHOT.zh-CN.md)。W2 过滤后的多尺度水波法线
 已通过 CPU／离线／本机检查及历史水深颜色回归，见 [W2 验证记录](WATER_02_FILTERED_WAVES.zh-CN.md)。
-当前在 `codex/water-03-screen-reflections` 推进 W3 有范围限制的屏幕空间反射，
+W3 有范围限制的屏幕空间反射记录在 `codex/water-03-screen-reflections`，
 实现、CPU／离线／本机检查及三种静态合成透视视角均已完成，见 [W3 笔记](WATER_03_SCREEN_REFLECTIONS.zh-CN.md)。
 Minecraft／Iris 画面仍未观察。此前提议的 M20 Iris
 预处理桥接没有实现，现排在水体优先工作之后。
+
+当前继续实施**水体 M0／W4A**共用光学与诊断采集。[水体架构](WATER_ARCHITECTURE.zh-CN.md)
+分开 common、模拟、采集、着色与后处理，记录 A–L 约定、缓冲预算及新的水体 M0–M7 顺序。
+M0 完整历史 CPU／专项离线／本机检查通过。
 
 建议用下面的视觉语言建立辨识度：
 

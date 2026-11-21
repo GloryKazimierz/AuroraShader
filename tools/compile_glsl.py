@@ -37,6 +37,19 @@ def configure(source, overrides):
     lines[1:1] = ['#define MC_RENDER_STAGE_SKY 4', '#define MC_RENDER_STAGE_STARS 5', '#define MC_RENDER_STAGE_VOID 6']
     return '\n'.join(lines) + '\n'
 
+def water_debug_configurations():
+    """M0 live debug paths, without multiplying unrelated graphics controls."""
+    for debug, mode in product((7, 8, 9), (0, 1)):
+        for path in sorted(SHADERS.glob('*.vsh')):
+            yield path.stem, dict(DEBUG_VIEW=debug, SCENE_COLOR_MODE=mode)
+        for style, waves, detail in product((0, 1), repeat=3):
+            if (style, waves, detail) == (1, 1, 1):
+                continue  # Already covered by the all-program default above.
+            yield 'gbuffers_water', dict(DEBUG_VIEW=debug, SCENE_COLOR_MODE=mode,
+                                        WATER_STYLE=style, WATER_WAVES=waves,
+                                        WATER_SURFACE_DETAIL=detail)
+
+
 def configurations():
     # Every geometry category, prepare and fullscreen path in both storage modes.
     for mode in (0, 1):
@@ -176,6 +189,9 @@ def configurations():
             yield 'gbuffers_water', dict(WATER_SCREEN_REFLECTIONS=enabled, WATER_REFLECTION_STEPS=budget,
                                         WATER_SURFACE_DETAIL=detail, WATER_WAVES=waves, FOG_ENABLED=fog)
 
+    # M0 keeps every W3 configuration and adds live water diagnostic paths.
+    yield from water_debug_configurations()
+
     # M17 adds actual profile selections without replacing prior configurations.
     from validate_settings_profiles import profile_configurations
     yield from profile_configurations(ROOT)
@@ -184,11 +200,16 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--compiler', help='Path to installed glslangValidator')
     parser.add_argument('--profiles-only', action='store_true', help='Compile only the 72 actual M17 profile/program pairs')
+    parser.add_argument('--water-debug-only', action='store_true', help='Compile only the 186 M0 water diagnostic configurations')
     args = parser.parse_args()
     compiler = args.compiler or shutil.which('glslangValidator')
     if not compiler:
         raise SystemExit('glslangValidator unavailable; install separately or pass --compiler. No runtime validation performed.')
-    if args.profiles_only:
+    if args.profiles_only and args.water_debug_only:
+        parser.error('--profiles-only and --water-debug-only are mutually exclusive')
+    if args.water_debug_only:
+        configs = list(water_debug_configurations())
+    elif args.profiles_only:
         from validate_settings_profiles import profile_configurations
         configs = list(profile_configurations(ROOT))
     else:

@@ -4,6 +4,7 @@ The CPU oracle defines sample eligibility, without simulating GLSL execution or
 texture storage. Native-driver fixtures separately test the actual mixed MRT.
 """
 import math
+from validate_water_debug import DEBUG_FILES
 import re
 import subprocess
 from itertools import product
@@ -131,7 +132,7 @@ def validate_water_snapshot(root, expand, preprocess, compact, function_body):
     assert len(old_files) == 99
     current_files = {str(path.relative_to(root)).replace('\\', '/')
                      for path in shaders.rglob('*') if path.is_file()}
-    assert current_files == set(old_files) | {'shaders/lib/water_scene_snapshot.glsl','shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl','shaders/lib/water_screen_reflection.glsl','shaders/lib/water_screen_reflection_settings.glsl'}
+    assert current_files == set(old_files) | {'shaders/lib/water_scene_snapshot.glsl','shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl','shaders/lib/water_screen_reflection.glsl','shaders/lib/water_screen_reflection_settings.glsl'} | DEBUG_FILES
     for path in old_files:
         previous = subprocess.check_output(['git', '-C', str(root), 'show', M19_BASELINE + ':' + path]).decode('utf-8').replace('\r\n', '\n')
         assert restore_water_snapshot_source(path, read(path[len('shaders/'):])) == previous, path

@@ -4,6 +4,7 @@ The reference geometry is generated from world-space pool planes and projected
 independently. No GPU/Iris execution is performed by this module.
 """
 import math
+from validate_water_debug import DEBUG_FILES
 import re
 import struct
 import subprocess
@@ -376,7 +377,7 @@ def validate_water_depth(root,expand,preprocess,compact,function_body):
     assert len(list(shaders.glob('*.vsh'))) == len(list(shaders.glob('*.fsh'))) == 24
     assert restore_water_depth_source('lang/en_us.lang',read('lang/en_us.lang')).startswith(prior('lang/en_us.lang'))
     new_files=set(str(path.relative_to(root)).replace('\\','/') for path in shaders.rglob('*') if path.is_file())-set(old_files)
-    assert new_files == {'shaders/lib/water_depth.glsl','shaders/lib/water_depth_settings.glsl','shaders/lang/zh_cn.lang','shaders/lib/foliage.glsl','shaders/lib/foliage_settings.glsl','shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl','shaders/lib/water_scene_snapshot.glsl','shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl','shaders/lib/water_screen_reflection.glsl','shaders/lib/water_screen_reflection_settings.glsl'},new_files
+    assert new_files == {'shaders/lib/water_depth.glsl','shaders/lib/water_depth_settings.glsl','shaders/lang/zh_cn.lang','shaders/lib/foliage.glsl','shaders/lib/foliage_settings.glsl','shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl','shaders/lib/water_scene_snapshot.glsl','shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl','shaders/lib/water_screen_reflection.glsl','shaders/lib/water_screen_reflection_settings.glsl'} | DEBUG_FILES,new_files
     source=read('lib/water_depth.glsl')
     assert source.startswith('#ifndef AURORA_WATER_DEPTH_INCLUDED\n#define AURORA_WATER_DEPTH_INCLUDED\n')
     assert source.endswith('#endif\n')

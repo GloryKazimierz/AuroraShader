@@ -9,6 +9,7 @@ from validate_fog import historical_source, restore_fog_plumbing
 from validate_bloom import BLOOM_PROGRAMS, BLOOM_TARGETS
 from validate_water import stage_variables
 from validate_settings_profiles import restore_settings_profiles_source
+from validate_water_debug import restore_water_debug_source
 
 ROOT = Path(__file__).resolve().parents[1]
 SHADERS = ROOT / "shaders"
@@ -503,7 +504,7 @@ restored = deferred.replace("color.rgb=applyCelestialPalette(color.rgb,normalVie
     "lightScene(scene.rgb,normalView,levels,visibility)",
     "lightScene(scene.rgb,decodeNormal(surface.rgb),levels,visibility)")
 assert restored == compact(function_body(baseline_file("shaders/deferred.fsh"),"main"))
-lighting_settings = (SHADERS/"lib/lighting_settings.glsl").read_text()
+lighting_settings = restore_water_debug_source("lib/lighting_settings.glsl", (SHADERS/"lib/lighting_settings.glsl").read_text())
 assert compact(lighting_settings) == compact(baseline_file("shaders/lib/lighting_settings.glsl"))
 for debug in range(6):
     old = preprocess(baseline_file("shaders/lib/lighting_settings.glsl")+baseline_file("shaders/final.fsh"),debug,False)
@@ -682,3 +683,7 @@ validate_water_filtered_waves(ROOT, expand, preprocess, compact, function_body)
 # W3 adds bounded screen reflections and independent analytic ray-hit truth.
 from validate_water_screen_reflection import validate_water_screen_reflection
 validate_water_screen_reflection(ROOT, expand, preprocess, compact, function_body)
+
+# M0 exposes live water metadata while preserving all earlier rendering paths.
+from validate_water_debug import validate_water_debug
+validate_water_debug(ROOT, expand, preprocess, compact, function_body)

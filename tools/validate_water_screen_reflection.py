@@ -5,6 +5,7 @@ import subprocess
 from functools import lru_cache
 from itertools import product
 from pathlib import Path
+from validate_water_debug import DEBUG_FILES, restore_water_debug_source
 
 W2_BASELINE = 'db67a74a9244b81c809ce776a9c8567f17587039'
 REFLECTION_OPTIONS = {'WATER_SCREEN_REFLECTIONS','WATER_REFLECTION_STEPS'}
@@ -484,6 +485,7 @@ def restore_water_screen_reflection_source(relative,source):
     relative=relative.replace('\\','/')
     if relative.startswith('shaders/'):
         relative=relative[len('shaders/'):]
+    source=restore_water_debug_source(relative,source)
     pairs=()
     if relative=='lib/water.glsl':
         pairs=WATER_RESTORATIONS
@@ -600,7 +602,7 @@ def validate_water_screen_reflection(root,expand,preprocess,compact,function_bod
     old_files=subprocess.check_output(['git','-C',str(root),'ls-tree','-r','--name-only',W2_BASELINE,'shaders']).decode().splitlines()
     assert len(old_files)==102
     current_files={str(path.relative_to(root)).replace('\\','/') for path in shaders.rglob('*') if path.is_file()}
-    assert current_files==set(old_files)|{'shaders/lib/water_screen_reflection.glsl','shaders/lib/water_screen_reflection_settings.glsl'}
+    assert current_files==set(old_files)|{'shaders/lib/water_screen_reflection.glsl','shaders/lib/water_screen_reflection_settings.glsl'} | DEBUG_FILES
     for path in old_files:
         relative=path[len('shaders/'):]
         assert restore_water_screen_reflection_source(relative,read(relative))==previous(relative),relative
@@ -640,7 +642,7 @@ def validate_water_screen_reflection(root,expand,preprocess,compact,function_bod
         assert ('traceWaterScene(' in selected)==(path.stem=='gbuffers_water'),path.name
         uniforms=re.findall(r'^uniform\s+\w+\s+(\w+)\s*(?:=[^;]+)?;',selected,re.M)
         assert len(uniforms)==len(set(uniforms)),path.name
-    options=option_definitions(root);props=parse_properties(read('shaders.properties'))
+    options=option_definitions(root);props=parse_properties(restore_water_debug_source('shaders.properties',read('shaders.properties')))
     controls,screens=menu_options(props,options)
     assert len(options)==len(controls)==60 and len(screens)==12
     assert options['WATER_SCREEN_REFLECTIONS']==dict(kind='number',default='1',values=('0','1'))
@@ -652,7 +654,7 @@ def validate_water_screen_reflection(root,expand,preprocess,compact,function_bod
         for enabled,budget in product(('0','1'),('64','128')):
             selected=dict(defaults,**profile,WATER_SCREEN_REFLECTIONS=enabled,WATER_REFLECTION_STEPS=budget)
             assert matching_profiles(profiles,selected)==(name,)
-    en,zh=(parse_language(read('lang/'+language)) for language in ('en_us.lang','zh_cn.lang'))
+    en,zh=(parse_language(restore_water_debug_source('lang/'+language,read('lang/'+language))) for language in ('en_us.lang','zh_cn.lang'))
     assert len(en)==len(zh)==191 and set(en)==set(zh) and REFLECTION_LABELS<=set(en)
     assert all(re.search(r'[\u3400-\u9fff]',zh[key]) for key in REFLECTION_LABELS)
     validate_trace_math()

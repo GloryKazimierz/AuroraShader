@@ -6,6 +6,7 @@ may silently ignore unknown names, which would hide a misspelled profile entry.
 from collections import Counter
 from pathlib import Path
 import re
+from validate_water_debug import DEBUG_FILES
 import subprocess
 from validate_foliage import FOLIAGE_OPTIONS, restore_foliage_source
 from validate_celestial_glow import GLOW_OPTIONS
@@ -293,7 +294,7 @@ def validate_settings_profiles(root,*unused):
             assert restore_settings_profiles_source(relative,current)==before,relative
             pinned+=1
     current_files={str(path.relative_to(root)).replace('\\','/') for path in shaders.rglob('*') if path.is_file()}
-    assert current_files-set(old_files)=={'shaders/lang/zh_cn.lang','shaders/lib/foliage.glsl','shaders/lib/foliage_settings.glsl','shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl','shaders/lib/water_scene_snapshot.glsl','shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl','shaders/lib/water_screen_reflection.glsl','shaders/lib/water_screen_reflection_settings.glsl'}
+    assert current_files-set(old_files)=={'shaders/lang/zh_cn.lang','shaders/lib/foliage.glsl','shaders/lib/foliage_settings.glsl','shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl','shaders/lib/water_scene_snapshot.glsl','shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl','shaders/lib/water_screen_reflection.glsl','shaders/lib/water_screen_reflection_settings.glsl'} | DEBUG_FILES
     assert len(list(profile_configurations(root)))==72
     print('PASS: M17 {} prior shader/property files pinned; all GLSL/defaults and rendering properties unchanged'.format(pinned))
     print('PASS: M17 3 distinct six-control profiles; inheritance, types, invalid tokens, subset matching and 45 retained artistic controls')

@@ -18,11 +18,16 @@ implemented on `codex/water-01-scene-snapshot`, with CPU/offline/native checks p
 W3 is the first water consumer; Minecraft/Iris runtime remains unobserved.
 [W1 implementation and evidence](WATER_01_SNAPSHOT.md). W2 filtered multiscale
 normals passed CPU/offline/native checks and historical depth regression.
-[W2 evidence](WATER_02_FILTERED_WAVES.md). Current work is W3 bounded screen-space
+[W2 evidence](WATER_02_FILTERED_WAVES.md). The previous W3 stage provides bounded screen-space
 reflection on `codex/water-03-screen-reflections`; implementation, CPU/offline/native
 checks and three static synthetic perspective views are complete. [W3 notes](WATER_03_SCREEN_REFLECTIONS.md). Minecraft/Iris appearance is unobserved.
 The proposed M20 Iris-preprocessing bridge was not implemented and is deferred
 behind this water-first work.
+
+Current implementation continues with **water M0 / W4A** shared optics and
+diagnostic capture. [The water architecture](WATER_ARCHITECTURE.md) separates
+common, simulation, capture, shading and post, with A–L contracts, buffer budgets
+and a new water M0–M7 sequence. Complete historical CPU, focused offline and native M0 checks passed.
 
 The proposed visual vocabulary is:
 

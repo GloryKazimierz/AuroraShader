@@ -1,5 +1,6 @@
 """M19 angular sun/moon glow references and isolated sky-background contracts."""
 import math
+from validate_water_debug import DEBUG_FILES
 import re
 import struct
 import subprocess
@@ -286,7 +287,7 @@ def validate_celestial_glow(root,expand,preprocess,compact,function_body):
         previous=subprocess.check_output(['git','-C',str(root),'show',M18_BASELINE+':'+path]).decode('utf-8').replace('\r\n','\n')
         assert restore_celestial_glow_source(relative,read(relative))==previous,relative
     current_files={str(path.relative_to(root)).replace('\\','/') for path in shaders.rglob('*') if path.is_file()}
-    assert current_files-set(old_files)=={'shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl','shaders/lib/water_scene_snapshot.glsl','shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl','shaders/lib/water_screen_reflection.glsl','shaders/lib/water_screen_reflection_settings.glsl'}
+    assert current_files-set(old_files)=={'shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl','shaders/lib/water_scene_snapshot.glsl','shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl','shaders/lib/water_screen_reflection.glsl','shaders/lib/water_screen_reflection_settings.glsl'} | DEBUG_FILES
     assert len(list(shaders.glob('*.vsh')))==len(list(shaders.glob('*.fsh')))==24
     helper=read('lib/celestial_glow.glsl')
     code=compact(helper)

@@ -5,6 +5,7 @@
 #endif
 #ifdef APPLY_WATER_STYLE
 #include "/lib/water.glsl"
+#include "/lib/water_debug_capture.glsl"
 flat in int waterSurface;
 #ifndef WRITE_SURFACE_DATA
 in vec3 normalView;
@@ -23,8 +24,14 @@ in vec4 glcolor;
 #ifdef WRITE_SURFACE_DATA
 #include "/lib/gbuffer_write.glsl"
 #else
+#ifdef AURORA_WATER_DEBUG_CAPTURE
+/* RENDERTARGETS: 0,7 */
+layout(location = 0) out vec4 color;
+layout(location = 1) out vec4 waterDebugSurface;
+#else
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
+#endif
 #endif
 
 void main() {
@@ -57,6 +64,12 @@ void main() {
     vec3 fogView = reconstructViewPosition(fogUV, gl_FragCoord.z);
 #endif
 #ifdef APPLY_WATER_STYLE
+#ifdef AURORA_WATER_DEBUG_CAPTURE
+    // Nonwater in this shared translucent program overwrites debug metadata with
+    // invalid data conservatively. The final depth check also rejects occluders.
+    waterDebugSurface = captureWaterDebugSurface(fogView, normalView, waterWorldDx,
+        waterWorldDy, waterSurface, gl_FragCoord.z);
+#endif
     // Use the water's own position; existing late fog still runs once afterward.
     color.rgb = applyWaterStyle(color.rgb, fogView, normalView, lmcoord, waterSurface, blendFunc, fogColor, waterWorldDx, waterWorldDy);
 #endif

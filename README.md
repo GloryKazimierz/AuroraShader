@@ -6,16 +6,18 @@ textures and lightmaps with directional lighting, shadows, atmosphere and gentle
 water effects. The aim is a coherent, playable pack with its own identity.
 
 **Current priority: convincing, beautiful water from every view.**
-W3 on `codex/water-03-screen-reflections` starts from W2 commit `db67a74`.
-It adds bounded screen-space scene reflections using W1's matched color/depth
-and W2's filtered wave normals. Unknown foreground depth blocks unsupported hits;
-misses keep the existing fallback. CPU, offline and native compilation checks pass;
-native ray tests and three-view synthetic comparisons also pass. These checks do
-not confirm Minecraft/Iris runtime integration or performance.
-There are 60 controls and three quality profiles. The next water systems are
-owned reflection/transmission composition, attenuation/refraction, verified flow,
-underwater optics, shoreline effects and measured quality/performance.
+Water M0 on `codex/water-04a-optics-foundation` builds on the
+[W3 scene reflection](https://github.com/GloryKazimierz/AuroraShader/commit/df94fe404146c1364920f709569898359c84c8ed).
+Open **Shader Pack Settings → Advanced → Debug View** for the water mask (7),
+filtered view-space normal (8), and distance to the recorded background (9).
+The depth display maps 0–16 modeled metres to black–white. Magenta marks a
+water sample with no usable background. A metre corresponds to one world block.
+In a pool with one visible bottom this view helps diagnose water path estimates.
+[Three debug views on a synthetic pool](docs/validation/WATER_M0_views.png) ·
+[Native GPU results, including window scaling](docs/validation/WATER_M0_GPU_final.json).
 
+[水体架构与实现顺序](docs/WATER_ARCHITECTURE.zh-CN.md) ·
+[Water architecture and milestones](docs/WATER_ARCHITECTURE.md) ·
 [中文路线图](docs/AURORA_ROADMAP.zh-CN.md) ·
 [中文水体专项路线](docs/WATER_ROADMAP.zh-CN.md) ·
 [波纹过滤原理](docs/WATER_02_FILTERED_WAVES.zh-CN.md) ·
@@ -35,7 +37,7 @@ underwater optics, shoreline effects and measured quality/performance.
 | Water | Fluid classification, gentle tint, analytic sky-color reflection, world-anchored, pixel-filtered multiscale wave normals and luminance-preserving background-depth color |
 | Water scene reflection | Matched eligible opaque color/depth snapshot, bounded 64/128-cell screen traversal, unknown-occluder guard and confidence-weighted fallback |
 | Foliage | Eleven vanilla leaf types, short grass and joined tall grass; shared terrain/shadow wind with fixed grass roots |
-| Settings | English/Simplified Chinese, grouped pages, three quality profiles and seven debug views |
+| Settings | English/Simplified Chinese, grouped pages, three quality profiles and ten view selections (scene plus nine diagnostics) |
 
 Water reflection can replace its analytic sky fallback with a valid recorded scene
 hit. Local scene reflection works independently of sky-style/blend and local sky
@@ -82,7 +84,8 @@ passes and half-resolution buffers. No FPS improvement or universal quality rank
 has been measured.
 
 Advanced debug: 0 scene, 1 view normals, 2 block/sky levels, 3 directional term,
-4 shadow depth, 5 filtered visibility, 6 receiver bias. Debug bypasses artistic
+4 shadow depth, 5 filtered visibility, 6 receiver bias, 7 water mask, 8 water normal,
+9 water-to-background distance. Debug bypasses artistic
 post-processing; black can indicate an unrecorded surface.
 
 ## Color flow and buffers
@@ -155,6 +158,7 @@ python -B tools/validate.py
 python -B tools/compile_glsl.py --compiler C:/VulkanSDK/1.4.363.0/Bin/glslangValidator.exe
 python -B tools/compile_glsl.py --profiles-only --compiler C:/VulkanSDK/1.4.363.0/Bin/glslangValidator.exe
 python -B tools/validate_gpu.py --cxx C:/msys64/ucrt64/bin/g++.exe --suite screen-reflections
+python -B tools/validate_gpu.py --cxx C:/msys64/ucrt64/bin/g++.exe --suite water-debug
 git diff --check
 ```
 
@@ -165,7 +169,7 @@ or launches Minecraft. Generated inputs, binaries and compiler temporary files
 stay on the project drive and are removed after the run.
 
 Native suites: `probe`, `compile`, `profiles`, `render`, `depth`, `foliage`,
-`celestial`, `snapshot`, `filtered-waves`, `screen-reflections`, or default `all`.
+`celestial`, `snapshot`, `filtered-waves`, `screen-reflections`, `water-debug`, or default `all`.
 Use `--report docs/validation/NEW_NAME.json` to retain a new result; existing
 reports are never overwritten. Synthetic rendering covers bloom, water normals,
 final color, water-depth color, foliage math and celestial glow. Foliage wrappers exercise the

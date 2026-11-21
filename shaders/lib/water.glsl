@@ -1,6 +1,7 @@
 #ifndef AURORA_WATER_INCLUDED
 #define AURORA_WATER_INCLUDED
 #include "/lib/water_settings.glsl"
+#include "/lib/water_params.glsl"
 #include "/lib/lighting_settings.glsl"
 #include "/lib/sky_palette.glsl"
 #include "/lib/water_waves.glsl"
@@ -12,7 +13,8 @@ float waterFresnel(float normalDotView) {
     // Schlick's angle dependence with a fixed water-like F0; not full transmission.
     float grazing = 1.0 - clamp(normalDotView, 0.0, 1.0);
     float squared = grazing * grazing;
-    return 0.02 + 0.98 * squared * squared * grazing;
+    WaterParams params = waterParams();
+    return params.reflectionF0 + (1.0 - params.reflectionF0) * squared * squared * grazing;
 }
 vec3 applyWaterStyle(vec3 scene, vec3 viewPosition, vec3 normalView, vec2 lightmapUV,
                      int waterSurface, ivec4 blendState, vec3 vanillaFog,
