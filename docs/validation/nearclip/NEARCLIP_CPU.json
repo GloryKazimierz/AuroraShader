@@ -1,0 +1,257 @@
+{
+  "ok": true,
+  "scope": "Independent finite world geometry and simulated D24/RGBA16 shadow samples; CPU only, no Iris/GPU/game.",
+  "accepted_pixels": 26640,
+  "clipped_crossings": 5624,
+  "max_water_length_error_m": 0.00010749891112975252,
+  "cases": [
+    {
+      "light": [
+        0.3,
+        0.9,
+        0.2
+      ],
+      "eye_offset": -0.04,
+      "counts": {
+        "air": 0,
+        "water": 1620,
+        "unknown": 684
+      }
+    },
+    {
+      "light": [
+        0.3,
+        0.9,
+        0.2
+      ],
+      "eye_offset": -0.01,
+      "counts": {
+        "air": 450,
+        "water": 1170,
+        "unknown": 684
+      }
+    },
+    {
+      "light": [
+        0.3,
+        0.9,
+        0.2
+      ],
+      "eye_offset": 0.0,
+      "counts": {
+        "air": 810,
+        "water": 810,
+        "unknown": 684
+      }
+    },
+    {
+      "light": [
+        0.3,
+        0.9,
+        0.2
+      ],
+      "eye_offset": 0.01,
+      "counts": {
+        "air": 1170,
+        "water": 450,
+        "unknown": 684
+      }
+    },
+    {
+      "light": [
+        0.3,
+        0.9,
+        0.2
+      ],
+      "eye_offset": 0.04,
+      "counts": {
+        "air": 1620,
+        "water": 0,
+        "unknown": 684
+      }
+    },
+    {
+      "light": [
+        0.7,
+        0.5,
+        0.3
+      ],
+      "eye_offset": -0.04,
+      "counts": {
+        "air": 0,
+        "water": 1404,
+        "unknown": 900
+      }
+    },
+    {
+      "light": [
+        0.7,
+        0.5,
+        0.3
+      ],
+      "eye_offset": -0.01,
+      "counts": {
+        "air": 390,
+        "water": 1014,
+        "unknown": 900
+      }
+    },
+    {
+      "light": [
+        0.7,
+        0.5,
+        0.3
+      ],
+      "eye_offset": 0.0,
+      "counts": {
+        "air": 702,
+        "water": 702,
+        "unknown": 900
+      }
+    },
+    {
+      "light": [
+        0.7,
+        0.5,
+        0.3
+      ],
+      "eye_offset": 0.01,
+      "counts": {
+        "air": 1014,
+        "water": 390,
+        "unknown": 900
+      }
+    },
+    {
+      "light": [
+        0.7,
+        0.5,
+        0.3
+      ],
+      "eye_offset": 0.04,
+      "counts": {
+        "air": 1404,
+        "water": 0,
+        "unknown": 900
+      }
+    },
+    {
+      "light": [
+        0.9,
+        0.2,
+        0.1
+      ],
+      "eye_offset": -0.04,
+      "counts": {
+        "air": 0,
+        "water": 2304,
+        "unknown": 0
+      }
+    },
+    {
+      "light": [
+        0.9,
+        0.2,
+        0.1
+      ],
+      "eye_offset": -0.01,
+      "counts": {
+        "air": 640,
+        "water": 1664,
+        "unknown": 0
+      }
+    },
+    {
+      "light": [
+        0.9,
+        0.2,
+        0.1
+      ],
+      "eye_offset": 0.0,
+      "counts": {
+        "air": 1152,
+        "water": 1152,
+        "unknown": 0
+      }
+    },
+    {
+      "light": [
+        0.9,
+        0.2,
+        0.1
+      ],
+      "eye_offset": 0.01,
+      "counts": {
+        "air": 1664,
+        "water": 640,
+        "unknown": 0
+      }
+    },
+    {
+      "light": [
+        0.9,
+        0.2,
+        0.1
+      ],
+      "eye_offset": 0.04,
+      "counts": {
+        "air": 2304,
+        "water": 0,
+        "unknown": 0
+      }
+    }
+  ],
+  "negative_controls": [
+    {
+      "label": "missing-water",
+      "reason": "record/depth"
+    },
+    {
+      "label": "unmatched-depth",
+      "reason": "record/depth"
+    },
+    {
+      "label": "opaque-not-separated",
+      "reason": "record/depth"
+    },
+    {
+      "label": "native-overlay",
+      "reason": "native/light"
+    },
+    {
+      "label": "roof",
+      "reason": "record/depth"
+    },
+    {
+      "label": "glass",
+      "reason": "record/depth"
+    },
+    {
+      "label": "bed-too-close",
+      "reason": "bed"
+    },
+    {
+      "label": "shore",
+      "reason": "record/depth"
+    },
+    {
+      "label": "water-step",
+      "reason": "plane"
+    },
+    {
+      "label": "bed-step",
+      "reason": "bed"
+    },
+    {
+      "label": "low-light",
+      "reason": "native/light"
+    }
+  ],
+  "contract": "Four matched top-water samples form a finite quad. Optical shading normals do not define geometry. Unknown and native-overlaid pixels are unchanged.",
+  "limits": [
+    "No arbitrary volume inference",
+    "No information about sub-texel holes absent from all four samples",
+    "No covered/under-roof or bottom-face recovery",
+    "No game near-plane/medium evidence"
+  ]
+}

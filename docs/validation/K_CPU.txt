@@ -1,0 +1,13 @@
+PASS: 1200 live legacy-stage comparisons, three byte-identical bloom pairs and narrowly restored temporal entry
+PASS: 128 planar proof scheduling, resolution and target checks
+PASS: 128 reflection depth-bound scheduling and buffer checks
+PASS: 128 contact/history setting combinations
+PASS: 64 live capability/setting combinations, writer routing, formats, profiles and translations
+PASS: 96 opt-in foam routing, persistent formats and default-off checks
+PASS: 127 exact baseline files after pass rename; 1296 full refraction-off stages preserve foam/glints/flow/contacts
+PASS: player/dimension/radius/one-shot guards;36 loaded chunks before writes;50 bounded block commands and25 verified completion sentinels
+PASS: five authored pool depths (2/16/4/2/4 cells), dry cave dock/roof, glass/ice and open waterfall outlet
+PASS:9 manifest-matched guarded cameras; water-interface/waterfall directions and spectator waterline center/above/below placement
+PASS: isolated Java1.21.11 datapack; no load/tick/schedule/forceload, global game commands or Overworld block writes
+LIMIT: authored data only; commands, fluid settling, camera boundary and Minecraft/Iris appearance remain unobserved
+PASS: 64 temporal gates, exact disabled stages, pre-bloom order and finite clock cases

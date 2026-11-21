@@ -1,0 +1,84 @@
+{
+  "ok": true,
+  "shader_digest": "a3ef48d5c462682935ef891da4773e659acdbe7dc6b0d5816219d5f3ee341b3e",
+  "configurations": [
+    [
+      "composite5",
+      {
+        "WATER_OPTICS": 1,
+        "WATER_TEMPORAL": 1,
+        "IRIS_FEATURE_PER_BUFFER_BLENDING": true
+      }
+    ],
+    [
+      "composite5",
+      {
+        "WATER_OPTICS": 1,
+        "WATER_TEMPORAL": 0,
+        "IRIS_FEATURE_PER_BUFFER_BLENDING": true
+      }
+    ],
+    [
+      "composite5",
+      {
+        "WATER_OPTICS": 0,
+        "WATER_TEMPORAL": 1,
+        "IRIS_FEATURE_PER_BUFFER_BLENDING": true
+      }
+    ],
+    [
+      "composite5",
+      {
+        "WATER_OPTICS": 1,
+        "WATER_TEMPORAL": 1,
+        "IRIS_FEATURE_PER_BUFFER_BLENDING": false
+      }
+    ],
+    [
+      "composite5",
+      {
+        "WATER_OPTICS": 1,
+        "WATER_TEMPORAL": 1,
+        "IRIS_FEATURE_PER_BUFFER_BLENDING": true,
+        "SCENE_COLOR_MODE": 0
+      }
+    ],
+    [
+      "composite5",
+      {
+        "WATER_OPTICS": 1,
+        "WATER_TEMPORAL": 1,
+        "IRIS_FEATURE_PER_BUFFER_BLENDING": true,
+        "DEBUG_VIEW": 8
+      }
+    ],
+    [
+      "composite5",
+      {
+        "WATER_OPTICS": 1,
+        "WATER_TEMPORAL": 1,
+        "IRIS_FEATURE_PER_BUFFER_BLENDING": true,
+        "WATER_STYLE": 0
+      }
+    ],
+    [
+      "composite5",
+      {
+        "WATER_OPTICS": 1,
+        "WATER_TEMPORAL": 1,
+        "IRIS_FEATURE_PER_BUFFER_BLENDING": true,
+        "BLOOM_ENABLED": 0
+      }
+    ],
+    [
+      "composite5",
+      {
+        "WATER_OPTICS": 1,
+        "WATER_TEMPORAL": 1,
+        "IRIS_FEATURE_PER_BUFFER_BLENDING": true,
+        "BLOOM_STRENGTH": 0.0
+      }
+    ]
+  ],
+  "output": "PASS: 9 standalone GLSL program-pair compile/link configurations\nLIMIT: no Iris patcher, Minecraft rendering, GPU execution or performance measurement.\n"
+}

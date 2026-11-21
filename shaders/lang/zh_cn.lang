@@ -263,3 +263,7 @@ value.WATER_UNDERWATER.0=关闭
 value.WATER_UNDERWATER.1=仅实际可见出口
 option.WATER_FFT=双尺度频谱波
 option.WATER_FFT.comment=用两组不同波长模拟水面，水面反光与水底焦散共用法线。需要精细波纹和计算着色能力。
+option.WATER_TEMPORAL=水面时域稳定
+option.WATER_TEMPORAL.comment=在泛光前过滤已确认水面，需要开启水体光学。减少细微闪烁，大幅光照变化会丢弃历史。不是完整 TAA。1080p 约额外占用 63 MiB。
+value.WATER_TEMPORAL.0=关闭
+value.WATER_TEMPORAL.1=开启

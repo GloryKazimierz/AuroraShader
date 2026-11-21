@@ -108,6 +108,14 @@ def water_optics_configurations():
             DEBUG_VIEW=debug,WATER_STYLE=style,IRIS_FEATURE_PER_BUFFER_BLENDING=bool(support))
 
 
+def water_temporal_configurations():
+    enabled=dict(WATER_OPTICS=1,WATER_TEMPORAL=1,IRIS_FEATURE_PER_BUFFER_BLENDING=True)
+    variants=({}, {'WATER_TEMPORAL':0},{'WATER_OPTICS':0},
+        {'IRIS_FEATURE_PER_BUFFER_BLENDING':False},{'SCENE_COLOR_MODE':0},
+        {'DEBUG_VIEW':8},{'WATER_STYLE':0},{'BLOOM_ENABLED':0},{'BLOOM_STRENGTH':0.0})
+    for variant in variants:yield 'composite5',dict(enabled,**variant)
+
+
 def configurations():
     # Every geometry category, prepare and fullscreen path in both storage modes.
     for mode in (0, 1):
@@ -250,6 +258,7 @@ def configurations():
     # M0 keeps every W3 configuration and adds live water diagnostic paths.
     yield from water_debug_configurations()
     yield from water_optics_configurations()
+    yield from water_temporal_configurations()
 
     # M17 adds actual profile selections without replacing prior configurations.
     from validate_settings_profiles import profile_configurations
@@ -259,6 +268,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--compiler', help='Path to installed glslangValidator')
     scope = parser.add_mutually_exclusive_group()
+    scope.add_argument('--water-temporal-only',action='store_true',help='Compile K temporal routes')
     scope.add_argument('--water-optics-only', action='store_true', help='Compile the water optics and capability matrix')
     scope.add_argument('--profiles-only', action='store_true', help='Compile only the actual M17 profile/program pairs')
     scope.add_argument('--water-debug-only', action='store_true', help='Compile only the M0 water diagnostic configurations')
@@ -266,7 +276,9 @@ def main():
     compiler = args.compiler or shutil.which('glslangValidator')
     if not compiler:
         raise SystemExit('glslangValidator unavailable; install separately or pass --compiler. No runtime validation performed.')
-    if args.water_optics_only:
+    if args.water_temporal_only:
+        configs=list(water_temporal_configurations())
+    elif args.water_optics_only:
         configs = list(water_optics_configurations())
     elif args.water_debug_only:
         configs = list(water_debug_configurations())

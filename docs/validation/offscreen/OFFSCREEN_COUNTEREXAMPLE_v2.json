@@ -1,0 +1,109 @@
+{
+  "ok": true,
+  "scope": "Independent analytic 3D boxes and exact rays, NOT Minecraft, not a finite shadow texture, no GPU/FPS claim.",
+  "geometry": {
+    "eye": [
+      0.0,
+      2.0,
+      4.0
+    ],
+    "water_point": [
+      1.0,
+      0.0,
+      -2.0
+    ],
+    "old_target": [
+      2.0,
+      2.0,
+      -8.0
+    ],
+    "previous_pitch": 24.5,
+    "current_pitch": 26.0,
+    "target": [
+      [
+        1.7,
+        1.7,
+        -8.5
+      ],
+      [
+        2.5,
+        2.5,
+        -8.0
+      ]
+    ],
+    "new_middle_obstacle": [
+      [
+        1.8699999999999999,
+        1.8399999999999999,
+        -7.92
+      ],
+      [
+        2.07,
+        2.04,
+        -7.720000000000001
+      ]
+    ],
+    "light_direction": [
+      -0.6917144638660746,
+      0.6917144638660746,
+      0.20751433915982237
+    ]
+  },
+  "observations": {
+    "old_target_previous_uv": [
+      0.6104703739776238,
+      0.9886540544237676
+    ],
+    "old_target_current_uv": [
+      0.6118429325525659,
+      1.0229729557687655
+    ],
+    "water_current_uv": [
+      0.5962025582917942,
+      0.6424035227585334
+    ],
+    "middle_current_corner_uv": [
+      [
+        0.6045902492915832,
+        1.0052724017194195
+      ],
+      [
+        0.60636326029999,
+        1.0049723424175538
+      ],
+      [
+        0.6054475597055298,
+        1.0274343664704837
+      ],
+      [
+        0.6072500064992776,
+        1.0275106267029384
+      ],
+      [
+        0.6157763722104692,
+        1.0052724017194195
+      ],
+      [
+        0.6177390100646948,
+        1.0049723424175538
+      ],
+      [
+        0.6167253735777789,
+        1.0274343664704837
+      ],
+      [
+        0.6187205954296816,
+        1.0275106267029384
+      ]
+    ],
+    "real_target_distance": 6.4031242374328485,
+    "new_obstacle_distance": 6.104311773019316,
+    "old_depth_and_color_identical_between_worlds": true,
+    "current_camera_visible_geometry_identical_between_worlds": true,
+    "current_shadow_depth_at_old_target_matches_both_worlds": true,
+    "endpoint_only_history_test_accepts_wrong_world": true,
+    "exact_light_queries_along_segment_reject_new_caster": true,
+    "noncasting_obstacle_remains_indistinguishable_even_with_exact_shadow_queries": true
+  },
+  "implication": "Endpoint reprojection/shadow validation does not prove the reflected segment. Current noncasting offscreen obstacles are absent from all selected inputs. A hard guarantee requires rejecting this case or additional current visibility data; bounded temporal contribution remains an explicit approximation."
+}

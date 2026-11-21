@@ -102,12 +102,18 @@ class WaterDirectives {
                 if (!route.equals(c[2])) throw new AssertionError(c[1] + " routes to " + route);
                 var formats = new TreeMap<String,String>();
                 for (var v : ConstDirectiveParser.findDirectives(source)) {
-                    if (v.getKey().matches("(colortex(7|8|9|10|11|13|14|15)|shadowcolor0)Format")) formats.put(v.getKey(),v.getValue());
+                    if (v.getKey().matches("(colortex(7|8|9|10|11|12|13|14|15)|shadowcolor0)Format")) formats.put(v.getKey(),v.getValue());
                 }
                 if (!String.join(",", formats.values()).equals(c[3].replace("-","")))
                     throw new AssertionError(c[1] + " formats " + formats);
                 if (c.length>4 && source.contains(c.length>5 ? c[5] : "applyWaterRefractionTransport(") != c[4].equals("1"))
                     throw new AssertionError("Refraction mode expansion: "+c[1]);
+                if (c[1].startsWith("temporal-")) {
+                    var clear=ConstDirectiveParser.findDirectives(source).stream()
+                        .filter(d->d.getKey().equals("colortex12Clear")).map(d->d.getValue()).toList();
+                    if(!clear.equals(c[2].equals("0,12")?List.of("false"):List.of()))
+                        throw new AssertionError("Temporal persistence "+c[1]);
+                }
                 if (c[1].startsWith("foam-")) {
                     var clear=new TreeMap<String,String>();
                     for(var v:ConstDirectiveParser.findDirectives(source)) {
@@ -274,6 +280,13 @@ def verify(work, iris_jar, slf4j_jar):
                 name=program+'.csh'
                 (work/name).write_text(configure(expand(SHADERS/name),opts),encoding='utf-8')
                 lines.append(['fft_compute',name,groups])
+    for mode,support,optics,style,hdr,debug in product((0,1),repeat=6):
+        opts=dict(WATER_TEMPORAL=mode,WATER_OPTICS=optics,WATER_STYLE=style,SCENE_COLOR_MODE=hdr,DEBUG_VIEW=debug*8)
+        opts[FEATURE]=bool(support)
+        active=bool(mode and support and optics and style and hdr and not debug)
+        name='temporal-'+''.join(map(str,(mode,support,optics,style,hdr,debug)))+'.fsh'
+        (work/name).write_text(configure(expand(SHADERS/'composite5.fsh'),opts),encoding='utf-8')
+        lines.append(['shader',name,'0,12' if active else '0','RGBA32F' if active else '-',str(int(active)),'resolveWaterTemporal('])
     (work/'cases.tsv').write_text('\n'.join('\t'.join(row) for row in lines),encoding='utf-8')
     env=dict(os.environ,TEMP=str(work),TMP=str(work),TMPDIR=str(work))
     subprocess.run(['javac','-J-XX:-UsePerfData',f'-J-Djava.io.tmpdir={work}','-cp',cp,str(java)],

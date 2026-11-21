@@ -19,6 +19,7 @@ from compile_glsl import ROOT, SHADERS, expand
 from validate_settings_profiles import (option_definitions, parse_properties, parse_language,
                                        load_profiles, menu_options)
 from validate_water_lab import main as test_lab
+from validate_water_temporal import restore_temporal_entry,test_temporal
 
 BASE = '648c5fcfb13dbe5d47bfbb07db3b903a882fe6bc'
 FEATURE = 'IRIS_FEATURE_PER_BUFFER_BLENDING'
@@ -179,7 +180,10 @@ def test_pack():
                           lambda m: prior(m[1].lstrip('/')), source, flags=re.M)
         for before, after in BLOOM.items():
             for suffix in ('.fsh', '.vsh'):
-                require(tree.read('shaders/'+before+suffix) == (SHADERS/(after+suffix)).read_bytes(),
+                entry=SHADERS/(after+suffix)
+                data=(restore_temporal_entry(entry.read_text(encoding='utf-8')).encode('utf-8')
+                      if entry.name=='composite5.fsh' else entry.read_bytes())
+                require(tree.read('shaders/'+before+suffix).replace(b'\r\n',b'\n')==data.replace(b'\r\n',b'\n'),
                         'Changed bloom program ' + after + suffix)
         old = {Path(n).stem for n in tree.namelist() if n.endswith('.vsh')}
         require(set(entries) == old | {'composite4', 'composite5', 'deferred1', 'prepare1'}, 'Unexpected pass set')
@@ -202,7 +206,7 @@ def test_pack():
                     words = set(re.findall(r'\b\w+\b', a))
                     require(all(ma.get(k)==mb.get(k) for k in words), f'Legacy macro differs: {name}{ext} {case}')
                     checks += 1
-    print(f'PASS: {checks} live legacy-stage comparisons, four byte-identical bloom pairs', flush=True)
+    print(f'PASS: {checks} live legacy-stage comparisons, bloom sources matched after isolating the opt-in temporal hook', flush=True)
     for supported, enabled, style, hdr, debug in product((False,True),(0,1),(0,1),(0,1),(0,7,8,9)):
         case = {FEATURE:supported, 'WATER_OPTICS':enabled, 'WATER_STYLE':style, 'SCENE_COLOR_MODE':hdr, 'DEBUG_VIEW':debug}
         active = bool(supported and enabled and style and hdr and not debug)
@@ -292,7 +296,10 @@ def test_planar_migration(baseline):
             if entry.endswith('/'):continue
             name=entry.removeprefix('shaders/')
             if name not in allowed:
-                require(tree.read(entry).replace(b'\r\n',b'\n')==(SHADERS/renamed(name)).read_bytes().replace(b'\r\n',b'\n'),'Migration changed '+name)
+                path=SHADERS/renamed(name)
+                data=(restore_temporal_entry(path.read_text(encoding='utf-8')).encode('utf-8')
+                      if path.name=='composite5.fsh' else path.read_bytes())
+                require(tree.read(entry).replace(b'\r\n',b'\n')==data.replace(b'\r\n',b'\n'),'Migration changed '+name)
                 pinned+=1
         cases=[{FEATURE:True,'WATER_OPTICS':1,'WATER_REFRACTION':0,'WATER_FOAM':foam,
                 'WATER_CELESTIAL_GLINT':glint,'WATER_FLOW':flow,'WATER_INTERACTIONS':contacts}
@@ -363,6 +370,7 @@ if __name__ == '__main__':
     test_pack()
     test_foam_routes()
     test_underwater_routes()
+    test_temporal()
     if args.migration_base:
         test_planar_migration(args.migration_base)
     test_lab()

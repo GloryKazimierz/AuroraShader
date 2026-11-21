@@ -263,3 +263,7 @@ value.WATER_UNDERWATER.0=Off
 value.WATER_UNDERWATER.1=Observed Exit Only
 option.WATER_FFT=Dual-Cascade Spectral Waves
 option.WATER_FFT.comment=Simulate two wavelength bands with optional compute. Drives water and caustic normals. Requires detailed waves.
+option.WATER_TEMPORAL=Water Temporal Stability
+option.WATER_TEMPORAL.comment=Filters confirmed water before bloom. Requires Water Optics. Reduces subtle flicker; large light changes reject history. Not full TAA. About 63 MiB extra at 1080p.
+value.WATER_TEMPORAL.0=Off
+value.WATER_TEMPORAL.1=On
