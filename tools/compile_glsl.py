@@ -63,14 +63,14 @@ def water_optics_configurations():
     # Foam is an independent overlay after optical transport; local/history paths
     # are exercised with and without refraction and actual receiver shadows.
     for foam, refraction, shadows in product((1,2),(0,1,3),(False,True)):
-        yield 'composite', dict(enabled,WATER_FOAM=foam,WATER_REFRACTION=refraction,
+        yield 'composite1', dict(enabled,WATER_FOAM=foam,WATER_REFRACTION=refraction,
                                 SHADOWS_ENABLED=shadows)
     for foam in (1,2):
         for variant in ({'IRIS_FEATURE_PER_BUFFER_BLENDING':False},{'WATER_OPTICS':0},
                         {'WATER_STYLE':0},{'SCENE_COLOR_MODE':0},{'DEBUG_VIEW':7}):
-            yield 'composite', dict(enabled,WATER_FOAM=foam,**variant)
+            yield 'composite1', dict(enabled,WATER_FOAM=foam,**variant)
     for mode, hdr, debug, support in product((0,1,2,3),(0,1),(0,8),(False,True)):
-        yield 'composite', dict(WATER_OPTICS=1,WATER_REFRACTION=mode,SCENE_COLOR_MODE=hdr,
+        yield 'composite1', dict(WATER_OPTICS=1,WATER_REFRACTION=mode,SCENE_COLOR_MODE=hdr,
                                 DEBUG_VIEW=debug,IRIS_FEATURE_PER_BUFFER_BLENDING=support)
     for current, contacts, detail, capability in product((0,1),repeat=4):
         for name in ('gbuffers_water','prepare1'):
@@ -79,26 +79,31 @@ def water_optics_configurations():
     for caustics,shadows in product((0,1),(False,True)):
         yield 'shadow',dict(enabled,WATER_CAUSTICS=caustics,SHADOWS_ENABLED=shadows)
         for refraction,foam in product((0,1,3),(0,2)):
-            yield 'composite',dict(enabled,WATER_CAUSTICS=caustics,SHADOWS_ENABLED=shadows,
+            yield 'composite1',dict(enabled,WATER_CAUSTICS=caustics,SHADOWS_ENABLED=shadows,
                                    WATER_CELESTIAL_GLINT=1,WATER_FOAM=foam,WATER_REFRACTION=refraction)
     for exits,reflection,foam,feature in product((0,1),(0,1),(0,2),(False,True)):
-        for name in ('gbuffers_water','composite'):
+        for name in ('gbuffers_water','composite1'):
             yield name,dict(enabled,WATER_UNDERWATER=exits,WATER_SCREEN_REFLECTIONS=reflection,
                             WATER_FOAM=foam,WATER_CELESTIAL_GLINT=1,WATER_INTERACTIONS=1,
                             WATER_FLOW=1,WATER_CAUSTICS=1,IRIS_FEATURE_PER_BUFFER_BLENDING=feature)
     for glints,foam,shadows,fog in product((0,1),(0,1,2),(False,True),(0,1)):
-        yield 'composite',dict(enabled,WATER_CELESTIAL_GLINT=glints,WATER_FOAM=foam,SHADOWS_ENABLED=shadows,FOG_ENABLED=fog)
+        yield 'composite1',dict(enabled,WATER_CELESTIAL_GLINT=glints,WATER_FOAM=foam,SHADOWS_ENABLED=shadows,FOG_ENABLED=fog)
     for tiles, ssr, budget in product((0,1),(0,1),(64,128)):
-        for name in ('deferred1','gbuffers_water','composite'):
+        for name in ('deferred1','gbuffers_water','composite1'):
             yield name, dict(enabled,WATER_TRACE_TILES=tiles,WATER_SCREEN_REFLECTIONS=ssr,
                              WATER_REFLECTION_STEPS=budget)
     for clarity, ssr, waves in product((0.5, 1.0, 2.0), (0, 1), (0, 1)):
-        for name in ('composite', 'gbuffers_water'):
+        for name in ('composite1', 'gbuffers_water'):
             yield name, dict(enabled, WATER_CLARITY=clarity, WATER_SCREEN_REFLECTIONS=ssr,
                              WATER_WAVES=waves)
     for palette, shadows, mode in product((0, 1), (False, True), (0, 1)):
         yield 'deferred', dict(enabled, LIGHT_PALETTE=palette, SHADOWS_ENABLED=shadows,
                                SHADOW_BIAS_MODE=mode)
+
+
+    for mode,support,optics,hdr,debug,style in product(range(4),(0,1),(0,1),(0,1),(0,8),(0,1)):
+        yield 'composite', dict(WATER_REFRACTION=mode,WATER_OPTICS=optics,SCENE_COLOR_MODE=hdr,
+            DEBUG_VIEW=debug,WATER_STYLE=style,IRIS_FEATURE_PER_BUFFER_BLENDING=bool(support))
 
 
 def configurations():
@@ -136,7 +141,7 @@ def configurations():
                                 FOG_HEIGHT_FALLOFF=falloff, FOG_RAIN_BOOST=rain)
 
     # M10: active and bypass code in every scene/debug combination on all passes.
-    for program in ('composite1', 'composite2', 'composite3', 'composite4'):
+    for program in ('composite2', 'composite3', 'composite4', 'composite5'):
         for mode, enabled, debug in product((0, 1), (0, 1), range(7)):
             yield program, dict(SCENE_COLOR_MODE=mode, BLOOM_ENABLED=enabled, DEBUG_VIEW=debug)
         # Every threshold/knee choice with zero and maximum intensity; intermediate

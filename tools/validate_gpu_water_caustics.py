@@ -101,7 +101,7 @@ void main(){ivec2 p=ivec2(gl_FragCoord.xy);vec4 a=texelFetch(testWaterShare,p,0)
  result=vec4(waterShadowCausticGain(a.xyz,texelFetch(testBed,p,0).xyz,
  texelFetch(testNormal,p,0).xyz,towardLight,a.w),0,0,1);}
 '''
-    pair=runner.pair('composite',OPTIONS,source)
+    pair=runner.pair('composite1',OPTIONS,source)
     cases=[];all_error=0
     for label,depth,amplitude in (('flat',2.,0.),('curved',2.,.08),('deep-filtered',16.,.02),('deep-disabled',24.,.08)):
         entries=[-5.8+i*11.6/63 for i in range(64)]
@@ -196,7 +196,7 @@ layout(location=0) out vec4 result;
 void main(){vec4 v=texelFetch(testInput,ivec2(gl_FragCoord.xy),0);
  result=vec4(waterTransportRadiance(vec3(.6,.4,.2),v.x,v.y,v.z,.3,.7,vec3(.1,.2,.3),v.w),1);}
 '''
-    pair=runner.pair('composite',OPTIONS,source)
+    pair=runner.pair('composite1',OPTIONS,source)
     cases=[(q,view,light,gain) for q in (0.,.65,1.) for view,light in ((0.,0.),(2.,3.),(12.,16.)) for gain in (.25,1.,3.)]
     rows=[[tuple(map(f32,v)) for v in cases]]
     image=runner.render('direct-only-transport',pair,len(cases),1,[('testInput',rows,'RGBA32F')])
@@ -234,7 +234,7 @@ layout(location=0) out vec4 result;
 void main(){vec2 dx,dy;bool valid=waterCausticPixelFootprint(texelFetch(points,ivec2(gl_FragCoord.xy),0).xyz,
  footprintSize,projection,inverseProjection,inverseView,dx,dy);result=valid?vec4(dx,dy):vec4(-1);}
 '''
-    pair=runner.pair('composite',OPTIONS,source);results=[]
+    pair=runner.pair('composite1',OPTIONS,source);results=[]
     for pitch in (10.,35.,70.):
         angle=math.radians(pitch);sine,cosine=math.sin(angle),math.cos(angle)
         inv=((1.,0.,0.,0.),(0.,cosine,sine,0.),(0.,-sine,cosine,0.),(0.,0.,0.,1.))
@@ -263,7 +263,7 @@ void main(){vec4 f=texelFetch(footprints,ivec2(gl_FragCoord.xy),0);
  result=vec4(waterShadowCausticGain(vec3(.7,0,0),vec3(.7,-2,0),vec3(0,1,0),vec3(0,1,0),.65,f.xy,f.zw),weight,0,1);}
 '''
     values=[(.01,0,0,.01),(.18,0,0,.18),(.2,0,0,.2),(1,0,0,1),(.01,0,0,1),(math.nan,0,0,.01)]
-    image=runner.render('footprint suppression',runner.pair('composite',OPTIONS,source),len(values),1,
+    image=runner.render('footprint suppression',runner.pair('composite1',OPTIONS,source),len(values),1,
                         shadow_scene()+[('footprints',[values],'RGBA32F')],shadow_uniforms())[0]
     require(abs(image[0][0]-1)>.01,'resolved control is not focusing light')
     for i,(value,pixel) in enumerate(zip(values,image)):
@@ -285,9 +285,9 @@ def integrated_tests(runner,plate=None):
     uniforms=scene['uniforms']+shadow_uniforms()
     optional=[n for n,_,_ in textures]+[n for n,_,_ in uniforms]
     options=dict(BASE_OPTIONS,**OPTIONS)
-    pair=runner.pair('composite',dict(options,WATER_CAUSTICS=0))
+    pair=runner.pair('composite1',dict(options,WATER_CAUSTICS=0))
     off=runner.render('M4 production off',pair,scene['width'],scene['height'],textures,uniforms,optional=optional)
-    _,fs=runner.pair('composite',options)
+    _,fs=runner.pair('composite1',options)
     on=runner.render('M4 production on',(pair[0],fs),scene['width'],scene['height'],textures,uniforms,optional=optional)
     changed=0;max_error=0.
     for y,row in enumerate(on):
@@ -344,11 +344,11 @@ def integrated_tests(runner,plate=None):
                 sheet[j+20][col*w:(col+1)*w]=row
         png(plate,sheet)
     negatives=[];max_zero_ulps=0
-    half_off=runner.render('native half off',runner.pair('composite',dict(options,WATER_CAUSTICS=0)),
+    half_off=runner.render('native half off',runner.pair('composite1',dict(options,WATER_CAUSTICS=0)),
         scene['width'],scene['height'],textures,uniforms,storage='RGBA16F',optional=optional)
     for label,overrides in [('strength-zero',{'WATER_CAUSTICS_STRENGTH':0.0}),('waves-off',{'WATER_WAVES':0}),
                             ('wave-strength-zero',{'WATER_WAVE_STRENGTH':0.0})]:
-        _,fragment=runner.pair('composite',dict(options,**overrides))
+        _,fragment=runner.pair('composite1',dict(options,**overrides))
         value=runner.render(label,(pair[0],fragment),scene['width'],scene['height'],textures,uniforms,optional=optional)
         # Zero controls bypass the entire caustic path at its callers. Both
         # FP32 diagnostic and native Iris RGBA16F must now remain exact.
@@ -398,9 +398,9 @@ void main(){ivec2 p=ivec2(gl_FragCoord.xy);vec3 n;
     for storage in (0,1):
         options=dict(OPTIONS)
         fmt='RGBA8' if storage==0 else 'RGBA16'
-        pair=runner.pair('composite',options,caustic_test_source(source,storage))
+        pair=runner.pair('composite1',options,caustic_test_source(source,storage))
         packed=runner.render('actual '+fmt+' packing',pair,len(cases),1,[('inputs',[cases],'RGBA32F')],storage=fmt)
-        unpacked=runner.render('actual '+fmt+' unpacking',runner.pair('composite',options,caustic_test_source(decoder,storage)),len(cases),1,
+        unpacked=runner.render('actual '+fmt+' unpacking',runner.pair('composite1',options,caustic_test_source(decoder,storage)),len(cases),1,
                                [('records',packed,fmt),('depths',[[ (v[3],0,0,1) for v in cases]],'R32F')])
         maximum=0.
         for original,pixel in zip(cases,unpacked[0]):
@@ -408,7 +408,7 @@ void main(){ivec2 p=ivec2(gl_FragCoord.xy);vec3 n;
             error=max(abs(a-b) for a,b in zip(pixel[:3],original[:3]));maximum=max(maximum,error)
             require(error<(.003 if storage==0 else .000015),fmt+': normal quantization exceeded bound')
         bad=[[(0,0,0,0)]*len(cases)]
-        rejected=runner.render('invalid '+fmt,runner.pair('composite',options,caustic_test_source(decoder,storage)),len(cases),1,
+        rejected=runner.render('invalid '+fmt,runner.pair('composite1',options,caustic_test_source(decoder,storage)),len(cases),1,
                                [('records',bad,fmt),('depths',[[ (v[3],0,0,1) for v in cases]],'R32F')])
         require(all(p==(0,0,0,0) for p in rejected[0]),'clear code did not reject')
         length=math.sqrt(1+.51*.51)
@@ -423,10 +423,10 @@ void main(){ivec2 p=ivec2(gl_FragCoord.xy);vec3 n;
 
 def depth_storage_tests(runner):
     probe='#version 330 compatibility\nuniform float testDepth;layout(location=0) out vec4 result;\nvoid main(){gl_FragDepth=testDepth;result=vec4(testDepth,0,0,1); }\n'
-    result=runner.call('--depth-storage-check',*runner.pair('composite',wrapper=probe))
+    result=runner.call('--depth-storage-check',*runner.pair('composite1',wrapper=probe))
     values=result['depth_storage']
     bad=probe.replace('gl_FragDepth=testDepth','gl_FragDepth=0.0')
-    runner.call('--depth-storage-check',*runner.pair('composite',wrapper=bad),expected_failure='depth storage comparison')
+    runner.call('--depth-storage-check',*runner.pair('composite1',wrapper=bad),expected_failure='depth storage comparison')
     prefix='#version 330 compatibility\n'+expand(SHADERS/'lib/water_caustics_packing.glsl')
     encode=prefix+'''
 uniform sampler2D sourceDepth;
@@ -442,9 +442,9 @@ void main(){ivec2 p=ivec2(gl_FragCoord.xy);vec3 n;
     assessment=[]
     for storage in (0,1):
         fmt='RGBA8' if storage==0 else 'RGBA16';options=dict(OPTIONS)
-        records=runner.render('depth source '+fmt,runner.pair('composite',options,caustic_test_source(encode,storage)),len(values),1,
+        records=runner.render('depth source '+fmt,runner.pair('composite1',options,caustic_test_source(encode,storage)),len(values),1,
             [('sourceDepth',[[(v['source'],0,0,1) for v in values]],'R32F')],storage=fmt)
-        pairs=runner.pair('composite',options,caustic_test_source(decode,storage))
+        pairs=runner.pair('composite1',options,caustic_test_source(decode,storage))
         image=runner.render('depth actual '+fmt,pairs,len(values),1,
             [('records',records,fmt),('actualDepth',[[(v['stored'],0,0,1) for v in values]],'R32F')])
         accepted=sum(p[3]==1 for p in image[0])
@@ -494,7 +494,7 @@ def benchmark_tests(runner):
     optional=[n for n,_,_ in textures]+[n for n,_,_ in uniforms]
     results=[];images=[]
     for enabled in (0,1):
-        pair=runner.pair('composite',dict(BASE_OPTIONS,**dict(OPTIONS,WATER_CAUSTICS=enabled)))
+        pair=runner.pair('composite1',dict(BASE_OPTIONS,**dict(OPTIONS,WATER_CAUSTICS=enabled)))
         image=runner.render('M4 GPU cost '+str(enabled),pair,width,height,textures,uniforms,
                             storage='RGBA16F',optional=optional)
         samples=timed_repeat(runner);values=sorted(samples)
@@ -524,13 +524,17 @@ def combined_scene():
     return scene
 
 
-def combined_render(runner,scene,mode,enabled,wrapper=None):
+def combined_render(runner,scene,mode,enabled,wrapper=None,shadow_strength=.08):
     options=dict(BASE_OPTIONS,**dict(OPTIONS,WATER_CAUSTICS=enabled,WATER_REFRACTION=mode))
-    textures=[(n,image,FORMATS.get(n,'RGBA32F')) for n,image in scene['textures'].items()]+shadow_scene(2.,.08,-4.)
+    inputs=scene['textures']
+    if mode>0:
+        from validate_gpu_water_planar import prepare_tiles
+        inputs=prepare_tiles(runner,scene,options)
+    textures=[(n,image,FORMATS.get(n,'RGBA32F')) for n,image in inputs.items()]+shadow_scene(2.,shadow_strength,-4.)
     uniforms=scene['uniforms']+shadow_uniforms()
     optional=[n for n,_,_ in textures]+[n for n,_,_ in uniforms]
     return runner.render('M3 x M4 mode {} caustics {}'.format(mode,enabled),
-        runner.pair('composite',options,wrapper),scene['width'],scene['height'],textures,uniforms,optional=optional)
+        runner.pair('composite1',options,wrapper),scene['width'],scene['height'],textures,uniforms,optional=optional)
 
 
 def analytic_refracted_sample(scene,x,y,ior):
@@ -592,15 +596,39 @@ def combined_tests(runner):
     require(len(queries)>=12 and different>=10,'Insufficient displaced target coverage')
     selected=next(q for q in queries if q['target_q']!=scene['textures']['colortex9'][q['source'][1]][q['source'][0]][0])
     x,y=selected['source'];tx,ty=selected['target']
+    # Changing source q leaves path eligibility intact. Replacing its normal by
+    # a wall deliberately invalidates the whole tile, selecting the strict solver.
+    # Compare each solver against itself, then both against the independent target.
     source_change=copy.deepcopy(scene)
     source_change['textures']['colortex9'][y][x]=(0.,0.,0.,1.)
+    planar=combined_render(runner,source_change,2,1)[y][x]
+    require(planar==images[2,1][y][x],'Planar caustic borrowed screen-source direct light')
+    strict_control=copy.deepcopy(scene)
+    strict_control['textures']['colortex1'][y][x+1]=(1.,.5,.5,1.)
+    strict=combined_render(runner,strict_control,2,1)[y][x]
     source_change['textures']['colortex1'][y][x]=(1.,.5,.5,1.)
-    source_result=combined_render(runner,source_change,2,1)
-    source_error=max(abs(a-b) for a,b in zip(source_result[y][x],images[2,1][y][x]))
-    require(source_error<=2e-7,'Traced receiver borrowed source q or normal')
+    after=combined_render(runner,source_change,2,1)[y][x]
+    require(after==strict,'Strict caustic borrowed source q or normal')
+    expected=analytic_refracted_sample(scene,x,y,1.333)['with_caustics']
+    require(max(abs(p-q) for p,q in zip(after[:3],expected))<.0004,'Fallback missed the independent target')
+    source_error=max(abs(p-q) for p,q in zip(planar,images[2,1][y][x]))
+    solver_delta=max(abs(p-q) for p,q in zip(planar,strict))
     target_zero=copy.deepcopy(scene);target_zero['textures']['colortex9'][ty][tx]=(0.,0.,0.,1.)
     a=combined_render(runner,target_zero,2,0);b=combined_render(runner,target_zero,2,1)
-    require(a[y][x]==b[y][x],'Target-only q zero failed exact caustic neutrality')
+    # The optional shader variants compile separately. Compare the actual HDR
+    # storage bitwise, then bound their full-float diagnostic to one ULP.
+    import struct
+    a0,b0=a[y][x],b[y][x]
+    hdr_equal=struct.pack('<4e',*a0)==struct.pack('<4e',*b0)
+    def float_bits(value):
+        return struct.unpack('<I',struct.pack('<f',value))[0]
+    neutral_ulps=max(abs(float_bits(i)-float_bits(j)) for i,j in zip(a0,b0))
+    require(hdr_equal and neutral_ulps<=1,'Zero target light altered HDR storage or exceeded one FP32 ULP')
+    # Within the same compiled shader, erase all captured caustic evidence.
+    # At confidence one, mix may still round its final subtraction in FP32.
+    no_shadow=combined_render(runner,target_zero,2,1,shadow_strength=0.0)
+    for i,j in zip(no_shadow[y][x],b0):
+        require(abs(float_bits(i)-float_bits(j))<=1,'Zero target light admitted shadow focusing')
     # Three independent channel endpoints / IORs, each tested against its own
     # sampled receiver q and caustic analytic mapping rather than the green ray.
     dispersed=combined_render(runner,scene,3,1);spectral=0;max_spectral=0
@@ -614,7 +642,7 @@ def combined_tests(runner):
     require(spectral>=8,'Insufficient spectral receiver checks')
     return dict(combinations=combos,analytic_queries=queries,
         max_receiver_rgb_error=max_error,source_target_q_differences=different,
-        source_only_change_error=source_error,target_q_zero_exact=True,
+        source_only_change_error=source_error,planar_vs_strict_delta=solver_delta,target_q_zero_hdr_exact=hdr_equal,target_q_zero_fp32_ulps=neutral_ulps,
         spectral_queries=spectral,max_spectral_rgb_error=max_spectral)
 
 
@@ -668,7 +696,7 @@ void main(){
                 ('shadowtex1',[[((.5+(4.+depth)/64.),0.,0.,1.)]*side]*side,'R32F')]
         for active in ((0,1) if not rows else (1,)):
             options=dict(opt,WATER_CAUSTICS=active)
-            rgb=runner.render('caustics on actual W2 waves',runner.pair('composite',options),w,h,textures+shadow,uniforms,
+            rgb=runner.render('caustics on actual W2 waves',runner.pair('composite1',options),w,h,textures+shadow,uniforms,
                               optional=[t[0] for t in textures+shadow+uniforms])
             display=runner.render('wave caustics final',runner.pair('final'),w,h,[('colortex0',rgb,'RGBA32F')])
             rows.append(display_rows(display))

@@ -23,7 +23,7 @@ void main() {
     result = vec4(waterFresnel(cosine), referenceFresnel(cosine), 0.0, 1.0);
 }
 """)
-    row = runner.render('fresnel-W3',runner.pair('composite',wrapper=fragment),1027,1)[0]
+    row = runner.render('fresnel-W3',runner.pair('composite1',wrapper=fragment),1027,1)[0]
     require(all(math.isfinite(p[0]) and p[0]==p[1] for p in row),'Fresnel differs from W3')
     require(row[1][0]==1 and abs(row[-2][0]-.02)<1e-8,'Fresnel endpoints differ')
     return len(row)
@@ -61,7 +61,7 @@ flat out int waterSurface;
     plane_uniforms = [common[name] for name in ('gbufferProjection', 'benchNormal', 'benchEyeHeight')]
     z_shader = '#version 330 compatibility\nlayout(location=0) out vec4 result;\nvoid main(){result=vec4(gl_FragCoord.z,0,0,1);}\n'
     # Separate diagnostic draw measures raster depth independently of the producer.
-    _, fs = runner.pair('composite', wrapper=z_shader)
+    _, fs = runner.pair('composite1', wrapper=z_shader)
     water_z = runner.render('plane-depth', (vertex, fs), WIDTH, HEIGHT, uniforms=plane_uniforms)
     mask = scene['mask']
     atlas = [[(.25, .5, .75, pixel[0]) for pixel in row] for row in mask]

@@ -1,5 +1,6 @@
 #ifndef AURORA_WATER_REFRACTION_TRANSPORT_INCLUDED
 #define AURORA_WATER_REFRACTION_TRANSPORT_INCLUDED
+#include "/lib/water_refraction_tiles.glsl"
 #if WATER_REFRACTION > 0
 vec3 waterRefractedTransport(WaterRefractionHit hit,vec3 surfaceView,vec3 up,
                             float lightCosine,float waterIOR,vec2 levels,vec3 skySource) {
@@ -42,13 +43,13 @@ vec3 applyWaterRefractionTransport(vec3 sameRay,vec3 surfaceView,vec3 up,vec3 no
     greenIOR=1.334682548;
 #endif
     WaterRefractionHit greenHit;
-    if(!traceWaterRefraction(surfaceView,up,normal,1.0,greenIOR,WATER_REFRACTION_STEPS,greenHit))return sameRay;
+    if(!selectWaterRefraction(surfaceView,up,normal,1.0,greenIOR,WATER_REFRACTION_STEPS,greenHit))return sameRay;
     vec3 green=waterRefractedTransport(greenHit,surfaceView,up,lightCosine,greenIOR,levels,skySource);
     vec3 result=mix(sameRay,green,greenHit.confidence);
 #if WATER_DISPERSION == 1
     WaterRefractionHit redHit,blueHit;
-    bool redValid=traceWaterRefraction(surfaceView,up,normal,1.0,1.331667825,WATER_REFRACTION_STEPS,redHit);
-    bool blueValid=traceWaterRefraction(surfaceView,up,normal,1.0,1.339607890,WATER_REFRACTION_STEPS,blueHit);
+    bool redValid=selectWaterRefraction(surfaceView,up,normal,1.0,1.331667825,WATER_REFRACTION_STEPS,redHit);
+    bool blueValid=selectWaterRefraction(surfaceView,up,normal,1.0,1.339607890,WATER_REFRACTION_STEPS,blueHit);
     // A missing color ray falls back to the coherent center result; it never
     // creates a colored hole by borrowing an invalid or foreground sample.
     if(redValid && blueValid) {

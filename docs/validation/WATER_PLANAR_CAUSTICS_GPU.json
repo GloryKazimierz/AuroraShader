@@ -1,0 +1,369 @@
+{
+  "schema": 1,
+  "started_utc": "2026-11-21T19:25:21.967412+00:00",
+  "suite": "water-refracted-caustics",
+  "shader_sha256": "1c20a17f07d969cb1c39e72bf5a79c4bac8a2a4804223c8fdcb75637df63ecb6",
+  "scope": "Native OpenGL synthetic inputs only: no Iris patcher, Minecraft world, render-order/texture-binding integration, screenshots or performance measurement.",
+  "ok": true,
+  "gl": {
+    "vendor": "Intel",
+    "renderer": "Intel(R) Iris(R) Xe Graphics",
+    "version": "3.3.0 - Build 31.0.101.3962",
+    "glsl_version": "3.30 - Build 31.0.101.3962",
+    "major": 3,
+    "minor": 3,
+    "profile_mask": 2,
+    "profile": "compatibility",
+    "max_texture_size": 16384,
+    "max_texture_units": 32,
+    "max_draw_buffers": 8,
+    "max_color_attachments": 8
+  },
+  "build": {
+    "compiler": "g++.exe",
+    "flags": [
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-static"
+    ],
+    "diagnostics": ""
+  },
+  "refracted_caustics": {
+    "combinations": [
+      {
+        "refraction": 0,
+        "caustics": 0,
+        "pixels": 9216
+      },
+      {
+        "refraction": 0,
+        "caustics": 1,
+        "pixels": 9216
+      },
+      {
+        "refraction": 2,
+        "caustics": 0,
+        "pixels": 9216
+      },
+      {
+        "refraction": 2,
+        "caustics": 1,
+        "pixels": 9216
+      }
+    ],
+    "analytic_queries": [
+      {
+        "source": [
+          48,
+          28
+        ],
+        "target": [
+          49,
+          26
+        ],
+        "gain": 0.9425997261899415,
+        "target_q": 0.5
+      },
+      {
+        "source": [
+          56,
+          28
+        ],
+        "target": [
+          57,
+          26
+        ],
+        "gain": 0.9527334197611332,
+        "target_q": 0.125
+      },
+      {
+        "source": [
+          64,
+          28
+        ],
+        "target": [
+          64,
+          26
+        ],
+        "gain": 0.9997439589454545,
+        "target_q": 0.5
+      },
+      {
+        "source": [
+          72,
+          28
+        ],
+        "target": [
+          71,
+          26
+        ],
+        "gain": 1.0539616137494616,
+        "target_q": 0.875
+      },
+      {
+        "source": [
+          80,
+          28
+        ],
+        "target": [
+          79,
+          26
+        ],
+        "gain": 1.0615637842626535,
+        "target_q": 0.5
+      },
+      {
+        "source": [
+          48,
+          32
+        ],
+        "target": [
+          49,
+          29
+        ],
+        "gain": 0.94308981432363,
+        "target_q": 0.5
+      },
+      {
+        "source": [
+          56,
+          32
+        ],
+        "target": [
+          57,
+          29
+        ],
+        "gain": 0.9521299865880822,
+        "target_q": 0.125
+      },
+      {
+        "source": [
+          64,
+          32
+        ],
+        "target": [
+          64,
+          29
+        ],
+        "gain": 0.9998212431811888,
+        "target_q": 0.5
+      },
+      {
+        "source": [
+          72,
+          32
+        ],
+        "target": [
+          71,
+          29
+        ],
+        "gain": 1.054833114911341,
+        "target_q": 0.875
+      },
+      {
+        "source": [
+          80,
+          32
+        ],
+        "target": [
+          79,
+          29
+        ],
+        "gain": 1.0603667259546,
+        "target_q": 0.5
+      },
+      {
+        "source": [
+          48,
+          36
+        ],
+        "target": [
+          49,
+          33
+        ],
+        "gain": 0.9436667426067911,
+        "target_q": 0.8125
+      },
+      {
+        "source": [
+          56,
+          36
+        ],
+        "target": [
+          57,
+          33
+        ],
+        "gain": 0.9515264088519717,
+        "target_q": 0.4375
+      },
+      {
+        "source": [
+          64,
+          36
+        ],
+        "target": [
+          64,
+          33
+        ],
+        "gain": 0.9999006010948915,
+        "target_q": 0.8125
+      },
+      {
+        "source": [
+          72,
+          36
+        ],
+        "target": [
+          71,
+          33
+        ],
+        "gain": 1.0557004583550684,
+        "target_q": 0.25
+      },
+      {
+        "source": [
+          80,
+          36
+        ],
+        "target": [
+          79,
+          33
+        ],
+        "gain": 1.0590180105419758,
+        "target_q": 0.8125
+      },
+      {
+        "source": [
+          48,
+          40
+        ],
+        "target": [
+          49,
+          37
+        ],
+        "gain": 0.944336815882516,
+        "target_q": 0.1875
+      },
+      {
+        "source": [
+          56,
+          40
+        ],
+        "target": [
+          57,
+          37
+        ],
+        "gain": 0.9509234180295315,
+        "target_q": 0.75
+      },
+      {
+        "source": [
+          64,
+          40
+        ],
+        "target": [
+          64,
+          37
+        ],
+        "gain": 0.9999821194285895,
+        "target_q": 0.1875
+      },
+      {
+        "source": [
+          72,
+          40
+        ],
+        "target": [
+          71,
+          37
+        ],
+        "gain": 1.056561658001923,
+        "target_q": 0.5625
+      },
+      {
+        "source": [
+          80,
+          40
+        ],
+        "target": [
+          79,
+          37
+        ],
+        "gain": 1.0575107261681314,
+        "target_q": 0.1875
+      },
+      {
+        "source": [
+          48,
+          44
+        ],
+        "target": [
+          49,
+          40
+        ],
+        "gain": 0.9451068858731727,
+        "target_q": 0.1875
+      },
+      {
+        "source": [
+          56,
+          44
+        ],
+        "target": [
+          57,
+          40
+        ],
+        "gain": 0.9503217579366767,
+        "target_q": 0.75
+      },
+      {
+        "source": [
+          64,
+          44
+        ],
+        "target": [
+          64,
+          40
+        ],
+        "gain": 1.0000659004174342,
+        "target_q": 0.1875
+      },
+      {
+        "source": [
+          72,
+          44
+        ],
+        "target": [
+          71,
+          40
+        ],
+        "gain": 1.057414593487733,
+        "target_q": 0.5625
+      },
+      {
+        "source": [
+          80,
+          44
+        ],
+        "target": [
+          79,
+          40
+        ],
+        "gain": 1.0558378930630614,
+        "target_q": 0.1875
+      }
+    ],
+    "max_receiver_rgb_error": 3.015436706499397e-05,
+    "source_target_q_differences": 22,
+    "source_only_change_error": 0.0,
+    "planar_vs_strict_delta": 2.4139881134033203e-06,
+    "target_q_zero_hdr_exact": true,
+    "target_q_zero_fp32_ulps": 1,
+    "spectral_queries": 25,
+    "max_spectral_rgb_error": 3.005952454243621e-05
+  },
+  "finished_utc": "2026-11-21T19:26:50.852305+00:00"
+}

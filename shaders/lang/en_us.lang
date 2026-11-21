@@ -223,10 +223,10 @@ option.WATER_TRACE_TILES.comment=Skip screen-space reflection walks that cannot 
 
 option.WATER_REFRACTION=Water Refraction
 value.WATER_REFRACTION.0=Off
-value.WATER_REFRACTION.1=64 Steps
-value.WATER_REFRACTION.2=128 Steps
-value.WATER_REFRACTION.3=RGB / 128 Steps
-option.WATER_REFRACTION.comment=Optical water only. Validates a 3x3 footprint per step; RGB can trace three rays. Uncertain targets keep same-ray transport. Cost is not yet measured.
+value.WATER_REFRACTION.1=Validated Planar
+value.WATER_REFRACTION.2=Planar + Strict128 (Experimental)
+value.WATER_REFRACTION.3=RGB Planar
+option.WATER_REFRACTION.comment=Proves horizontal water and bed tiles before analytic refraction. Ordinary/RGB failures keep same-ray transport. Strict128 can be very expensive.
 
 option.WATER_FLOW=Water Currents
 option.WATER_FLOW.comment=Animate ripples downhill on sloping fluid surfaces and falling sheets. Requires optics and detailed waves.

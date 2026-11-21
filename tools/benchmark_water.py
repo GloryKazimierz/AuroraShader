@@ -55,7 +55,7 @@ def measure(runner, scene, width, height):
                            ('transport',{'WATER_OPTICS':1,'WATER_SCREEN_REFLECTIONS':0}),
                            ('transport_ssr64',{'WATER_OPTICS':1,'WATER_TRACE_TILES':0}),
                            ('transport_ssr64_bounds',{'WATER_OPTICS':1,'WATER_TRACE_TILES':1})):
-        pair = runner.pair('composite',dict(options, IRIS_FEATURE_PER_BUFFER_BLENDING=True))
+        pair = runner.pair('composite1',dict(options, IRIS_FEATURE_PER_BUFFER_BLENDING=True))
         output = runner.scratch/(label+'.raw')
         spec = runner.scratch/(label+'.txt')
         inputs=list(texture_lines)

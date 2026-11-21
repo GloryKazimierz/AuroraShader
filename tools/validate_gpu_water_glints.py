@@ -18,7 +18,7 @@ void main(){
     outputLobe=vec4(forward,reverse,waterUnresolvedSlopeVariance(vec2(float(p.x)*.04,0),vec2(0,float(p.x)*.04),1),1);
 }
 '''
-    pair=runner.pair('composite',wrapper=source)
+    pair=runner.pair('composite1',wrapper=source)
     views=[];lights=[]
     for i in range(64):
         angle=math.radians(i*1.3);view=(math.sin(angle),math.cos(angle),0.)
@@ -57,7 +57,7 @@ void main(){
         for enabled in (0,1):
             settings=dict(WATER_OPTICS=1,WATER_CELESTIAL_GLINT=enabled,IRIS_FEATURE_PER_BUFFER_BLENDING=True,
                           WATER_SCREEN_REFLECTIONS=0,WATER_REFLECTION_STRENGTH=0.,SHADOWS_ENABLED=False,FOG_ENABLED=0)
-            img=runner.render(label,runner.pair('composite',settings),w,h,tex,list(uniforms.values()),
+            img=runner.render(label,runner.pair('composite1',settings),w,h,tex,list(uniforms.values()),
                               optional=list(uniforms)+list(scene['textures']))
             out.append(img)
         delta=max(abs(a[i]-b[i]) for ar,br in zip(*out) for a,b in zip(ar,br) for i in range(3))
@@ -96,7 +96,7 @@ def glint_plate(runner,path):
         for active in (0,1):
             opts=dict(WATER_OPTICS=1,IRIS_FEATURE_PER_BUFFER_BLENDING=True,WATER_CELESTIAL_GLINT=active,
                       WATER_SCREEN_REFLECTIONS=0,SHADOWS_ENABLED=False,FOG_ENABLED=0)
-            rgb=runner.render(label,runner.pair('composite',opts),width,height,textures,list(uniforms.values()),
+            rgb=runner.render(label,runner.pair('composite1',opts),width,height,textures,list(uniforms.values()),
                               optional=list(uniforms)+list(scene['textures']))
             display=runner.render('glint final',runner.pair('final'),width,height,[('colortex0',rgb,'RGBA32F')])
             images.append(display_rows(display))
@@ -129,7 +129,7 @@ def foam_overlap_tests(runner):
         for foam,glints in ((0,0),(0,1),(1,0),(1,1)):
             opts=dict(WATER_OPTICS=1,WATER_FOAM=foam,WATER_CELESTIAL_GLINT=glints,IRIS_FEATURE_PER_BUFFER_BLENDING=True,
                       WATER_WAVE_STRENGTH=1.,WATER_SCREEN_REFLECTIONS=0,SHADOWS_ENABLED=False,FOG_ENABLED=0)
-            out[foam,glints]=runner.render('foam covers directional highlight',runner.pair('composite',opts),w,h,
+            out[foam,glints]=runner.render('foam covers directional highlight',runner.pair('composite1',opts),w,h,
                 tex,list(u.values()),optional=list(u)+list(scene['textures']))
         for i in range(h):
             for j in range(w):

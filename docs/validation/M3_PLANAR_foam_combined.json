@@ -1,0 +1,32 @@
+{
+  "ok": true,
+  "shader_sha256": "6387b86b651c2dd230ee2fc946cb587a1ed3e3cb8cd8357edf875e8ba9b7c234",
+  "combined": [
+    {
+      "mode": 1,
+      "refraction_changed": 3678,
+      "foam_changed": 1680,
+      "alpha_exact": true
+    },
+    {
+      "mode": 3,
+      "refraction_changed": 3680,
+      "foam_changed": 1680,
+      "alpha_exact": true
+    }
+  ],
+  "gl": {
+    "vendor": "Intel",
+    "renderer": "Intel(R) Iris(R) Xe Graphics",
+    "version": "3.3.0 - Build 31.0.101.3962",
+    "glsl_version": "3.30 - Build 31.0.101.3962",
+    "major": 3,
+    "minor": 3,
+    "profile_mask": 2,
+    "profile": "compatibility",
+    "max_texture_size": 16384,
+    "max_texture_units": 32,
+    "max_draw_buffers": 8,
+    "max_color_attachments": 8
+  }
+}

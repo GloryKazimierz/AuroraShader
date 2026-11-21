@@ -49,7 +49,7 @@ void main() {
     for k,f in zip(waves,footprints):
         value=pixel_filter(k[:2],f[:2],f[2:])
         expected.append((value,value,value,1))
-    actual=runner.render('filtered-wave-pixel-filter',runner.pair('composite',wrapper=direct),
+    actual=runner.render('filtered-wave-pixel-filter',runner.pair('composite1',wrapper=direct),
                          width,height,[('testWave',rows(waves),'RGBA32F'),
                                        ('testFootprint',rows(footprints),'RGBA32F')])
     comparisons=[compare(actual,rows(expected),'filtered-wave-pixel-filter',absolute=4e-7)]
@@ -139,10 +139,10 @@ void main() {
         if not options['WATER_WAVES'] or strength==0:
             optional=[name for name,_,_ in uniforms if name not in ('testNormal','testDiscard')]
         elif speed==0: optional=['frameTimeCounter']
-        got=runner.render(label,runner.pair('composite',options,normal_wrapper),width,height,
+        got=runner.render(label,runner.pair('composite1',options,normal_wrapper),width,height,
                           uniforms=uniforms,optional=optional)
         if options['WATER_SURFACE_DETAIL']==0:
-            old=runner.render(label+'-reference',runner.pair('composite',options,legacy_wrapper),
+            old=runner.render(label+'-reference',runner.pair('composite1',options,legacy_wrapper),
                               width,height,uniforms=uniforms,optional=optional)
             comparisons.append(compare(got,old,label+'-exact-original'))
             expected=old
@@ -178,14 +178,14 @@ void main() {
         if case.get('derivative'):
             dopt=[name for name,_,_ in uniforms if name not in
                   ('gbufferModelViewInverse','testOrigin','testStepX','testStepY','testDiscard')]
-            derivative=runner.render(label+'-derivative',runner.pair('composite',options,derivative_wrapper),
+            derivative=runner.render(label+'-derivative',runner.pair('composite1',options,derivative_wrapper),
                                      width,height,uniforms=uniforms,optional=dopt)
             want=[[sentinel if case.get('discard') and (x+y)%3==0 else dx+dy
                    for x in range(width)] for y in range(height)]
             comparisons.append(compare(derivative,want,label+'-actual-derivative'))
             derivative_samples+=width*height
         if case['label']=='near':
-            legacy=runner.render(label+'-old-comparison',runner.pair('composite',options,legacy_wrapper),
+            legacy=runner.render(label+'-old-comparison',runner.pair('composite1',options,legacy_wrapper),
                                  width,height,uniforms=uniforms)
             detail_changed=sum(got[y][x]!=legacy[y][x] for y in range(height) for x in range(width))
             require(detail_changed>0,'Near detail did not alter normals')

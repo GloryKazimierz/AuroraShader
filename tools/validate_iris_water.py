@@ -38,6 +38,17 @@ class WaterDirectives {
                 settings++;
                 continue;
             }
+            if (c[0].equals("planar")) {
+                var env=new ArrayList<StringPair>();
+                for(int i=2;i<c.length;i++){String[] p=c[i].split("=",2);env.add(new StringPair(p[0],p[1]));}
+                var loaded=new Properties();
+                loaded.load(new StringReader(PropertiesPreprocessor.preprocessSource(properties,env)));
+                boolean active=c[1].equals("1");
+                if(!loaded.getProperty("program.composite.enabled","true").equals(Boolean.toString(active))
+                   || !Objects.equals(loaded.getProperty("size.buffer.colortex11"),active?"0.125 0.125":null))
+                    throw new AssertionError("Planar proof dispatch: "+line);
+                settings++;continue;
+            }
             if (c[0].equals("contact")) {
                 var env=new ArrayList<StringPair>();
                 for (int i=2;i<c.length;i++) {
@@ -60,7 +71,7 @@ class WaterDirectives {
                 if (!route.equals(c[2])) throw new AssertionError(c[1] + " routes to " + route);
                 var formats = new TreeMap<String,String>();
                 for (var v : ConstDirectiveParser.findDirectives(source)) {
-                    if (v.getKey().matches("(colortex(7|8|9|10|13|14|15)|shadowcolor0)Format")) formats.put(v.getKey(),v.getValue());
+                    if (v.getKey().matches("(colortex(7|8|9|10|11|13|14|15)|shadowcolor0)Format")) formats.put(v.getKey(),v.getValue());
                 }
                 if (!String.join(",", formats.values()).equals(c[3].replace("-","")))
                     throw new AssertionError(c[1] + " formats " + formats);
@@ -85,7 +96,7 @@ class WaterDirectives {
             var loaded = new Properties();
             loaded.load(new StringReader(PropertiesPreprocessor.preprocessSource(properties, env)));
             boolean active = c[1].equals("1");
-            if (!loaded.getProperty("program.composite.enabled","true").equals(Boolean.toString(active)))
+            if (!loaded.getProperty("program.composite1.enabled","true").equals(Boolean.toString(active)))
                 throw new AssertionError("Water pass enable: "+line);
             boolean bounds=c[3].equals("1");
             if (!loaded.getProperty("program.deferred1.enabled","true").equals(Boolean.toString(bounds))
@@ -134,7 +145,7 @@ def verify(work, iris_jar, slf4j_jar):
     for index,opts in enumerate(variants):
         for path in sorted(SHADERS.glob('*.fsh')):
             name=path.stem
-            if not name.startswith('gbuffers_') and name not in ('deferred','deferred1','composite'):
+            if not name.startswith('gbuffers_') and name not in ('deferred','deferred1','composite','composite1'):
                 continue
             active=index==0
             target='0'
@@ -161,9 +172,17 @@ def verify(work, iris_jar, slf4j_jar):
         options={'WATER_REFRACTION':mode,FEATURE:bool(support),'WATER_OPTICS':optics,
                  'SCENE_COLOR_MODE':hdr,'DEBUG_VIEW':debug}
         filename=f'refract-{mode}-{support}-{optics}-{hdr}-{debug}.fsh'
-        (work/filename).write_text(configure(expand(SHADERS/'composite.fsh'),options),encoding='utf-8')
+        (work/filename).write_text(configure(expand(SHADERS/'composite1.fsh'),options),encoding='utf-8')
         active=support and optics and hdr and not debug and mode>0
         lines.append(['shader',filename,'0','-',str(int(bool(active)))])
+    for mode,support,optics,hdr,style,debug in product(range(4),(0,1),(0,1),(0,1),(0,1),(0,8)):
+        options={'WATER_REFRACTION':mode,'WATER_OPTICS':optics,'SCENE_COLOR_MODE':hdr,'WATER_STYLE':style,'DEBUG_VIEW':debug}
+        if support:options[FEATURE]=1
+        active=bool(mode and support and optics and hdr and style and not debug)
+        filename=f'planar-{mode}-{support}-{optics}-{hdr}-{style}-{debug}.fsh'
+        (work/filename).write_text(configure(expand(SHADERS/'composite.fsh'),options),encoding='utf-8')
+        lines.append(['shader',filename,'11' if active else '0','RGBA32F' if active else '-'])
+        lines.append(['planar',str(int(active)),*(f'{k}={v}' for k,v in options.items())])
     for enabled,support,optics,detail,hdr,style,debug in product((0,1),repeat=7):
         options={'WATER_INTERACTIONS':enabled,'WATER_OPTICS':optics,'WATER_SURFACE_DETAIL':detail,
                  'SCENE_COLOR_MODE':hdr,'WATER_STYLE':style,'DEBUG_VIEW':8*debug}
@@ -180,7 +199,7 @@ def verify(work, iris_jar, slf4j_jar):
     for foam,glint,support,optics in product((0,1,2),(0,1),(0,1),(0,1)):
         opts={'WATER_OPTICS':optics,FEATURE:bool(support),'WATER_FOAM':foam,'WATER_CELESTIAL_GLINT':glint}
         filename=f'foam-{foam}-{glint}-{support}-{optics}.fsh'
-        (work/filename).write_text(configure(expand(SHADERS/'composite.fsh'),opts),encoding='utf-8')
+        (work/filename).write_text(configure(expand(SHADERS/'composite1.fsh'),opts),encoding='utf-8')
         history=bool(foam==2 and support and optics)
         highlight=bool(glint and support and optics)
         lines.append(['shader',filename,'0,13,14' if history else '0','RGBA16F,RG32F' if history else '-',
@@ -206,7 +225,7 @@ def verify(work, iris_jar, slf4j_jar):
         opts[FEATURE]=bool(support)
         optical=bool(optics and support)
         on=optical and bool(enabled)
-        for program,target,marker in [('composite','0','resolveWaterUnderwater('),
+        for program,target,marker in [('composite1','0','resolveWaterUnderwater('),
                                       ('gbuffers_water','0,7,8' if optical else '0','captureWaterExitSurface(')]:
             name=f'exit-{program}-{enabled}-{support}-{optics}.fsh'
             (work/name).write_text(configure(expand(SHADERS/(program+'.fsh')),opts),encoding='utf-8')

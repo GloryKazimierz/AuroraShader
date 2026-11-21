@@ -2,7 +2,7 @@
 
 AuroraShader pairs azure days, coral sunsets and indigo nights with world-anchored water motion. Select **Shader Pack Settings → Water / Coastal (Medium)** to see currents, wakes, local foam and sun/moon glints. **Water → Water Body** offers freshwater, glacial turquoise, amber woodland streams and blue open sea. Use **Water / Caustics (Ultra)** for illuminated beds and persistent foam.
 
-[Four water bodies at three depths](docs/validation/WATER_MATERIALS_views.png) · [中文画质与水色指南](docs/WATER_MATERIALS_AND_PRESETS.zh-CN.md) · [Optical transport](docs/WATER_M1_OPTICS.md) · [Reflections](docs/WATER_M2_REFLECTION_STABILITY.md)
+[Four water bodies at three depths](docs/validation/WATER_MATERIALS_views.png) · [中文画质与水色指南](docs/WATER_MATERIALS_AND_PRESETS.zh-CN.md) · [水管线、缓冲与观察视角](docs/WATER_PIPELINE.zh-CN.md) · [Optical transport](docs/WATER_M1_OPTICS.md) · [Reflections](docs/WATER_M2_REFLECTION_STABILITY.md)
 
 Water M0 on `codex/water-04a-optics-foundation` builds on the
 [W3 scene reflection](https://github.com/GloryKazimierz/AuroraShader/commit/df94fe404146c1364920f709569898359c84c8ed).
@@ -235,7 +235,7 @@ Base-330 by Balint supplied the original geometry foundation:
 Its [Unlicense](LICENSE) is retained. Iris references accompany the relevant
 equations and interface contracts in the learning notes.
 
-[Water refraction](docs/WATER_M3_REFRACTION.md) · [水面折射与三视角对照](docs/WATER_M3_REFRACTION.zh-CN.md)
+[Validated planar refraction](docs/WATER_M3_PLANAR.md) · [水面折射与三视角对照](docs/WATER_M3_PLANAR.zh-CN.md)
 
 [Animated currents and water contact](docs/WATER_CURRENTS.md) · [河流、瀑布和涉水涟漪](docs/WATER_CURRENTS.zh-CN.md)
 

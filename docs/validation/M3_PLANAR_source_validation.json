@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "shader_sha256": "6387b86b651c2dd230ee2fc946cb587a1ed3e3cb8cd8357edf875e8ba9b7c234",
+  "baseline": "9b188fa96401c5108dc9c0a33830d69fb87eb968",
+  "scope": "Observed source/CPU, offline GLSL and installed Iris parser checks; no game execution.",
+  "cpu": {
+    "legacy_stages": 1200,
+    "baseline_exact_files": 127,
+    "refraction_off_complete_stages": 1296,
+    "foam_routes": 96,
+    "planar_dispatch": 128,
+    "original_M0_historical_suite_passed": true,
+    "lab_cameras": 9
+  },
+  "offline_compile_link_configurations": 2562,
+  "installed_iris": {
+    "version": "1.10.5+mc1.21.11",
+    "fragments": 304,
+    "property_combinations": 512
+  },
+  "python_sources": 42,
+  "whitespace_check_passed": true
+}

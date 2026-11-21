@@ -27,7 +27,7 @@ void main(){
     width,height=64,48
     projection=tuple(tuple(map(f32,row)) for row in perspective_matrix(70,width/height,.05,128))
     inverse=tuple(tuple(map(f32,row)) for row in inverse_matrix(projection))
-    pair=runner.pair("composite",wrapper=source)
+    pair=runner.pair("composite1",wrapper=source)
     results=[]
     for geometry in ("flat-x","flat-y","flat-corner","flat-slanted","depth-step","crease","constant","invalid-neighbor"):
         color=[];depth=[];share=[]
@@ -120,7 +120,7 @@ void main(){
     sky['depth']=sky['opaque_depth']=[[1.]*w for _ in range(h)]
     cases.append(('observed-sky-still-unresolved',sky,0))
     results=[]
-    pair=runner.pair('composite',dict(WATER_OPTICS=1,WATER_REFLECTION_STEPS=128),source)
+    pair=runner.pair('composite1',dict(WATER_OPTICS=1,WATER_REFLECTION_STEPS=128),source)
     for name,fixture,want in cases:
         textures=[('colortex5',fixture['color'],'RGBA16F'),
                   ('colortex6',[[(v,0.,0.,1.) for v in row] for row in fixture['depth']],'R32F'),
@@ -214,7 +214,7 @@ void main(){
 }
 """
     options=dict(WATER_OPTICS=1,SKY_STYLE=1,FOG_ENABLED=0,WATER_SCREEN_REFLECTIONS=1,WATER_REFLECTION_STRENGTH=.5)
-    pair=runner.pair('composite',options,classifier)
+    pair=runner.pair('composite1',options,classifier)
     all_images={};records=[]
     for kind in ('unknown','contaminated','open'):
         scene=roof_scene(kind)
@@ -308,7 +308,7 @@ def roof_plate(runner,path):
         previous_source=previous('composite.fsh')
     options=dict(WATER_OPTICS=1,IRIS_FEATURE_PER_BUFFER_BLENDING=True,
                  FOG_ENABLED=0,WATER_SCREEN_REFLECTIONS=1,WATER_REFLECTION_STRENGTH=.5)
-    pairs=[runner.pair('composite',options,previous_source),runner.pair('composite',options)]
+    pairs=[runner.pair('composite1',options,previous_source),runner.pair('composite1',options)]
     width,height=128,72
     sheet=[[(18,24,30)]*(width*3) for _ in range((height+18)*3+20)]
     draw_text(sheet,4,6,'M1 / M2 / DISPLAY DELTA X12    SYNTHETIC ROOF')

@@ -1,0 +1,270 @@
+{
+  "schema": 1,
+  "started_utc": "2026-11-21T18:55:18.226257+00:00",
+  "suite": "water-foam",
+  "shader_sha256": "6387b86b651c2dd230ee2fc946cb587a1ed3e3cb8cd8357edf875e8ba9b7c234",
+  "scope": "Native OpenGL synthetic inputs only: no Iris patcher, Minecraft world, render-order/texture-binding integration, screenshots or performance measurement.",
+  "ok": true,
+  "gl": {
+    "vendor": "Intel",
+    "renderer": "Intel(R) Iris(R) Xe Graphics",
+    "version": "3.3.0 - Build 31.0.101.3962",
+    "glsl_version": "3.30 - Build 31.0.101.3962",
+    "major": 3,
+    "minor": 3,
+    "profile_mask": 2,
+    "profile": "compatibility",
+    "max_texture_size": 16384,
+    "max_texture_units": 32,
+    "max_draw_buffers": 8,
+    "max_color_attachments": 8
+  },
+  "build": {
+    "compiler": "g++.exe",
+    "flags": [
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-static"
+    ],
+    "diagnostics": ""
+  },
+  "water_foam": {
+    "scope": "M5 staged foam model: independent derivative, lifecycle and non-emission checks.",
+    "flow": {
+      "samples": 192,
+      "comparisons": [
+        {
+          "label": "flow speed 0.0 output 0",
+          "channels": 256,
+          "max_absolute_error": 5.770138409300074e-07,
+          "max_tolerance_fraction": 0.019146725775275323,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 3e-05,
+            "relative": 1e-06
+          }
+        },
+        {
+          "label": "flow speed 0.0 output 1",
+          "channels": 256,
+          "max_absolute_error": 2.9938605106138994e-07,
+          "max_tolerance_fraction": 0.009651270633031625,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 3e-05,
+            "relative": 1e-06
+          }
+        },
+        {
+          "label": "flow speed 0.0 output 2",
+          "channels": 256,
+          "max_absolute_error": 3.637989593130442e-06,
+          "max_tolerance_fraction": 0.05473709521982167,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 3e-05,
+            "relative": 1e-06
+          }
+        },
+        {
+          "label": "flow speed 1.0 output 0",
+          "channels": 256,
+          "max_absolute_error": 8.987903846860434e-06,
+          "max_tolerance_fraction": 0.2991124780022983,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 3e-05,
+            "relative": 1e-06
+          }
+        },
+        {
+          "label": "flow speed 1.0 output 1",
+          "channels": 256,
+          "max_absolute_error": 8.789036818404594e-06,
+          "max_tolerance_fraction": 0.29288378355882577,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 3e-05,
+            "relative": 1e-06
+          }
+        },
+        {
+          "label": "flow speed 1.0 output 2",
+          "channels": 256,
+          "max_absolute_error": 1.0964049607764537e-05,
+          "max_tolerance_fraction": 0.2168222672800003,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 3e-05,
+            "relative": 1e-06
+          }
+        },
+        {
+          "label": "flow speed 2.0 output 0",
+          "channels": 256,
+          "max_absolute_error": 1.7833699568862993e-05,
+          "max_tolerance_fraction": 0.5933116391560174,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 3e-05,
+            "relative": 1e-06
+          }
+        },
+        {
+          "label": "flow speed 2.0 output 1",
+          "channels": 256,
+          "max_absolute_error": 1.613020616877958e-05,
+          "max_tolerance_fraction": 0.5373643866852748,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 3e-05,
+            "relative": 1e-06
+          }
+        },
+        {
+          "label": "flow speed 2.0 output 2",
+          "channels": 256,
+          "max_absolute_error": 2.008274630327378e-05,
+          "max_tolerance_fraction": 0.5783668617185614,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 3e-05,
+            "relative": 1e-06
+          }
+        }
+      ],
+      "derivative_reference": "Central differences of independent position-only map",
+      "contraction_bound": 0.1778662223655442,
+      "minimum_area_bound": 0.6759039483275009
+    },
+    "lifecycle": {
+      "cases": 11,
+      "comparison": {
+        "label": "foam decay/reset",
+        "channels": 44,
+        "max_absolute_error": 5.165735883494449e-08,
+        "max_tolerance_fraction": 0.055347170180297674,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 3e-07,
+          "relative": 1e-06
+        }
+      }
+    },
+    "lighting": {
+      "cases": 6,
+      "comparison": {
+        "label": "foam diffuse illumination",
+        "channels": 24,
+        "max_absolute_error": 6.334075308700449e-08,
+        "max_tolerance_fraction": 0.05294453110210815,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 3e-07,
+          "relative": 1e-06
+        }
+      }
+    },
+    "local_composite": {
+      "changed_water_pixels": 4600,
+      "shore_only_changed_pixels": 1153,
+      "shadow_response_pixels": 4602,
+      "invalid_cases": [
+        "two-water",
+        "overlay",
+        "front-mismatch",
+        "invalid-normal",
+        "underwater",
+        "lava",
+        "zero-up",
+        "zero-light"
+      ],
+      "alpha_exact": true,
+      "land_unchanged": true,
+      "unlit_cave_black": true,
+      "plate": "D:\\MinecraftShaders\\AuroraShader-staging\\aurora-gpu-pjy67app\\M5_local_foam.png"
+    },
+    "history": {
+      "pixels": 247,
+      "history_formats": [
+        "RGBA16F",
+        "RG32F"
+      ],
+      "state": {
+        "label": "M5 real RGBA16F history",
+        "channels": 988,
+        "max_absolute_error": 6.510503590106964e-05,
+        "max_tolerance_fraction": 0.26558240153409757,
+        "tolerance": {
+          "half_ulps": 2,
+          "absolute": 1e-06,
+          "relative": 0.0
+        }
+      },
+      "color": {
+        "label": "M5 stored-history actual composite blend",
+        "channels": 988,
+        "max_absolute_error": 7.711046068337168e-08,
+        "max_tolerance_fraction": 0.0018191540114963344,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 3e-05,
+          "relative": 2e-05
+        }
+      },
+      "exact_depth_frame": true,
+      "reset_controls": [
+        "cleared-on-allocation",
+        "clear-stamp-after-resize",
+        "stale-frame",
+        "occluded-old-depth",
+        "opposite-normal",
+        "expired-age",
+        "bad-history-size",
+        "long-frame",
+        "camera-teleport",
+        "different-FOV",
+        "camera-rotation-cut"
+      ],
+      "reprojections": [
+        {
+          "label": "camera-translation",
+          "changed_history_cells": 202,
+          "comparison": {
+            "label": "camera-translation independent world plane reprojection",
+            "channels": 988,
+            "max_absolute_error": 0.00026290766268077803,
+            "max_tolerance_fraction": 0.4579437048678984,
+            "tolerance": {
+              "half_ulps": 2,
+              "absolute": 1e-06,
+              "relative": 0.0
+            }
+          }
+        },
+        {
+          "label": "camera-yaw",
+          "changed_history_cells": 203,
+          "comparison": {
+            "label": "camera-yaw independent world plane reprojection",
+            "channels": 988,
+            "max_absolute_error": 0.00022406326834739643,
+            "max_tolerance_fraction": 0.4579437048678984,
+            "tolerance": {
+              "half_ulps": 2,
+              "absolute": 1e-06,
+              "relative": 0.0
+            }
+          }
+        }
+      ],
+      "quantized_frame_chain": true,
+      "cost_MiB_1080p_double_buffer": 63.28125,
+      "scope": "Actual mixed MRT composite and readback-fed next frame; Iris allocation/flipping not executed"
+    }
+  },
+  "finished_utc": "2026-11-21T18:59:12.367492+00:00"
+}

@@ -62,7 +62,7 @@ void main() {
                 [[tuple(e['radiance'])+(float(e['steps']),) for e in expected]],
             ]
             label='screen-reflection-{}-{}'.format(name,budget)
-            pair=runner.pair('composite',dict(WATER_SCREEN_REFLECTIONS=1,
+            pair=runner.pair('composite1',dict(WATER_SCREEN_REFLECTIONS=1,
                                              WATER_REFLECTION_STEPS=budget),helper)
             actual=[]
             for slot,want in enumerate(outputs):
@@ -189,9 +189,9 @@ void main() {
             off_optional=optional+['colortex5','colortex6','depthtex1','gbufferProjection','gbufferProjectionInverse']
             if not options['SKY_STYLE'] or options['SKY_BLEND']==0:
                 off_optional+=['testSurfaces','testNormal','upPosition']
-        off=runner.render('water-style-'+name+'-off',runner.pair('composite',dict(options,WATER_SCREEN_REFLECTIONS=0),source),
+        off=runner.render('water-style-'+name+'-off',runner.pair('composite1',dict(options,WATER_SCREEN_REFLECTIONS=0),source),
                           8,1,textures,uniforms,optional=off_optional)
-        on=runner.render('water-style-'+name+'-on',runner.pair('composite',dict(options,WATER_SCREEN_REFLECTIONS=1),source),
+        on=runner.render('water-style-'+name+'-on',runner.pair('composite1',dict(options,WATER_SCREEN_REFLECTIONS=1),source),
                          8,1,textures,uniforms,optional=optional)
         expected=[];hits=0
         for i,point in enumerate(surfaces[0]):

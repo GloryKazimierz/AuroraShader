@@ -54,7 +54,7 @@ void main(){
  color=vec4(material,flow.areaRatio,ok?1.0:0.0);}
 }
 """
-    pair=runner.pair('composite',wrapper=source)
+    pair=runner.pair('composite1',wrapper=source)
     textures=[('query',[[a for a,b in cases]],'RGBA32F'),('footprint',[[b for a,b in cases]],'RGBA32F')]
     records=[]
     for speed in (0.,1.,2.):
@@ -107,7 +107,7 @@ float v=waterFoamEvolve(q.x,q.y,q.z,q.w,texelFetch(flags,p,0).r==1.0,age);color=
             expected.append((e,0,0,1));continue
         value=old*2**(-dt/.65)
         expected.append((value,age+dt,0,1) if value>e else (e,0,0,1))
-    image=runner.render('foam-life',runner.pair('composite',wrapper=source),len(cases),1,
+    image=runner.render('foam-life',runner.pair('composite1',wrapper=source),len(cases),1,
         [('inputs',[[c[:4] for c in cases]],'RGBA32F'),('flags',[[(c[4],0,0,0) for c in cases]],'RGBA32F')])
     result=compare(image,[expected],'foam decay/reset',absolute=3e-7,relative=1e-6)
     # Independent exponential evolution is frame-rate invariant absent fresh evidence.
@@ -139,7 +139,7 @@ texelFetch(lampInput,p,0).rgb,q.x,q.y,q.z,q.w),1);}
     for sky,direct,lamp,(s,b,n,v) in cases:
         expected.append(tuple(albedo/math.pi*(sky[i]*s+direct[i]*s*n*v+lamp[i]*b**3)
                               for i,albedo in enumerate((.88,.91,.92)))+(1,))
-    image=runner.render('foam-lighting',runner.pair('composite',wrapper=source),len(cases),1,textures)
+    image=runner.render('foam-lighting',runner.pair('composite1',wrapper=source),len(cases),1,textures)
     result=compare(image,[expected],'foam diffuse illumination',absolute=3e-7,relative=1e-6)
     require(image[0][0]==(0,0,0,1) and image[0][4]==(0,0,0,1),'Unlit foam emitted light')
     require(all(a>b for a,b in zip(image[0][1][:3],image[0][2][:3])),'Foam ignored shadow visibility')
@@ -246,7 +246,7 @@ def history_tests(runner):
     formats=dict(m1.FORMATS,colortex13='RGBA16F',colortex14='RG32F')
     options=dict(m1.BASE_OPTIONS,IRIS_FEATURE_PER_BUFFER_BLENDING=True,WATER_FOAM=2,
                  WATER_WAVES=0,SHADOWS_ENABLED=False)
-    pair=runner.pair('composite',options)
+    pair=runner.pair('composite1',options)
     def render(data,target):
         textures=[(name,image,formats[name]) for name,image in data['textures'].items()]
         return runner.render('M5 history target '+str(target),pair,w,h,textures,data['uniforms'],

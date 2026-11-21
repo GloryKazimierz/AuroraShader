@@ -47,7 +47,7 @@ layout(location=1) out vec4 record;
 layout(location=2) out vec4 count;
 void main(){color=nativeColor;record=recordValue;count=countValue;}
 """
-    result = runner.call("--water-blend-check", *runner.pair("composite", wrapper=source))
+    result = runner.call("--water-blend-check", *runner.pair("composite1", wrapper=source))
     # Deliberately wrong additive count and metadata outputs must fail. This
     # proves the protocol check observes its attachments instead of just linking.
     rejected = []
@@ -58,7 +58,7 @@ void main(){color=nativeColor;record=recordValue;count=countValue;}
         # Keep countValue active so the first negative reaches the comparison.
         if label == "missing count":
             new = "count=countValue*0.5"
-        pair = runner.pair("composite", wrapper=source.replace(old, new))
+        pair = runner.pair("composite1", wrapper=source.replace(old, new))
         runner.call("--water-blend-check", *pair, expected_failure="water blend comparison")
         rejected.append(label)
     return dict(**result["water_blend"], negative_controls=rejected)
@@ -94,7 +94,7 @@ void main(){
               for index,name in enumerate(("sourceShare","pathsLight","inputSky"))]
     comparisons=[]
     for clarity in (.5,1.0,2.0):
-        pair=runner.pair("composite",dict(WATER_OPTICS=1,WATER_CLARITY=clarity,IRIS_FEATURE_PER_BUFFER_BLENDING=True),source)
+        pair=runner.pair("composite1",dict(WATER_OPTICS=1,WATER_CLARITY=clarity,IRIS_FEATURE_PER_BUFFER_BLENDING=True),source)
         image=runner.render("M1-pure-transport",pair,len(cases),1,textures)
         expected=[[analytical_transport(a[:3],a[3],b[0],b[1],b[2],b[3],c[:3],clarity)+(1.,)
                    for a,b,c in cases]]
@@ -180,6 +180,7 @@ def slab_scene(width=13, height=9, depth=2., pitch=65., sky=1., block=0.,
 
 FORMATS={"colortex0":"RGBA32F","colortex5":"RGBA16F","colortex6":"R32F","colortex7":"RGBA32F",
          "colortex8":"RGBA8","colortex9":"R16F","depthtex0":"R32F","depthtex1":"R32F"}
+FORMATS.update({"colortex1":"RGBA16","colortex11":"RGBA32F"})
 BASE_OPTIONS=dict(WATER_OPTICS=1,FOG_ENABLED=0,WATER_REFLECTION_STRENGTH=0.0,
                   WATER_SCREEN_REFLECTIONS=0,SKY_STYLE=0)
 
@@ -187,11 +188,15 @@ BASE_OPTIONS=dict(WATER_OPTICS=1,FOG_ENABLED=0,WATER_REFLECTION_STRENGTH=0.0,
 def render_resolve(runner, scene, options=None, capability=True, label="M1-resolve"):
     options=dict(BASE_OPTIONS,**(options or {}))
     options["IRIS_FEATURE_PER_BUFFER_BLENDING"]=capability
-    pair=runner.pair("composite",options)
-    textures=[(name,image,FORMATS[name]) for name,image in scene["textures"].items()]
+    pair=runner.pair("composite1",options)
+    inputs=scene["textures"]
+    if options.get("WATER_REFRACTION",0)>0:
+        from validate_gpu_water_planar import prepare_tiles
+        inputs=prepare_tiles(runner,scene,options)
+    textures=[(name,image,FORMATS[name]) for name,image in inputs.items()]
     # Optimizer may remove projection/reflection/fog bindings or the entire
     # opt-in branch. A separate changed-output assertion proves active runs.
-    optional=list(scene["textures"])+[u[0] for u in scene["uniforms"]]
+    optional=list(inputs)+[u[0] for u in scene["uniforms"]]
     return runner.render(label,pair,scene["width"],scene["height"],textures,scene["uniforms"],optional=optional)
 
 
@@ -334,7 +339,7 @@ def reflection_tests(runner):
     projection=tuple(tuple(projection_data[c*4+r] for c in range(4)) for r in range(4))
     up=uniforms["upPosition"][2]
     eye_height=authored["eye"][1]
-    textures={name:[] for name in FORMATS}
+    textures={name:[] for name in FORMATS if name not in ("colortex1","colortex11")}
     for y in range(HEIGHT):
         rows={name:[] for name in textures}
         for x in range(WIDTH):
@@ -395,7 +400,7 @@ void main(){
     for enabled in (0,1):
         options=dict(WATER_OPTICS=1,IRIS_FEATURE_PER_BUFFER_BLENDING=True,SKY_STYLE=0,
                      FOG_ENABLED=enabled,FOG_DENSITY=.01,FOG_START=64.0,FOG_BASE_HEIGHT=64.0)
-        image=runner.render("reflected-segment-fog",runner.pair("composite",options,source),65,1,
+        image=runner.render("reflected-segment-fog",runner.pair("composite1",options,source),65,1,
                             uniforms=uniforms,optional=[u[0] for u in uniforms])
         atmosphere=tuple(((v+.055)/1.055)**2.4 for v in (.55,.65,.7))
         expected=[]

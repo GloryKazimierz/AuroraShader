@@ -8,6 +8,7 @@ import subprocess
 from zipfile import ZipFile
 
 from compile_glsl import ROOT
+from validate_gpu_water_planar import prepare_tiles
 from validate_gpu import compare, half, require, write_text
 from validate_gpu_water_transport import FORMATS, analytical_transport, slab_scene, smooth
 from render_water_bench import (WIDTH, HEIGHT, make_scene, WATER_VERTEX, png, display_rows,
@@ -62,9 +63,10 @@ OPTIONS=dict(IRIS_FEATURE_PER_BUFFER_BLENDING=True,WATER_OPTICS=1,FOG_ENABLED=0,
 
 def resolve(runner,scene,settings):
     options=dict(OPTIONS,**settings)
-    return runner.render("water refraction",runner.pair("composite",options),scene["width"],scene["height"],
-        [(n,data,FORMATS[n]) for n,data in scene["textures"].items()],scene["uniforms"],
-        optional=list(scene["textures"])+[u[0] for u in scene["uniforms"]])
+    textures=prepare_tiles(runner,scene,settings)
+    return runner.render("water refraction",runner.pair("composite1",options),scene["width"],scene["height"],
+        [(n,data,FORMATS[n]) for n,data in textures.items()],scene["uniforms"],
+        optional=list(textures)+[u[0] for u in scene["uniforms"]])
 
 def integration_tests(runner):
     reports=[];samples=changed=chromatic_changed=0
@@ -148,16 +150,30 @@ glcolor=vec4(1);normalView=benchNormal;waterSurface=1;
         "upPosition","sunPosition","fogColor","hasSkylight","hasCeiling","isEyeInWater","blindness",
         "darknessFactor","rainStrength","eyeBrightnessSmooth","cameraPositionInt","cameraPositionFract")]
     uniforms.append(("shadowLightPosition","f3",common["sunPosition"][2]))
+    from render_water_bench import unit as bench_unit, mv, scene_hit
+    projection_data=common["gbufferProjection"][2]
+    inverse_data=common["gbufferModelViewInverse"][2]
+    inverse_rotation=tuple(tuple(inverse_data[c*4+r] for c in range(3)) for r in range(3))
+    rotation=tuple(tuple(inverse_rotation[c][r] for c in range(3)) for r in range(3))
+    bed_normals=[]
+    for y in range(HEIGHT):
+        row=[]
+        for x in range(WIDTH):
+            ray=bench_unit((((x+.5)/WIDTH*2-1)/projection_data[0],
+                            ((y+.5)/HEIGHT*2-1)/projection_data[5],-1.))
+            h=scene_hit(authored["eye"],mv(inverse_rotation,ray))
+            row.append(tuple(.5+.5*v for v in mv(rotation,h[1]))+(1.,) if h else (.5,.5,.5,0.))
+        bed_normals.append(row)
     textures={"colortex0":final_color,"colortex5":authored["color"],"colortex6":authored["depth"],
-        "colortex7":record,"colortex8":count,"colortex9":[[(.25,0,0,1)]*WIDTH for _ in range(HEIGHT)],
+        "colortex1":bed_normals,"colortex7":record,"colortex8":count,"colortex9":[[(.25,0,0,1)]*WIDTH for _ in range(HEIGHT)],
         "depthtex0":final_depth,"depthtex1":authored["depth"]}
     return dict(width=WIDTH,height=HEIGHT,textures=textures,uniforms=uniforms,water_pixels=water_pixels)
 
 def comparison(runner,path):
     cases=[];rows=[]
     qualities=(("M1 SAME RAY",dict(WATER_REFRACTION=0)),
-               ("M3 REFRACTION 64",dict(WATER_REFRACTION=1)),
-               ("M3 RGB 128",dict(WATER_REFRACTION=3)))
+               ("PLANAR VERIFIED",dict(WATER_REFRACTION=1)),
+               ("RGB PLANAR",dict(WATER_REFRACTION=3)))
     sheet=[[(21,25,32)]*(WIDTH*3) for _ in range((HEIGHT+21)*3+21)]
     draw_text(sheet,5,6,"ACTUAL STAGED COMPOSITE / SYNTHETIC SCENE / NOT MINECRAFT")
     for row,(label,pitch) in enumerate((("OVERHEAD",70.),("OBLIQUE",35.),("GRAZING",10.))):
@@ -216,7 +232,7 @@ def analytic_hit(scene,x,y,depth,ior):
     return analytical_transport(rgb,share,distance,light,levels[1],levels[2],(0,0,0)),(tx,ty),distance
 
 def render_baseline(runner,scene):
-    pair=runner.pair("composite",OPTIONS,reference_source())
+    pair=runner.pair("composite1",OPTIONS,reference_source())
     return runner.render("baseline-before-refraction",pair,scene["width"],scene["height"],
         [(n,d,FORMATS[n]) for n,d in scene["textures"].items()],scene["uniforms"],
         optional=list(scene["textures"])+[u[0] for u in scene["uniforms"]])
@@ -252,8 +268,8 @@ def checks(runner):
     _,target,_=analytic_hit(scene,x,y,8.,1.333);tx,ty=target
     require(max(abs(tx-x),abs(ty-y))>2,"Target not isolated from source")
     uniforms=[v for v in scene["uniforms"] if v[0] in ("gbufferProjection","gbufferProjectionInverse")]+[("fixtureUp","f3",scene["up"])]
-    pair=runner.pair("composite",wrapper=HEADER+(ROOT/"shaders/lib/water_refraction.glsl").read_text(encoding="utf-8")+MAIN)
-    base_on=resolve(runner,scene,dict(WATER_REFRACTION=2));base_off=resolve(runner,scene,dict(WATER_REFRACTION=0))
+    pair=runner.pair("composite1",wrapper=HEADER+(ROOT/"shaders/lib/water_refraction.glsl").read_text(encoding="utf-8")+MAIN)
+    base_on=resolve(runner,scene,dict(WATER_REFRACTION=1));base_off=resolve(runner,scene,dict(WATER_REFRACTION=0))
     require(base_on[y][x]!=base_off[y][x],"Target-veto query had no optical effect")
     vetoes=[]
     for label,key,change in (
@@ -272,7 +288,7 @@ def checks(runner):
         diagnostic=runner.render(label,pair,48,32,[(n,d,FORMATS[n]) for n,d in modified["textures"].items() if n!="colortex0"],
             uniforms,extra_targets=((1,1,"RGBA32F"),))
         require(diagnostic[y][x][0]<0,label+" helper accepted target")
-        actual=resolve(runner,modified,dict(WATER_REFRACTION=2))
+        actual=resolve(runner,modified,dict(WATER_REFRACTION=1))
         require(actual[y][x]==base_off[y][x],label+" failed exact same-ray fallback")
         vetoes.append(dict(label=label,target=list(target),source=[x,y],helper_reason=diagnostic[y][x][0]))
     # Too-shallow depths stay on same-ray/native support without a fabricated hit.
@@ -289,7 +305,9 @@ def checks(runner):
 
 def refraction_tests(runner,plate=None):
     require(abs(water_index_iapws(.589,273.15,999.8426)-1.334344)<5e-7,"IAPWS reference row")
-    result=dict(transport=integration_tests(runner),analytic=checks(runner))
+    from validate_gpu_water_planar import planar_tests, combined_foam_tests
+    result=dict(planar=planar_tests(runner),transport=integration_tests(runner),analytic=checks(runner),
+                combined_foam=combined_foam_tests(runner))
     if plate is not None:
         result['views']=comparison(runner,plate)
     return result

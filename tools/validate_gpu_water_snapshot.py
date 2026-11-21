@@ -25,7 +25,7 @@ void main() {
     depth=.123456791;
 }
 '''
-    pair=runner.pair('composite',wrapper=source)
+    pair=runner.pair('composite1',wrapper=source)
     expected=[[[((.125,.25,.5,.75) if slot==0 else
                   (1+(x+.5)*.125,2+(y+.5)*.125,.0625,.875) if slot==1 else
                   (f32(.123456791),0,0,1)) for x in range(3)] for y in range(2)] for slot in range(3)]
@@ -33,7 +33,7 @@ void main() {
     for slot in range(3):
         actual=runner.render('mrt-routing-'+str(slot),pair,3,2,extra_targets=TARGETS,read_target=slot)
         comparisons.append(compare(actual,expected[slot],'mrt-routing-'+str(slot)))
-    discard=runner.pair('composite',wrapper='#version 330 compatibility\nvoid main(){discard;}\n')
+    discard=runner.pair('composite1',wrapper='#version 330 compatibility\nvoid main(){discard;}\n')
     for slot in (1,2):
         actual=runner.render('mrt-extra-clear-'+str(slot),discard,3,2,extra_targets=TARGETS,read_target=slot)
         sentinel=tuple(half(v) for v in (-11931.25,-719.5,-37.25,-13)) if slot==1 else (-11931.25,0,0,1)
@@ -98,7 +98,7 @@ void main() {
             expected_color.append(tuple(half(c) for c in color));expected_depth.append((z,0,0,1))
             valid+=int(color[3]==1);invalid+=int(color[3]==0)
         optional=['testRadiance','testDepths'] if not config['SCENE_COLOR_MODE'] or config['DEBUG_VIEW'] else []
-        pair=runner.pair('composite',config,helper)
+        pair=runner.pair('composite1',config,helper)
         for slot,expected in ((1,expected_color),(2,expected_depth)):
             label='snapshot-helper-{}-{}-{}'.format(config['SCENE_COLOR_MODE'],config['DEBUG_VIEW'],slot)
             actual=runner.render(label,pair,width,height,[('testRadiance',rows(radiance),'RGBA32F'),

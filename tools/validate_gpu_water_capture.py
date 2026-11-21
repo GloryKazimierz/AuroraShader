@@ -63,7 +63,7 @@ flat out int waterSurface;
     write_text(vertex, WATER_VERTEX.replace('void main() {', varying+'\nvoid main() {'+setup))
     plane_uniforms = [common[n] for n in ('gbufferProjection','benchNormal','benchEyeHeight')]
     diagnostic = '#version 330 compatibility\nlayout(location=0) out vec4 result;\nvoid main(){result=vec4(gl_FragCoord.z,0,0,1);}\n'
-    _, fs = runner.pair('composite', wrapper=diagnostic)
+    _, fs = runner.pair('composite1', wrapper=diagnostic)
     depth = runner.render('M1 raster depth', (vertex, fs), WIDTH, HEIGHT, uniforms=plane_uniforms)
     atlas = [[(.25,.5,.75,p[0]) for p in row] for row in scene['mask']]
     textures = [('gtexture',atlas,'RGBA32F'),('lightmap',[[(1,1,1,1)]],'RGBA32F'),

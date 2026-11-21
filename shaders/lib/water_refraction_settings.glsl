@@ -1,7 +1,9 @@
 #ifndef AURORA_WATER_REFRACTION_SETTINGS_INCLUDED
 #define AURORA_WATER_REFRACTION_SETTINGS_INCLUDED
-// 0: same-ray fallback; 1: 64-step; 2: 128-step; 3: three 128-step RGB rays.
-// Every step currently validates a 3x3 footprint. No frame-time claim.
+// Staged defaults only; production adoption waits for M2 validation.
+// 0: same-ray; 1: proven planar only; 2: planar + experimental cached128;
+// 3: RGB planar only. Unknown ordinary/RGB tiles fall back without marching.
+// Cost of the new producer+resolve remains to be measured.
 #define WATER_REFRACTION 0 // [0 1 2 3]
 #if WATER_REFRACTION == 1
 #define WATER_REFRACTION_STEPS 64

@@ -25,7 +25,7 @@ void main() {
 ''')
     passed,skips,hits=0,0,0
     prepass=runner.pair('deferred1',dict(settings,WATER_TRACE_TILES=1))
-    pairs={(budget,enabled):runner.pair('composite',dict(settings,WATER_TRACE_TILES=enabled,
+    pairs={(budget,enabled):runner.pair('composite1',dict(settings,WATER_TRACE_TILES=enabled,
                             WATER_REFLECTION_STEPS=budget),shader)
            for budget in (64,128) for enabled in (0,1)}
     fixtures=list(trace_fixtures())

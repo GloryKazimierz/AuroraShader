@@ -15,7 +15,7 @@ void main() {
     result=vec4(waterFlowGradient(p,v,seconds,vec3(.09,0,0),vec3(0,.07,0)),length(v));
 }
 '''
-    pair=runner.pair('composite',wrapper=source)
+    pair=runner.pair('composite1',wrapper=source)
     width,height=32,16
     def sample(normal,dx,t):
         return runner.render('current advection',pair,width,height,uniforms=[

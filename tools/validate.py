@@ -23,8 +23,8 @@ from validate_water_lab import main as test_lab
 BASE = '648c5fcfb13dbe5d47bfbb07db3b903a882fe6bc'
 FEATURE = 'IRIS_FEATURE_PER_BUFFER_BLENDING'
 WRITERS = {'gbuffers_terrain', 'gbuffers_block', 'gbuffers_entities'}
-BLOOM = {'composite': 'composite1', 'composite1': 'composite2',
-         'composite2': 'composite3', 'composite3': 'composite4'}
+BLOOM = {'composite': 'composite2', 'composite1': 'composite3',
+         'composite2': 'composite4', 'composite3': 'composite5'}
 
 
 def require(ok, message):
@@ -182,7 +182,7 @@ def test_pack():
                 require(tree.read('shaders/'+before+suffix) == (SHADERS/(after+suffix)).read_bytes(),
                         'Changed bloom program ' + after + suffix)
         old = {Path(n).stem for n in tree.namelist() if n.endswith('.vsh')}
-        require(set(entries) == old | {'composite4', 'deferred1', 'prepare1'}, 'Unexpected pass set')
+        require(set(entries) == old | {'composite4', 'composite5', 'deferred1', 'prepare1'}, 'Unexpected pass set')
         # Cover every former display selection, both storage modes and all genuine
         # opt-out routes. Compare BOTH live stages, directives and referenced macro
         # values against M0, with the four bloom entry names mapped above.
@@ -210,9 +210,9 @@ def test_pack():
         values.pop(FEATURE)
         properties = parse_properties(select(props, case, values)[0])
         require(properties['iris.features.optional']=='PER_BUFFER_BLENDING', 'Missing optional feature')
-        require((properties.get('program.composite.enabled', 'true')=='true') == active, 'Resolve scheduling')
+        require((properties.get('program.composite1.enabled', 'true')=='true') == active, 'Resolve scheduling')
         require(menu_options(properties, options)[0].count('WATER_OPTICS') == 1, 'Water option placement')
-        for name in geometry | {'deferred','composite'}:
+        for name in geometry | {'deferred','composite1'}:
             source, macros = select(expand(SHADERS/(name+'.fsh')), case)
             require(('AURORA_WATER_OPTICS_ACTIVE' in macros) == active, 'Shader/property option mismatch')
             route = routing(source)
@@ -230,6 +230,18 @@ def test_pack():
                 require(route == (0,), 'Full resolution optical output')
         require(('blend.gbuffers_water.colortex7' in properties) == (supported and (active or debug in (7,8,9))),
                 'Surface record blend mode')
+    for mode,support,optics,style,hdr,debug in product(range(4),(0,1),(0,1),(0,1),(0,1),(0,8)):
+        case={FEATURE:bool(support),'WATER_REFRACTION':mode,'WATER_OPTICS':optics,
+              'WATER_STYLE':style,'SCENE_COLOR_MODE':hdr,'DEBUG_VIEW':debug}
+        active=bool(mode and support and optics and style and hdr and not debug)
+        values=dict(defaults,**case);values.pop(FEATURE)
+        selected=parse_properties(select(props,case,values)[0])
+        require((selected.get('program.composite.enabled','true')=='true')==active,'Planar dispatch')
+        require(selected.get('size.buffer.colortex11')==('0.125 0.125' if active else None),'Planar resolution')
+        source,_=select(expand(SHADERS/'composite.fsh'),case)
+        require(routing(source)==((11,) if active else (0,)),'Planar target')
+        require(('const int colortex11Format = RGBA32F;' in source)==active,'Planar storage')
+    print('PASS: 128 planar proof scheduling, resolution and target checks')
     for supported, optics, tiles, ssr, debug, hdr, style in product((0,1), repeat=7):
         case={FEATURE:bool(supported),'WATER_OPTICS':optics,'WATER_TRACE_TILES':tiles,
               'WATER_SCREEN_REFLECTIONS':ssr,'DEBUG_VIEW':8*debug,'SCENE_COLOR_MODE':hdr,'WATER_STYLE':style}
@@ -262,11 +274,46 @@ def test_pack():
     print('PASS: 64 live capability/setting combinations, writer routing, formats, profiles and translations')
 
 
+def test_planar_migration(baseline):
+    require(re.fullmatch(r'[0-9a-f]{40}',baseline),'Supply the full pre-migration Git commit')
+    allowed={'shaders.properties','lang/en_us.lang','lang/zh_cn.lang',
+             'lib/water_refraction.glsl','lib/water_refraction_settings.glsl',
+             'lib/water_refraction_transport.glsl'}
+    def renamed(name):
+        match=re.fullmatch(r'composite([1-4]?)\.(fsh|vsh)',name)
+        return 'composite'+str(int(match[1] or '0')+1)+'.'+match[2] if match else name
+    pinned=stages=0
+    with ZipFile(BytesIO(subprocess.check_output(['git','-C',str(ROOT),'archive','--format=zip',baseline,'shaders']))) as tree:
+        @lru_cache(maxsize=None)
+        def prior(name):
+            return re.sub(r'^#include "([^"]+)"\s*$',lambda m:prior(m[1].lstrip('/')),
+                          tree.read('shaders/'+name).decode('utf-8'),flags=re.M)
+        for entry in tree.namelist():
+            if entry.endswith('/'):continue
+            name=entry.removeprefix('shaders/')
+            if name not in allowed:
+                require(tree.read(entry).replace(b'\r\n',b'\n')==(SHADERS/renamed(name)).read_bytes().replace(b'\r\n',b'\n'),'Migration changed '+name)
+                pinned+=1
+        cases=[{FEATURE:True,'WATER_OPTICS':1,'WATER_REFRACTION':0,'WATER_FOAM':foam,
+                'WATER_CELESTIAL_GLINT':glint,'WATER_FLOW':flow,'WATER_INTERACTIONS':contacts}
+               for foam,glint,flow,contacts in product((0,1,2),(0,1),(0,1),(0,1))]
+        for entry in tree.namelist():
+            if not entry.endswith(('.vsh','.fsh')):continue
+            name=entry.removeprefix('shaders/')
+            before=prior(name);after=expand(SHADERS/renamed(name))
+            for case in cases:
+                a,ma=select(before,case);b,mb=select(after,case)
+                require(semantic_lines(a)==semantic_lines(b),'Refraction-off migration differs '+name+str(case))
+                words=set(re.findall(r'\b\w+\b',a))
+                require(all(ma.get(k)==mb.get(k) for k in words),'Migration macro differs '+name)
+                stages+=1
+    print(f'PASS: {pinned} Git-normalized baseline files after pass rename; {stages} full refraction-off stages preserve foam/glints/flow/contacts')
+
 def test_foam_routes():
     options=option_definitions(ROOT)
     require(options['WATER_FOAM']['default']=='0','Foam must remain opt-in')
     require(load_profiles(ROOT)['WATER_ULTRA']['WATER_FOAM']=='2','Persistent foam preset')
-    source=expand(SHADERS/'composite.fsh')
+    source=expand(SHADERS/'composite1.fsh')
     checks=0
     for foam,support,optics,style,hdr,debug in product((0,1,2),(False,True),(0,1),(0,1),(0,1),(0,7)):
         case=dict(WATER_FOAM=foam,IRIS_FEATURE_PER_BUFFER_BLENDING=support,WATER_OPTICS=optics,
@@ -294,10 +341,10 @@ def test_underwater_routes():
         config=dict(WATER_UNDERWATER=option,IRIS_FEATURE_PER_BUFFER_BLENDING=support,
                     WATER_OPTICS=optics,SCENE_COLOR_MODE=hdr,DEBUG_VIEW=debug)
         active=bool(option and support and optics and hdr and not debug)
-        for name,ext in (('gbuffers_water','vsh'),('gbuffers_water','fsh'),('composite','fsh')):
+        for name,ext in (('gbuffers_water','vsh'),('gbuffers_water','fsh'),('composite1','fsh')):
             source,macros=select(expand(SHADERS/(name+'.'+ext)),config)
             require(('AURORA_WATER_UNDERWATER_ACTIVE' in macros)==active,'Underwater active mismatch')
-            token='resolveWaterUnderwater' if name=='composite' else 'waterInterfaceHeight'
+            token='resolveWaterUnderwater' if name=='composite1' else 'waterInterfaceHeight'
             require((token in source)==active,'Unexpected underwater code in bypass stage')
             if ext=='fsh' and name=='gbuffers_water' and active:
                 require(routing(source)==(0,7,8),'Exit records must reuse existing surface data')
@@ -311,10 +358,13 @@ def test_underwater_routes():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--historical', action='store_true', help='Also replay the complete pinned M0 suite')
+    parser.add_argument('--migration-base', help='Compare this pass-layout migration with its pre-migration commit')
     args = parser.parse_args()
     test_pack()
     test_foam_routes()
     test_underwater_routes()
+    if args.migration_base:
+        test_planar_migration(args.migration_base)
     test_lab()
     if args.historical:
         print('Replaying original M0 checks from '+BASE, flush=True)

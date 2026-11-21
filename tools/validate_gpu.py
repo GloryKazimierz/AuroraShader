@@ -274,17 +274,17 @@ def bloom_tests(runner):
         for threshold,knee,strength in ((1.0,.5,.08),(.5,0.0,.2),(2.0,1.0,.08)):
             label = 'bloom-{}x{}-t{}-k{}-s{}'.format(width,height,threshold,knee,strength)
             options = dict(BLOOM_THRESHOLD=threshold,BLOOM_SOFT_KNEE=knee,BLOOM_STRENGTH=strength)
-            extract = runner.render(label+'-extract',runner.pair('composite1',options),sw,sh,
+            extract = runner.render(label+'-extract',runner.pair('composite2',options),sw,sh,
                                     [('colortex0',source,'RGBA16F'),('colortex3',dummy,'RGBA16F')],storage='RGBA16F')
             expected_extract = quantize(rgba(area_downsample(source,sw,sh,lambda p: extract_bright(p[:3],threshold,knee))))
             comparisons.append(compare(extract,expected_extract,label+'-extract',half_units=2,absolute=2e-6))
-            horizontal = runner.render(label+'-horizontal',runner.pair('composite2',options),sw,sh,
+            horizontal = runner.render(label+'-horizontal',runner.pair('composite3',options),sw,sh,
                                        [('colortex3',extract,'RGBA16F')],storage='RGBA16F')
             comparisons.append(compare(horizontal,quantize(rgba(blur_axis(extract,True))),label+'-horizontal',half_units=2,absolute=2e-6))
-            vertical = runner.render(label+'-vertical',runner.pair('composite3',options),sw,sh,
+            vertical = runner.render(label+'-vertical',runner.pair('composite4',options),sw,sh,
                                      [('colortex4',horizontal,'RGBA16F')],storage='RGBA16F')
             comparisons.append(compare(vertical,quantize(rgba(blur_axis(horizontal,False))),label+'-vertical',half_units=2,absolute=2e-6))
-            combined = runner.render(label+'-combine',runner.pair('composite4',options),width,height,
+            combined = runner.render(label+'-combine',runner.pair('composite5',options),width,height,
                                      [('colortex0',source,'RGBA16F'),('colortex3',vertical,'RGBA16F')],storage='RGBA16F')
             expected = quantize([[combine(source[y][x],bilinear(vertical,(x+.5)/width,(y+.5)/height),strength=strength)
                                   for x in range(width)] for y in range(height)])
@@ -299,7 +299,7 @@ def bloom_tests(runner):
     bloom = [[(4.0,2.0,1.0,0.0)]]
     for option in (dict(BLOOM_ENABLED=0),dict(BLOOM_STRENGTH=0.0),dict(SCENE_COLOR_MODE=0),dict(DEBUG_VIEW=5)):
         label = 'bloom-bypass-'+next(iter(option))
-        image = runner.render(label,runner.pair('composite4',option),2,1,
+        image = runner.render(label,runner.pair('composite5',option),2,1,
                               [('colortex0',source,'RGBA16F'),('colortex3',bloom,'RGBA16F')],storage='RGBA16F',optional=('colortex3',))
         comparisons.append(compare(image,source,label))
     return dict(graphs=9, passes_per_graph=4, comparisons=comparisons,
@@ -408,7 +408,7 @@ def shader_digest():
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--cxx',help='Installed MinGW g++ compiler; no download')
-    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial','snapshot','filtered-waves','screen-reflections','water-debug','water-transport','water-stability','water-bounds','water-refraction','water-motion','water-foam','water-glints','water-caustics','water-caustics-time','water-caustic-waves','water-materials','water-underwater'),default='all')
+    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial','snapshot','filtered-waves','screen-reflections','water-debug','water-transport','water-stability','water-bounds','water-refraction','water-motion','water-foam','water-glints','water-caustics','water-caustics-time','water-caustic-waves','water-materials','water-underwater','water-refracted-caustics'),default='all')
     parser.add_argument('--report',help='New JSON report path under the project; existing files are never overwritten')
     parser.add_argument('--debug-plate',help='Save the selected water suite comparison to a new project PNG')
     args=parser.parse_args()
@@ -540,6 +540,9 @@ def main():
             from validate_gpu_water_materials import material_tests
             report['water_materials']=material_tests(runner,plate_path if args.suite=='water-materials' else None)
             print('PASS: calibrated water bodies and depth response',flush=True)
+        if args.suite=='water-refracted-caustics':
+            from validate_gpu_water_caustics import combined_tests
+            report['refracted_caustics']=combined_tests(runner)
         if args.suite=='water-caustics-time':
             from validate_gpu_water_caustics import benchmark_tests
             report['water_caustics_timing']=benchmark_tests(runner)

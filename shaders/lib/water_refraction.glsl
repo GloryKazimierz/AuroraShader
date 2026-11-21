@@ -1,8 +1,10 @@
 #ifndef AURORA_WATER_REFRACTION_INCLUDED
 #define AURORA_WATER_REFRACTION_INCLUDED
+// EXPERIMENTAL production-shaped staging; not installed into AuroraShader.
 // Depth footprint is deliberately conservative; no hidden/off-screen visibility.
 // Include after water_resolve declares colortex7/8/9 and depthtex0.
 // colortex5/6, depthtex1 and projection matrices come from the shared trace API.
+// Staged only: WATER_REFRACTION is not yet a production setting.
 #if WATER_REFRACTION > 0
 struct WaterRefractionHit {
     ivec2 pixel;
@@ -56,28 +58,42 @@ bool waterRefractSample(ivec2 pixel, ivec2 size, vec3 sourceSurface, vec3 waterU
     point=view.xyz/view.w;rgb=scene.rgb;
     return waterRefractFinite3(point) && point.z<0.0;
 }
+struct WaterRefractionFootprint {
+    ivec2 pixel;
+    vec3 radiance;
+    vec3 normal;
+    float offset;
+    bool valid;
+};
 int waterRefractInspect(vec3 point,vec3 surface,vec3 geometric,ivec2 size,
-              out ivec2 pixel,out vec3 rgb,out vec3 receiverNormal,out float gap) {
+              out ivec2 pixel,out vec3 rgb,out vec3 receiverNormal,out float gap,
+              inout WaterRefractionFootprint cached) {
     vec2 projected;
     if (!waterRefractProject(point,size,projected)) return 2;
     pixel=ivec2(floor(projected));
     if (any(lessThan(pixel,ivec2(1))) || any(greaterThanEqual(pixel+1,size))) return 2;
-    const ivec2 offsets[9]=ivec2[9](ivec2(0),ivec2(1,0),ivec2(0,1),ivec2(1),
-        ivec2(-1,0),ivec2(0,-1),ivec2(-1),ivec2(-1,1),ivec2(1,-1));
-    vec3 positions[9];vec3 unused;
-    for(int i=0;i<9;++i) {
-        if(!waterRefractSample(pixel+offsets[i],size,surface,geometric,positions[i],unused)) return 3;
-        if(dot(geometric,positions[i]-surface)>=-.001) return 4;
-        if(i==0)rgb=unused;
+    if(!cached.valid || any(notEqual(pixel,cached.pixel))) {
+        const ivec2 offsets[9]=ivec2[9](ivec2(0),ivec2(1,0),ivec2(0,1),ivec2(1),
+                ivec2(-1,0),ivec2(0,-1),ivec2(-1),ivec2(-1,1),ivec2(1,-1));
+        vec3 positions[9];vec3 unused;
+        for(int i=0;i<9;++i) {
+                if(!waterRefractSample(pixel+offsets[i],size,surface,geometric,positions[i],unused)) return 3;
+                if(dot(geometric,positions[i]-surface)>=-.001) return 4;
+                if(i==0)rgb=unused;
+        }
+        // Nine actual points distinguish a sampled depth step from a tilted plane;
+        // this avoids an angle-dependent depth-gradient cutoff. Cost is unmeasured.
+        vec3 plane=cross(positions[1]-positions[0],positions[2]-positions[0]);
+        if(dot(plane,plane)<1e-14) return 5;
+        plane=normalize(plane);
+        receiverNormal=plane;
+        float offset=dot(plane,positions[0]);
+        for(int i=3;i<9;++i)if(abs(dot(plane,positions[i])-offset)>.002) return 5;
+        cached.pixel=pixel;cached.radiance=rgb;
+        cached.normal=plane;cached.offset=offset;cached.valid=true;
     }
-    // Nine actual points distinguish a sampled depth step from a tilted plane;
-    // this avoids an angle-dependent depth-gradient cutoff. Cost is unmeasured.
-    vec3 plane=cross(positions[1]-positions[0],positions[2]-positions[0]);
-    if(dot(plane,plane)<1e-14) return 5;
-    plane=normalize(plane);
-    receiverNormal=plane;
-    float offset=dot(plane,positions[0]);
-    for(int i=3;i<9;++i)if(abs(dot(plane,positions[i])-offset)>.002) return 5;
+    rgb=cached.radiance;receiverNormal=cached.normal;
+    vec3 plane=cached.normal;float offset=cached.offset;
     vec3 eyeRay=normalize(point);
     float denominator=dot(plane,eyeRay);
     if(abs(denominator)<1e-8) return 5;
@@ -110,24 +126,25 @@ bool traceWaterRefraction(vec3 surface,vec3 geometricNormal,vec3 shadingNormal,
     direction=normalize(direction);
     vec3 start=surface+direction*.005;
     float previous=0.0,distance=0.0,previousGap=0.0;
+    WaterRefractionFootprint cached=WaterRefractionFootprint(ivec2(-1),vec3(0),vec3(0),0.0,false);
     for(int index=0;index<128;++index) {
         if(index>=clamp(budget,1,128))break;
         hit.steps=index+1;
         vec3 point=start+direction*distance;
         ivec2 pixel;vec3 rgb,receiverNormal;float gap;
-        int reason=waterRefractInspect(point,surface,geometric,size,pixel,rgb,receiverNormal,gap);
+        int reason=waterRefractInspect(point,surface,geometric,size,pixel,rgb,receiverNormal,gap,cached);
         if(reason!=0){hit.reason=reason;return false;}
         if(gap>=0.0) {
             if(index==0 || previousGap>=0.0)return false;
             float lo=previous,hi=distance;
             for(int refine=0;refine<10;++refine) {
                 float middle=(lo+hi)*.5;
-                reason=waterRefractInspect(start+direction*middle,surface,geometric,size,pixel,rgb,receiverNormal,gap);
+                reason=waterRefractInspect(start+direction*middle,surface,geometric,size,pixel,rgb,receiverNormal,gap,cached);
                 if(reason!=0){hit.reason=reason;return false;}
                 if(gap>=0.0)hi=middle;else lo=middle;
             }
             point=start+direction*hi;
-            reason=waterRefractInspect(point,surface,geometric,size,pixel,rgb,receiverNormal,gap);
+            reason=waterRefractInspect(point,surface,geometric,size,pixel,rgb,receiverNormal,gap,cached);
             if(reason!=0){hit.reason=reason;return false;}
             if(gap>max(.002,abs(point.z)*2e-5)){hit.reason=5;return false;}
             hit.pixel=pixel;hit.position=point;hit.radiance=rgb;

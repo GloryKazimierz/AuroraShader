@@ -52,7 +52,7 @@ void main() {
     outputSlope=vec4(waterRainSlope(point,dx,dy,sky),waterContactSlope(point,dx,dy));
 }
 '''
-    diagnostic=runner.pair('composite',wrapper=shader)
+    diagnostic=runner.pair('composite1',wrapper=shader)
     def sample(tile,camera,frac,rain=1.,precip=1,sky=1.,foot=.012,clock=17.1,origin=(0.,0.,0.)):
         u=[('origin','f3',origin),('sky','f1',(sky,)),('footprint','f1',(foot,)),('frameTimeCounter','f1',(clock,)),
            ('rainStrength','f1',(rain,)),('biome_precipitation','i1',(precip,)),('cameraPositionInt','i3',camera),

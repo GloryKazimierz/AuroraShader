@@ -45,7 +45,7 @@ else color=vec4(s.fresnel,s.radianceScale,s.valid?1:0,s.totalInternalReflection?
     for _ in invalid:
         expected[0].append((0,0,0,0));expected[1].append((0,0,0,0));expected[2].append((1,1,0,0))
     allcases=cases+invalid
-    pair=runner.pair('composite',wrapper=source);results=[]
+    pair=runner.pair('composite1',wrapper=source);results=[]
     for kind in range(3):
         image=runner.render('M3B interface',pair,len(allcases),1,
             [('query',[[a for a,b in allcases]],'RGBA32F'),('normalIndex',[[b for a,b in allcases]],'RGBA32F')],
@@ -218,7 +218,7 @@ def producer_tests(runner):
         benchEyeHeight=('benchEyeHeight','f1',(-1.,)),benchNormal=('benchNormal','f3',data['up']))
     textures=[('gtexture',[[ (.25,.5,.75,.5) ]],'RGBA32F'),('lightmap',[[ (1,1,1,1) ]],'RGBA32F')]
     diagnostic='#version 330 compatibility\nlayout(location=0)out vec4 color;void main(){color=vec4(gl_FragCoord.z,0,0,1);}'
-    _,fs=runner.pair('composite',wrapper=diagnostic)
+    _,fs=runner.pair('composite1',wrapper=diagnostic)
     depth=runner.render('Actual exit raster depth',(vertex,fs),width,height,uniforms=[common[n] for n in ('gbufferProjection','benchEyeHeight','benchNormal')])
     cases=[('exit-reversed',{},True),('exit-up',{'testNormal':data['up']},True),('real-bottom',{'testHeight':(.015625,)},False),('glass',{'material':(0,)},False),('side',{'testNormal':(1.,0.,0.)},False),
         ('above',{'isEyeInWater':(0,)},False),('lava',{'isEyeInWater':(2,)},False),

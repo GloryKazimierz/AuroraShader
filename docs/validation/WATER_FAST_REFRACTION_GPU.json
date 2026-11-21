@@ -1,0 +1,1368 @@
+{
+  "schema": 1,
+  "started_utc": "2026-11-21T19:07:48.286971+00:00",
+  "suite": "water-refraction",
+  "shader_sha256": "1c20a17f07d969cb1c39e72bf5a79c4bac8a2a4804223c8fdcb75637df63ecb6",
+  "scope": "Native OpenGL synthetic inputs only: no Iris patcher, Minecraft world, render-order/texture-binding integration, screenshots or performance measurement.",
+  "ok": true,
+  "gl": {
+    "vendor": "Intel",
+    "renderer": "Intel(R) Iris(R) Xe Graphics",
+    "version": "3.3.0 - Build 31.0.101.3962",
+    "glsl_version": "3.30 - Build 31.0.101.3962",
+    "major": 3,
+    "minor": 3,
+    "profile_mask": 2,
+    "profile": "compatibility",
+    "max_texture_size": 16384,
+    "max_texture_units": 32,
+    "max_draw_buffers": 8,
+    "max_color_attachments": 8
+  },
+  "build": {
+    "compiler": "g++.exe",
+    "flags": [
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-static"
+    ],
+    "diagnostics": ""
+  },
+  "water_refraction": {
+    "planar": {
+      "positive_cases": [
+        {
+          "pitch": 35.0,
+          "depth": 0.05,
+          "valid_tiles": 8
+        },
+        {
+          "pitch": 35.0,
+          "depth": 0.5,
+          "valid_tiles": 8
+        },
+        {
+          "pitch": 35.0,
+          "depth": 2.0,
+          "valid_tiles": 8
+        },
+        {
+          "pitch": 35.0,
+          "depth": 8.0,
+          "valid_tiles": 8
+        },
+        {
+          "pitch": 55.0,
+          "depth": 0.05,
+          "valid_tiles": 8
+        },
+        {
+          "pitch": 55.0,
+          "depth": 0.5,
+          "valid_tiles": 8
+        },
+        {
+          "pitch": 55.0,
+          "depth": 2.0,
+          "valid_tiles": 8
+        },
+        {
+          "pitch": 55.0,
+          "depth": 8.0,
+          "valid_tiles": 8
+        },
+        {
+          "pitch": 80.0,
+          "depth": 0.05,
+          "valid_tiles": 8
+        },
+        {
+          "pitch": 80.0,
+          "depth": 0.5,
+          "valid_tiles": 8
+        },
+        {
+          "pitch": 80.0,
+          "depth": 2.0,
+          "valid_tiles": 8
+        },
+        {
+          "pitch": 80.0,
+          "depth": 8.0,
+          "valid_tiles": 8
+        }
+      ],
+      "independent_valid_intervals": 96,
+      "max_interval_error": 9.39226187384179e-05,
+      "negative_controls": [
+        "halo-overlay",
+        "interior-two-water",
+        "unresolved-early-color",
+        "unmatched-opaque-depth",
+        "front-slab",
+        "missing-snapshot",
+        "nonwater-record",
+        "nonfinite-share",
+        "vertical-bed",
+        "missing-bed-normal",
+        "matched-bed-height-step"
+      ],
+      "odd_resolution": [
+        41,
+        29
+      ],
+      "actual_normal_storage": "RGBA16_UNORM"
+    },
+    "transport": {
+      "cases": [
+        {
+          "pitch": 35.0,
+          "depth": 0.05,
+          "changed": 874,
+          "chromatic_changed": 874
+        },
+        {
+          "pitch": 35.0,
+          "depth": 0.5,
+          "changed": 828,
+          "chromatic_changed": 828
+        },
+        {
+          "pitch": 35.0,
+          "depth": 2.0,
+          "changed": 794,
+          "chromatic_changed": 789
+        },
+        {
+          "pitch": 35.0,
+          "depth": 8.0,
+          "changed": 1110,
+          "chromatic_changed": 1110
+        },
+        {
+          "pitch": 55.0,
+          "depth": 0.05,
+          "changed": 1380,
+          "chromatic_changed": 1380
+        },
+        {
+          "pitch": 55.0,
+          "depth": 0.5,
+          "changed": 1380,
+          "chromatic_changed": 1380
+        },
+        {
+          "pitch": 55.0,
+          "depth": 2.0,
+          "changed": 1334,
+          "chromatic_changed": 1334
+        },
+        {
+          "pitch": 55.0,
+          "depth": 8.0,
+          "changed": 1288,
+          "chromatic_changed": 1288
+        },
+        {
+          "pitch": 80.0,
+          "depth": 0.05,
+          "changed": 1380,
+          "chromatic_changed": 1361
+        },
+        {
+          "pitch": 80.0,
+          "depth": 0.5,
+          "changed": 1380,
+          "chromatic_changed": 1379
+        },
+        {
+          "pitch": 80.0,
+          "depth": 2.0,
+          "changed": 1380,
+          "chromatic_changed": 1380
+        },
+        {
+          "pitch": 80.0,
+          "depth": 8.0,
+          "changed": 1380,
+          "chromatic_changed": 1380
+        }
+      ],
+      "pixels": 18432,
+      "refraction_changed": 14508,
+      "dispersion_changed": 14483,
+      "exact_native_fallbacks": [
+        "source-overlay",
+        "source-two-water",
+        "source-front",
+        "missing-bed"
+      ],
+      "alpha_exact": true
+    },
+    "analytic": {
+      "analytic_cases": [
+        {
+          "pitch": 35.0,
+          "depth": 2.0,
+          "mode": 1,
+          "source": [
+            24,
+            16
+          ],
+          "target": [
+            [
+              24,
+              13
+            ]
+          ],
+          "error": 3.1741193558809666e-06
+        },
+        {
+          "pitch": 35.0,
+          "depth": 2.0,
+          "mode": 1,
+          "source": [
+            20,
+            14
+          ],
+          "target": [
+            [
+              20,
+              11
+            ]
+          ],
+          "error": 2.098347177847959e-06
+        },
+        {
+          "pitch": 35.0,
+          "depth": 2.0,
+          "mode": 1,
+          "source": [
+            28,
+            18
+          ],
+          "target": [
+            [
+              28,
+              15
+            ]
+          ],
+          "error": 1.0128509111972939e-07
+        },
+        {
+          "pitch": 35.0,
+          "depth": 2.0,
+          "mode": 2,
+          "source": [
+            24,
+            16
+          ],
+          "target": [
+            [
+              24,
+              13
+            ]
+          ],
+          "error": 3.1741193558809666e-06
+        },
+        {
+          "pitch": 35.0,
+          "depth": 2.0,
+          "mode": 2,
+          "source": [
+            20,
+            14
+          ],
+          "target": [
+            [
+              20,
+              11
+            ]
+          ],
+          "error": 2.098347177847959e-06
+        },
+        {
+          "pitch": 35.0,
+          "depth": 2.0,
+          "mode": 2,
+          "source": [
+            28,
+            18
+          ],
+          "target": [
+            [
+              28,
+              15
+            ]
+          ],
+          "error": 1.0128509111972939e-07
+        },
+        {
+          "pitch": 35.0,
+          "depth": 2.0,
+          "mode": 3,
+          "source": [
+            24,
+            16
+          ],
+          "target": [
+            [
+              24,
+              13
+            ],
+            [
+              24,
+              13
+            ],
+            [
+              24,
+              13
+            ]
+          ],
+          "error": 3.173405817569197e-06
+        },
+        {
+          "pitch": 35.0,
+          "depth": 2.0,
+          "mode": 3,
+          "source": [
+            20,
+            14
+          ],
+          "target": [
+            [
+              20,
+              11
+            ],
+            [
+              20,
+              11
+            ],
+            [
+              20,
+              11
+            ]
+          ],
+          "error": 2.0857907352955785e-06
+        },
+        {
+          "pitch": 35.0,
+          "depth": 2.0,
+          "mode": 3,
+          "source": [
+            28,
+            18
+          ],
+          "target": [
+            [
+              28,
+              15
+            ],
+            [
+              28,
+              15
+            ],
+            [
+              28,
+              15
+            ]
+          ],
+          "error": 1.0729633354022994e-07
+        },
+        {
+          "pitch": 35.0,
+          "depth": 8.0,
+          "mode": 1,
+          "source": [
+            24,
+            16
+          ],
+          "target": [
+            [
+              24,
+              10
+            ]
+          ],
+          "error": 6.555291754951897e-06
+        },
+        {
+          "pitch": 35.0,
+          "depth": 8.0,
+          "mode": 1,
+          "source": [
+            20,
+            14
+          ],
+          "target": [
+            [
+              20,
+              8
+            ]
+          ],
+          "error": 3.226400957151432e-06
+        },
+        {
+          "pitch": 35.0,
+          "depth": 8.0,
+          "mode": 1,
+          "source": [
+            28,
+            18
+          ],
+          "target": [
+            [
+              27,
+              11
+            ]
+          ],
+          "error": 4.532930513334588e-06
+        },
+        {
+          "pitch": 35.0,
+          "depth": 8.0,
+          "mode": 2,
+          "source": [
+            24,
+            16
+          ],
+          "target": [
+            [
+              24,
+              10
+            ]
+          ],
+          "error": 6.555291754951897e-06
+        },
+        {
+          "pitch": 35.0,
+          "depth": 8.0,
+          "mode": 2,
+          "source": [
+            20,
+            14
+          ],
+          "target": [
+            [
+              20,
+              8
+            ]
+          ],
+          "error": 3.226400957151432e-06
+        },
+        {
+          "pitch": 35.0,
+          "depth": 8.0,
+          "mode": 2,
+          "source": [
+            28,
+            18
+          ],
+          "target": [
+            [
+              27,
+              11
+            ]
+          ],
+          "error": 4.532930513334588e-06
+        },
+        {
+          "pitch": 35.0,
+          "depth": 8.0,
+          "mode": 3,
+          "source": [
+            24,
+            16
+          ],
+          "target": [
+            [
+              24,
+              10
+            ],
+            [
+              24,
+              10
+            ],
+            [
+              24,
+              10
+            ]
+          ],
+          "error": 6.572214167874235e-06
+        },
+        {
+          "pitch": 35.0,
+          "depth": 8.0,
+          "mode": 3,
+          "source": [
+            20,
+            14
+          ],
+          "target": [
+            [
+              20,
+              8
+            ],
+            [
+              20,
+              8
+            ],
+            [
+              20,
+              8
+            ]
+          ],
+          "error": 3.2494023102375147e-06
+        },
+        {
+          "pitch": 35.0,
+          "depth": 8.0,
+          "mode": 3,
+          "source": [
+            28,
+            18
+          ],
+          "target": [
+            [
+              27,
+              11
+            ],
+            [
+              27,
+              11
+            ],
+            [
+              27,
+              11
+            ]
+          ],
+          "error": 4.507061909492238e-06
+        },
+        {
+          "pitch": 55.0,
+          "depth": 2.0,
+          "mode": 1,
+          "source": [
+            24,
+            16
+          ],
+          "target": [
+            [
+              24,
+              14
+            ]
+          ],
+          "error": 2.170326461770067e-06
+        },
+        {
+          "pitch": 55.0,
+          "depth": 2.0,
+          "mode": 1,
+          "source": [
+            20,
+            14
+          ],
+          "target": [
+            [
+              20,
+              12
+            ]
+          ],
+          "error": 1.5145345274858446e-06
+        },
+        {
+          "pitch": 55.0,
+          "depth": 2.0,
+          "mode": 1,
+          "source": [
+            28,
+            18
+          ],
+          "target": [
+            [
+              28,
+              16
+            ]
+          ],
+          "error": 2.123659704367231e-06
+        },
+        {
+          "pitch": 55.0,
+          "depth": 2.0,
+          "mode": 2,
+          "source": [
+            24,
+            16
+          ],
+          "target": [
+            [
+              24,
+              14
+            ]
+          ],
+          "error": 2.170326461770067e-06
+        },
+        {
+          "pitch": 55.0,
+          "depth": 2.0,
+          "mode": 2,
+          "source": [
+            20,
+            14
+          ],
+          "target": [
+            [
+              20,
+              12
+            ]
+          ],
+          "error": 1.5145345274858446e-06
+        },
+        {
+          "pitch": 55.0,
+          "depth": 2.0,
+          "mode": 2,
+          "source": [
+            28,
+            18
+          ],
+          "target": [
+            [
+              28,
+              16
+            ]
+          ],
+          "error": 2.168363187948774e-06
+        },
+        {
+          "pitch": 55.0,
+          "depth": 2.0,
+          "mode": 3,
+          "source": [
+            24,
+            16
+          ],
+          "target": [
+            [
+              24,
+              14
+            ],
+            [
+              24,
+              14
+            ],
+            [
+              24,
+              14
+            ]
+          ],
+          "error": 2.1444673845572026e-06
+        },
+        {
+          "pitch": 55.0,
+          "depth": 2.0,
+          "mode": 3,
+          "source": [
+            20,
+            14
+          ],
+          "target": [
+            [
+              20,
+              12
+            ],
+            [
+              20,
+              12
+            ],
+            [
+              20,
+              12
+            ]
+          ],
+          "error": 1.5326862012887688e-06
+        },
+        {
+          "pitch": 55.0,
+          "depth": 2.0,
+          "mode": 3,
+          "source": [
+            28,
+            18
+          ],
+          "target": [
+            [
+              28,
+              16
+            ],
+            [
+              28,
+              16
+            ],
+            [
+              28,
+              16
+            ]
+          ],
+          "error": 2.1039603330941237e-06
+        },
+        {
+          "pitch": 55.0,
+          "depth": 8.0,
+          "mode": 1,
+          "source": [
+            24,
+            16
+          ],
+          "target": [
+            [
+              24,
+              12
+            ]
+          ],
+          "error": 1.1797920426714903e-07
+        },
+        {
+          "pitch": 55.0,
+          "depth": 8.0,
+          "mode": 1,
+          "source": [
+            20,
+            14
+          ],
+          "target": [
+            [
+              21,
+              11
+            ]
+          ],
+          "error": 7.352256046755379e-07
+        },
+        {
+          "pitch": 55.0,
+          "depth": 8.0,
+          "mode": 1,
+          "source": [
+            28,
+            18
+          ],
+          "target": [
+            [
+              27,
+              14
+            ]
+          ],
+          "error": 6.09568848869424e-07
+        },
+        {
+          "pitch": 55.0,
+          "depth": 8.0,
+          "mode": 2,
+          "source": [
+            24,
+            16
+          ],
+          "target": [
+            [
+              24,
+              12
+            ]
+          ],
+          "error": 1.1797920426714903e-07
+        },
+        {
+          "pitch": 55.0,
+          "depth": 8.0,
+          "mode": 2,
+          "source": [
+            20,
+            14
+          ],
+          "target": [
+            [
+              21,
+              11
+            ]
+          ],
+          "error": 7.352256046755379e-07
+        },
+        {
+          "pitch": 55.0,
+          "depth": 8.0,
+          "mode": 2,
+          "source": [
+            28,
+            18
+          ],
+          "target": [
+            [
+              27,
+              14
+            ]
+          ],
+          "error": 6.09568848869424e-07
+        },
+        {
+          "pitch": 55.0,
+          "depth": 8.0,
+          "mode": 3,
+          "source": [
+            24,
+            16
+          ],
+          "target": [
+            [
+              24,
+              12
+            ],
+            [
+              24,
+              12
+            ],
+            [
+              24,
+              12
+            ]
+          ],
+          "error": 1.310670635912281e-07
+        },
+        {
+          "pitch": 55.0,
+          "depth": 8.0,
+          "mode": 3,
+          "source": [
+            28,
+            18
+          ],
+          "target": [
+            [
+              27,
+              14
+            ],
+            [
+              27,
+              14
+            ],
+            [
+              27,
+              14
+            ]
+          ],
+          "error": 6.110843662615606e-07
+        },
+        {
+          "pitch": 80.0,
+          "depth": 2.0,
+          "mode": 1,
+          "source": [
+            24,
+            16
+          ],
+          "target": [
+            [
+              24,
+              15
+            ]
+          ],
+          "error": 1.096828116470272e-06
+        },
+        {
+          "pitch": 80.0,
+          "depth": 2.0,
+          "mode": 1,
+          "source": [
+            20,
+            14
+          ],
+          "target": [
+            [
+              20,
+              14
+            ]
+          ],
+          "error": 2.490834432267164e-06
+        },
+        {
+          "pitch": 80.0,
+          "depth": 2.0,
+          "mode": 1,
+          "source": [
+            28,
+            18
+          ],
+          "target": [
+            [
+              28,
+              17
+            ]
+          ],
+          "error": 9.931100108939717e-08
+        },
+        {
+          "pitch": 80.0,
+          "depth": 2.0,
+          "mode": 2,
+          "source": [
+            24,
+            16
+          ],
+          "target": [
+            [
+              24,
+              15
+            ]
+          ],
+          "error": 1.096828116470272e-06
+        },
+        {
+          "pitch": 80.0,
+          "depth": 2.0,
+          "mode": 2,
+          "source": [
+            20,
+            14
+          ],
+          "target": [
+            [
+              20,
+              14
+            ]
+          ],
+          "error": 2.490834432267164e-06
+        },
+        {
+          "pitch": 80.0,
+          "depth": 2.0,
+          "mode": 2,
+          "source": [
+            28,
+            18
+          ],
+          "target": [
+            [
+              28,
+              17
+            ]
+          ],
+          "error": 9.931100108939717e-08
+        },
+        {
+          "pitch": 80.0,
+          "depth": 2.0,
+          "mode": 3,
+          "source": [
+            24,
+            16
+          ],
+          "target": [
+            [
+              24,
+              15
+            ],
+            [
+              24,
+              15
+            ],
+            [
+              24,
+              15
+            ]
+          ],
+          "error": 1.1038471673940897e-06
+        },
+        {
+          "pitch": 80.0,
+          "depth": 2.0,
+          "mode": 3,
+          "source": [
+            20,
+            14
+          ],
+          "target": [
+            [
+              20,
+              14
+            ],
+            [
+              20,
+              14
+            ],
+            [
+              20,
+              14
+            ]
+          ],
+          "error": 2.458760322898712e-06
+        },
+        {
+          "pitch": 80.0,
+          "depth": 2.0,
+          "mode": 3,
+          "source": [
+            28,
+            18
+          ],
+          "target": [
+            [
+              28,
+              17
+            ],
+            [
+              28,
+              17
+            ],
+            [
+              28,
+              17
+            ]
+          ],
+          "error": 8.371343362956196e-08
+        },
+        {
+          "pitch": 80.0,
+          "depth": 8.0,
+          "mode": 1,
+          "source": [
+            24,
+            16
+          ],
+          "target": [
+            [
+              24,
+              15
+            ]
+          ],
+          "error": 2.0616090382064023e-07
+        },
+        {
+          "pitch": 80.0,
+          "depth": 8.0,
+          "mode": 1,
+          "source": [
+            20,
+            14
+          ],
+          "target": [
+            [
+              21,
+              13
+            ]
+          ],
+          "error": 9.997443071174672e-07
+        },
+        {
+          "pitch": 80.0,
+          "depth": 8.0,
+          "mode": 1,
+          "source": [
+            28,
+            18
+          ],
+          "target": [
+            [
+              27,
+              17
+            ]
+          ],
+          "error": 1.9056917307525012e-06
+        },
+        {
+          "pitch": 80.0,
+          "depth": 8.0,
+          "mode": 2,
+          "source": [
+            24,
+            16
+          ],
+          "target": [
+            [
+              24,
+              15
+            ]
+          ],
+          "error": 2.1361148441756406e-07
+        },
+        {
+          "pitch": 80.0,
+          "depth": 8.0,
+          "mode": 2,
+          "source": [
+            20,
+            14
+          ],
+          "target": [
+            [
+              21,
+              13
+            ]
+          ],
+          "error": 9.997443071174672e-07
+        },
+        {
+          "pitch": 80.0,
+          "depth": 8.0,
+          "mode": 2,
+          "source": [
+            28,
+            18
+          ],
+          "target": [
+            [
+              27,
+              17
+            ]
+          ],
+          "error": 1.9056917307525012e-06
+        },
+        {
+          "pitch": 80.0,
+          "depth": 8.0,
+          "mode": 3,
+          "source": [
+            24,
+            16
+          ],
+          "target": [
+            [
+              24,
+              15
+            ],
+            [
+              24,
+              15
+            ],
+            [
+              24,
+              15
+            ]
+          ],
+          "error": 2.054410074142643e-07
+        },
+        {
+          "pitch": 80.0,
+          "depth": 8.0,
+          "mode": 3,
+          "source": [
+            20,
+            14
+          ],
+          "target": [
+            [
+              21,
+              13
+            ],
+            [
+              21,
+              13
+            ],
+            [
+              21,
+              13
+            ]
+          ],
+          "error": 9.962327845169927e-07
+        },
+        {
+          "pitch": 80.0,
+          "depth": 8.0,
+          "mode": 3,
+          "source": [
+            28,
+            18
+          ],
+          "target": [
+            [
+              27,
+              17
+            ],
+            [
+              27,
+              17
+            ],
+            [
+              27,
+              17
+            ]
+          ],
+          "error": 1.9173793659732485e-06
+        }
+      ],
+      "analytic_samples": 53,
+      "max_rgb_error": 6.572214167874235e-06,
+      "source_target_q_differences": 82,
+      "exact_off_pixels": 9216,
+      "target_only_vetoes": [
+        {
+          "label": "target-only-overlay",
+          "target": [
+            24,
+            10
+          ],
+          "source": [
+            24,
+            16
+          ],
+          "helper_reason": -4.0
+        },
+        {
+          "label": "target-only-two-water",
+          "target": [
+            24,
+            10
+          ],
+          "source": [
+            24,
+            16
+          ],
+          "helper_reason": -4.0
+        },
+        {
+          "label": "target-only-front-slab",
+          "target": [
+            24,
+            10
+          ],
+          "source": [
+            24,
+            16
+          ],
+          "helper_reason": -4.0
+        },
+        {
+          "label": "target-only-early-owner",
+          "target": [
+            24,
+            10
+          ],
+          "source": [
+            24,
+            16
+          ],
+          "helper_reason": -4.0
+        },
+        {
+          "label": "target-only-invalid-color",
+          "target": [
+            24,
+            10
+          ],
+          "source": [
+            24,
+            16
+          ],
+          "helper_reason": -4.0
+        },
+        {
+          "label": "target-only-unmatched-depth",
+          "target": [
+            24,
+            10
+          ],
+          "source": [
+            24,
+            16
+          ],
+          "helper_reason": -4.0
+        },
+        {
+          "label": "target-only-unobserved-interface",
+          "target": [
+            24,
+            10
+          ],
+          "source": [
+            24,
+            16
+          ],
+          "helper_reason": -4.0
+        }
+      ],
+      "exact_shallow_fallback_depths": [
+        0.0005,
+        0.002
+      ]
+    },
+    "combined_foam": [
+      {
+        "mode": 1,
+        "refraction_changed": 3678,
+        "foam_changed": 1680,
+        "alpha_exact": true
+      },
+      {
+        "mode": 3,
+        "refraction_changed": 3680,
+        "foam_changed": 1680,
+        "alpha_exact": true
+      }
+    ],
+    "views": [
+      {
+        "view": "OVERHEAD",
+        "pitch": 70.0,
+        "quality": "M1 SAME RAY",
+        "changed_from_same_ray": 0,
+        "water_pixels": 14709
+      },
+      {
+        "view": "OVERHEAD",
+        "pitch": 70.0,
+        "quality": "PLANAR VERIFIED",
+        "changed_from_same_ray": 9537,
+        "water_pixels": 14709
+      },
+      {
+        "view": "OVERHEAD",
+        "pitch": 70.0,
+        "quality": "RGB PLANAR",
+        "changed_from_same_ray": 9536,
+        "water_pixels": 14709
+      },
+      {
+        "view": "OBLIQUE",
+        "pitch": 35.0,
+        "quality": "M1 SAME RAY",
+        "changed_from_same_ray": 0,
+        "water_pixels": 13408
+      },
+      {
+        "view": "OBLIQUE",
+        "pitch": 35.0,
+        "quality": "PLANAR VERIFIED",
+        "changed_from_same_ray": 6918,
+        "water_pixels": 13408
+      },
+      {
+        "view": "OBLIQUE",
+        "pitch": 35.0,
+        "quality": "RGB PLANAR",
+        "changed_from_same_ray": 6919,
+        "water_pixels": 13408
+      },
+      {
+        "view": "GRAZING",
+        "pitch": 10.0,
+        "quality": "M1 SAME RAY",
+        "changed_from_same_ray": 0,
+        "water_pixels": 5309
+      },
+      {
+        "view": "GRAZING",
+        "pitch": 10.0,
+        "quality": "PLANAR VERIFIED",
+        "changed_from_same_ray": 48,
+        "water_pixels": 5309
+      },
+      {
+        "view": "GRAZING",
+        "pitch": 10.0,
+        "quality": "RGB PLANAR",
+        "changed_from_same_ray": 48,
+        "water_pixels": 5309
+      }
+    ]
+  },
+  "finished_utc": "2026-11-21T19:18:48.443541+00:00"
+}
