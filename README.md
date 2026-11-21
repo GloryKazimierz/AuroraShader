@@ -174,6 +174,7 @@ python -B tools/compile_glsl.py --profiles-only --compiler C:/VulkanSDK/1.4.363.
 python -B tools/validate_gpu.py --cxx C:/msys64/ucrt64/bin/g++.exe --suite screen-reflections
 python -B tools/validate_gpu.py --cxx C:/msys64/ucrt64/bin/g++.exe --suite water-debug
 python -B tools/validate_gpu.py --cxx C:/msys64/ucrt64/bin/g++.exe --suite water-transport
+python -B tools/benchmark_water.py --cxx C:/msys64/ucrt64/bin/g++.exe
 git diff --check
 ```
 

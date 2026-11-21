@@ -108,3 +108,7 @@ Intel Iris Xe OpenGL 3.3（驱动 31.0.101.3962）的结果：
 后续游戏观察使用[独立水体实验场](../tests/water_lab/README.zh-CN.md)，对比浅／深水池、火把洞穴、玻璃／冰、瀑布、水线和九个固定视角。Iris 的实际翻转、透明绘制顺序、资源包表现、运动稳定性及显卡耗时仍需运行时观察。
 
 本机已安装的 Iris 1.10.5（Minecraft 1.21.11）离线解析了 72 组实际片元文件和 64 组设置。其预处理器选中了预期的渲染目标、格式与独立混合，且跳过水体合成时仍保留后面的四道 Bloom。独立 GLSL 编译器与 Intel Iris Xe 驱动分别通过 2,237 组实际程序编译和链接。游戏世界的绑定、顺序和帧耗时仍需运行时证据。[Iris 特性开关](https://shaders.properties/current/reference/shadersproperties/flags/) · [Iris 合成阶段源码](https://github.com/IrisShaders/Iris/blob/1.21.11/common/src/main/java/net/irisshaders/iris/pipeline/CompositeRenderer.java) · [本机驱动报告](validation/WATER_M1_driver.json)。
+
+## 固定水池的 720p 耗时
+
+水深 2 米的合成水面覆盖 1280×720 画面。Intel Iris Xe 对每种设置预热 6 次，再用 OpenGL 计时器记录 25 次绘制。中位数／第 95 百分位分别为：参考复制 0.107／0.114 毫秒，水体光学关闭屏幕反射时 2.498／4.606 毫秒，开启 64 步屏幕反射时 32.108／36.285 毫秒。关闭水体光学时 Iris 会跳过整道合成。这里仅测合成本身，水面几何的回退路径也可能追踪反射，其成本另计。采样时本机还有其他验证任务。[原始耗时](validation/WATER_M1_timing_720p.json) · [OpenGL 计时器规范](https://registry.khronos.org/OpenGL/extensions/ARB/ARB_timer_query.txt)。

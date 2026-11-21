@@ -649,7 +649,17 @@ void setUniform(const GlApi& gl, GLuint program, const UniformSpec& value,
     checkGl("uniform " + value.name);
 }
 
-std::vector<std::string> render(const GlApi& gl, const GlInfo& info, const RenderSpec& spec) {
+void drawFullscreenTriangle() {
+    // Compatibility input matches pack ftransform/gl_MultiTexCoord0 fullscreen vertices.
+    glBegin(GL_TRIANGLES);
+    glTexCoord2f(0.0f, 0.0f); glVertex2f(-1.0f, -1.0f);
+    glTexCoord2f(2.0f, 0.0f); glVertex2f( 3.0f, -1.0f);
+    glTexCoord2f(0.0f, 2.0f); glVertex2f(-1.0f,  3.0f);
+    glEnd();
+}
+
+std::vector<std::string> render(const GlApi& gl, const GlInfo& info, const RenderSpec& spec,
+                                std::vector<GLuint64>* elapsedNanoseconds = nullptr) {
     std::vector<std::string> inactiveBindings;
     if (spec.target.width > info.maxTextureSize || spec.target.height > info.maxTextureSize
         || spec.textures.size() > static_cast<std::size_t>(info.maxTextureUnits))
@@ -722,12 +732,36 @@ std::vector<std::string> render(const GlApi& gl, const GlInfo& info, const Rende
     const GLfloat sentinel[] = {-11931.25f, -719.5f, -37.25f, -13.0f};
     for (const auto& target : spec.colorTargets) gl.ClearBufferfv(GL_COLOR, target.slot, sentinel);
     checkGl("render setup");
-    // Compatibility input matches pack ftransform/gl_MultiTexCoord0 fullscreen vertices.
-    glBegin(GL_TRIANGLES);
-    glTexCoord2f(0.0f, 0.0f); glVertex2f(-1.0f, -1.0f);
-    glTexCoord2f(2.0f, 0.0f); glVertex2f( 3.0f, -1.0f);
-    glTexCoord2f(0.0f, 2.0f); glVertex2f(-1.0f,  3.0f);
-    glEnd();
+    if (elapsedNanoseconds) {
+        // Warmed fixed inputs; measure draws only, outside compilation, uploads and readback.
+        auto gen = Context::loadFunction<PFNGLGENQUERIESPROC>("glGenQueries");
+        auto release = Context::loadFunction<PFNGLDELETEQUERIESPROC>("glDeleteQueries");
+        auto begin = Context::loadFunction<PFNGLBEGINQUERYPROC>("glBeginQuery");
+        auto end = Context::loadFunction<PFNGLENDQUERYPROC>("glEndQuery");
+        auto result = Context::loadFunction<PFNGLGETQUERYOBJECTUI64VPROC>("glGetQueryObjectui64v");
+        auto query = Context::loadFunction<PFNGLGETQUERYIVPROC>("glGetQueryiv");
+        GLint bits = 0;
+        query(GL_TIME_ELAPSED, GL_QUERY_COUNTER_BITS, &bits);
+        if (bits <= 0) throw Failure("timing", "Elapsed timer query unavailable");
+        for (int i = 0; i < 6; ++i) drawFullscreenTriangle();
+        glFinish();
+        // Queue independent draws, then retrieve results to avoid timing host waits.
+        std::array<GLuint, 25> ids{};
+        gen(static_cast<GLsizei>(ids.size()), ids.data());
+        for (GLuint id : ids) {
+            begin(GL_TIME_ELAPSED, id);
+            drawFullscreenTriangle();
+            end(GL_TIME_ELAPSED);
+        }
+        for (GLuint id : ids) {
+            GLuint64 duration = 0;
+            result(id, GL_QUERY_RESULT, &duration);
+            elapsedNanoseconds->push_back(duration);
+        }
+        release(static_cast<GLsizei>(ids.size()), ids.data());
+    } else {
+        drawFullscreenTriangle();
+    }
     checkGl("draw");
     std::vector<float> output(pixels(spec.target.width, spec.target.height) * 4);
     // ReadPixels synchronizes these framebuffer writes; no timing claim is made.
@@ -859,9 +893,9 @@ int main(int argc, char** argv) {
             absolutePath(argv[2]); absolutePath(argv[3]);
         } else if (command == "--compile-batch" && argc == 3) {
             cases = readBatch(argv[2]);
-        } else if (command == "--render" && argc == 3) {
+        } else if ((command == "--render" || command == "--time-render") && argc == 3) {
             spec = readRender(argv[2]);
-        } else throw Failure("arguments", "Usage: --probe | --compile VERTEX FRAGMENT | --compile-batch MANIFEST | --render MANIFEST | --water-blend-check VERTEX FRAGMENT");
+        } else throw Failure("arguments", "Usage: --probe | --compile VERTEX FRAGMENT | --compile-batch MANIFEST | --render MANIFEST | --time-render MANIFEST | --water-blend-check VERTEX FRAGMENT");
         Context context;
         context.initialize(info);
         GlApi gl;
@@ -875,12 +909,22 @@ int main(int argc, char** argv) {
         activeCase.clear();
         std::string waterBlendResult;
         if (command == "--water-blend-check") waterBlendResult = waterBlendCheck(gl,info,argv[2],argv[3]);
+        std::vector<GLuint64> elapsedNanoseconds;
+        if (command == "--time-render") inactiveBindings = render(gl, info, spec, &elapsedNanoseconds);
         if (command == "--render") inactiveBindings = render(gl, info, spec);
         std::cout << "{\"ok\":true,\"command\":" << jsonQuote(command)
                   << ",\"gl\":" << info.json();
+        if (!elapsedNanoseconds.empty()) {
+            std::cout << ",\"gpu_nanoseconds\":[";
+            for (std::size_t index = 0; index < elapsedNanoseconds.size(); ++index) {
+                if (index) std::cout << ',';
+                std::cout << elapsedNanoseconds[index];
+            }
+            std::cout << ']';
+        }
         if (!waterBlendResult.empty()) std::cout << ",\"water_blend\":" << waterBlendResult;
         if (!cases.empty()) std::cout << ",\"compiled\":" << completed << ",\"case_count\":" << cases.size();
-        if (command == "--render") {
+        if (command == "--render" || command == "--time-render") {
             std::cout << ",\"width\":" << spec.target.width << ",\"height\":" << spec.target.height
                       << ",\"format\":" << jsonQuote(spec.target.format)
                       << ",\"output\":" << jsonQuote(spec.target.path)

@@ -203,7 +203,8 @@ def historical(relative):
 
 
 def actual_fragment_tests(runner,compare):
-    vertex=runner.scratch/'w2-synthetic-water.vert'
+    runner.sequence += 1
+    vertex=runner.scratch/f'w2-synthetic-water-{runner.sequence:05d}.vert'
     write_text(vertex,'''#version 330 compatibility
 uniform int testMaterial;
 out vec2 lmcoord;
