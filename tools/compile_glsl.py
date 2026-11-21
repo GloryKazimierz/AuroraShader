@@ -35,6 +35,8 @@ def configure(source, overrides):
         lines.append(line)
     # Distinct compile-only placeholders. Iris provides actual stage constants at runtime.
     lines[1:1] = ['#define MC_RENDER_STAGE_SKY 4', '#define MC_RENDER_STAGE_STARS 5', '#define MC_RENDER_STAGE_VOID 6']
+    if overrides.get('IRIS_FEATURE_PER_BUFFER_BLENDING'):
+        lines.insert(1, '#define IRIS_FEATURE_PER_BUFFER_BLENDING')
     return '\n'.join(lines) + '\n'
 
 def water_debug_configurations():
@@ -48,6 +50,23 @@ def water_debug_configurations():
             yield 'gbuffers_water', dict(DEBUG_VIEW=debug, SCENE_COLOR_MODE=mode,
                                         WATER_STYLE=style, WATER_WAVES=waves,
                                         WATER_SURFACE_DETAIL=detail)
+
+
+def water_optics_configurations():
+    """All producers and consumers, independent capability and bypass gates."""
+    enabled = dict(IRIS_FEATURE_PER_BUFFER_BLENDING=True, WATER_OPTICS=1)
+    variants = ({}, {'IRIS_FEATURE_PER_BUFFER_BLENDING': False}, {'WATER_OPTICS': 0},
+                {'SCENE_COLOR_MODE': 0}, {'DEBUG_VIEW': 8}, {'WATER_STYLE': 0})
+    for variant in variants:
+        for path in sorted(SHADERS.glob('*.vsh')):
+            yield path.stem, dict(enabled, **variant)
+    for clarity, ssr, waves in product((0.5, 1.0, 2.0), (0, 1), (0, 1)):
+        for name in ('composite', 'gbuffers_water'):
+            yield name, dict(enabled, WATER_CLARITY=clarity, WATER_SCREEN_REFLECTIONS=ssr,
+                             WATER_WAVES=waves)
+    for palette, shadows, mode in product((0, 1), (False, True), (0, 1)):
+        yield 'deferred', dict(enabled, LIGHT_PALETTE=palette, SHADOWS_ENABLED=shadows,
+                               SHADOW_BIAS_MODE=mode)
 
 
 def configurations():
@@ -85,7 +104,7 @@ def configurations():
                                 FOG_HEIGHT_FALLOFF=falloff, FOG_RAIN_BOOST=rain)
 
     # M10: active and bypass code in every scene/debug combination on all passes.
-    for program in ('composite', 'composite1', 'composite2', 'composite3'):
+    for program in ('composite1', 'composite2', 'composite3', 'composite4'):
         for mode, enabled, debug in product((0, 1), (0, 1), range(7)):
             yield program, dict(SCENE_COLOR_MODE=mode, BLOOM_ENABLED=enabled, DEBUG_VIEW=debug)
         # Every threshold/knee choice with zero and maximum intensity; intermediate
@@ -191,6 +210,7 @@ def configurations():
 
     # M0 keeps every W3 configuration and adds live water diagnostic paths.
     yield from water_debug_configurations()
+    yield from water_optics_configurations()
 
     # M17 adds actual profile selections without replacing prior configurations.
     from validate_settings_profiles import profile_configurations
@@ -199,15 +219,17 @@ def configurations():
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--compiler', help='Path to installed glslangValidator')
-    parser.add_argument('--profiles-only', action='store_true', help='Compile only the 72 actual M17 profile/program pairs')
-    parser.add_argument('--water-debug-only', action='store_true', help='Compile only the 186 M0 water diagnostic configurations')
+    scope = parser.add_mutually_exclusive_group()
+    scope.add_argument('--water-optics-only', action='store_true', help='Compile the water optics and capability matrix')
+    scope.add_argument('--profiles-only', action='store_true', help='Compile only the actual M17 profile/program pairs')
+    scope.add_argument('--water-debug-only', action='store_true', help='Compile only the M0 water diagnostic configurations')
     args = parser.parse_args()
     compiler = args.compiler or shutil.which('glslangValidator')
     if not compiler:
         raise SystemExit('glslangValidator unavailable; install separately or pass --compiler. No runtime validation performed.')
-    if args.profiles_only and args.water_debug_only:
-        parser.error('--profiles-only and --water-debug-only are mutually exclusive')
-    if args.water_debug_only:
+    if args.water_optics_only:
+        configs = list(water_optics_configurations())
+    elif args.water_debug_only:
         configs = list(water_debug_configurations())
     elif args.profiles_only:
         from validate_settings_profiles import profile_configurations

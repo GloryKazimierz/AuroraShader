@@ -1,689 +1,233 @@
-"""Read-only structural checks; NOT a full GLSL compiler. Python 3.6+."""
-from pathlib import Path
-import math
-from itertools import product
+"""Validate the current pack's optical routing, legacy paths and test world.
+
+Use --historical to also replay the original M0 suite on its pinned Git tree.
+Offline compile/link and real driver rendering have separate entry points.
+"""
+import argparse
 from functools import lru_cache
+from io import BytesIO
+from itertools import product
+import os
+from pathlib import Path
 import re
 import subprocess
-from validate_fog import historical_source, restore_fog_plumbing
-from validate_bloom import BLOOM_PROGRAMS, BLOOM_TARGETS
-from validate_water import stage_variables
-from validate_settings_profiles import restore_settings_profiles_source
-from validate_water_debug import restore_water_debug_source
+import sys
+from tempfile import TemporaryDirectory
+from zipfile import ZipFile
 
-ROOT = Path(__file__).resolve().parents[1]
-SHADERS = ROOT / "shaders"
-# Runtime-tested Milestone 3B: stable even after this branch is committed.
-BASELINE = "5aa154dbce823e954f63d25f91f3acbb9566c9c9"
-GRID_BASELINE = "220cf1b38e3e6d6cc65aa3ead0e8be671b10d148"
-BIAS_BASELINE = "0d4bd999d4e48fb62e30aa05e914c1531469cde1"
+from compile_glsl import ROOT, SHADERS, expand
+from validate_settings_profiles import (option_definitions, parse_properties, parse_language,
+                                       load_profiles, menu_options)
+from validate_water_lab import main as test_lab
 
-@lru_cache(maxsize=None)
-def expand(path, chain=()):
-    path = path.resolve()
-    assert path not in chain, "Include cycle: " + str(path)
-    assert SHADERS.resolve() in path.parents, "Include escapes shader root"
-    text = path.read_text(encoding="utf-8")
-    def include(match):
-        return expand(SHADERS / match[1].lstrip("/"), chain + (path,))
-    return re.sub(r'^#include "([^"]+)"\s*$', include, text, flags=re.M)
+BASE = '648c5fcfb13dbe5d47bfbb07db3b903a882fe6bc'
+FEATURE = 'IRIS_FEATURE_PER_BUFFER_BLENDING'
+WRITERS = {'gbuffers_terrain', 'gbuffers_block', 'gbuffers_entities'}
+BLOOM = {'composite': 'composite1', 'composite1': 'composite2',
+         'composite2': 'composite3', 'composite3': 'composite4'}
 
-def preprocess(text, debug, grayscale, shadows=True, filtering=1, softness=1.0, bias_mode=0, overrides=None):
-    macros = {}
-    stack = []
+
+def require(ok, message):
+    if not ok:
+        raise ValueError(message)
+
+
+def archive(*paths):
+    return ZipFile(BytesIO(subprocess.check_output(
+        ['git', '-C', str(ROOT), 'archive', '--format=zip', BASE, *paths])))
+
+
+def test_history():
+    # Use the historical validator and inputs as authored. Git history queries
+    # from its temporary root use the same read-only object database.
+    db = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', '--path-format=absolute',
+                                  '--git-common-dir'], text=True).strip()
+    parent = ROOT.parent.resolve()
+    with TemporaryDirectory(prefix='aurora-legacy-', dir=parent) as directory:
+        dest = Path(directory).resolve()
+        require(dest.parent == parent and dest.name.startswith('aurora-legacy-'), 'Unexpected scratch path')
+        with archive('shaders', 'tools') as tree:
+            for name in tree.namelist():
+                require(dest in (dest / name).resolve().parents, 'Invalid historical archive path')
+            tree.extractall(dest)
+        environment = dict(os.environ, GIT_DIR=db, GIT_WORK_TREE=str(dest))
+        subprocess.run([sys.executable, '-B', str(dest/'tools/validate.py')], cwd=dest,
+                       env=environment, check=True)
+
+
+def condition(expr, macros):
+    def clause(token):
+        token = token.strip()
+        defined = re.fullmatch(r'defined\s*\(\s*(\w+)\s*\)', token)
+        if defined:
+            return defined[1] in macros
+        match = re.fullmatch(r'(\w+)\s*(==|!=)\s*(\d+)', token)
+        require(match, 'Unsupported validation condition: ' + token)
+        equal = str(macros.get(match[1], '0')) == match[3]
+        return equal if match[2] == '==' else not equal
+    return any(all(clause(c) for c in group.split('&&')) for group in expr.split('||'))
+
+
+@lru_cache(maxsize=256)
+def parsed(source):
+    lines = []
+    # Keep the exact Iris line directives inside comments. Strip explanatory prose.
+    for line in source.splitlines():
+        line = line.strip()
+        if not line or line.startswith('//'):
+            if not line.startswith('//#define '):
+                continue
+        if line.startswith('/* RENDERTARGETS:') or line.startswith('const int colortex'):
+            lines.append(('data', line))
+        elif line.startswith(('#if ', '#elif ', '#ifdef ', '#ifndef ', '#define ', '//#define ')):
+            op, rest = line.split(None, 1)
+            lines.append((op, rest.split('//')[0].strip()))
+        elif line in ('#else', '#endif'):
+            lines.append((line, ''))
+        else:
+            body = line.split('//')[0].strip()
+            if body:
+                lines.append(('data', body))
+    return lines
+
+
+def select(source, options, starting=None):
+    # Conditional evaluator for this pack's finite grammar. Fail on any new
+    # condition we cannot evaluate. glslang and OpenGL compile the full GLSL.
+    macros = dict(starting or {})
+    if options.get(FEATURE):
+        macros[FEATURE] = '1'
+    selected, stack = [], []
     active = True
-    result = []
-    for line in text.splitlines():
-        stripped = line.strip()
-        if stripped.startswith("#define "):
+    for op, arg in parsed(source):
+        if op in ('#if', '#ifdef', '#ifndef'):
+            value = False
             if active:
-                parts = stripped.split("//")[0].split()
-                macros[parts[1]] = parts[2] if len(parts) > 2 else "1"
-                if parts[1] == "DEBUG_VIEW":
-                    macros[parts[1]] = str(debug)
-                if parts[1] == "SHADOW_BIAS_MODE":
-                    macros[parts[1]] = str(bias_mode)
-                if parts[1] == "SHADOW_FILTER":
-                    macros[parts[1]] = str(filtering)
-                if overrides and parts[1] in overrides:
-                    macros[parts[1]] = str(overrides[parts[1]])
-                if parts[1] == "SHADOWS_ENABLED" and not shadows:
-                    macros.pop(parts[1], None)
-            continue
-        if stripped.startswith("//#define GRAYSCALE") and grayscale and active:
-            macros["GRAYSCALE"] = "1"
-        if stripped.startswith(("#ifdef ", "#ifndef ")):
-            cond = stripped.split()[1] in macros
-            if stripped.startswith("#ifndef "):
-                cond = not cond
-            stack.append([active, cond])
-            active = active and cond
-        elif stripped.startswith("#if ") or stripped.startswith("#elif "):
-            # A deliberately narrow expression grammar: equality/inequality
-            # clauses or defined(NAME), joined by OR. Never evaluate source as Python code.
-            clauses = stripped.split(" ", 1)[1].split("||")
-            conditions = []
-            for clause in clauses:
-                defined = re.fullmatch(r"defined\s*\(\s*(\w+)\s*\)", clause.strip())
-                if defined:
-                    conditions.append(defined[1] in macros)
-                    continue
-                match = re.fullmatch(r"(\w+)\s+(==|!=)\s+(\d+)", clause.strip())
-                assert match, "Unsupported conditional: " + stripped
-                equal = macros.get(match[1], "0") == match[3]
-                conditions.append(equal if match[2] == "==" else not equal)
-            cond = any(conditions)
-            if stripped.startswith("#if "):
-                stack.append([active, cond])
-                active = active and cond
-            else:
-                parent, taken = stack[-1]
-                active = parent and not taken and cond
-                stack[-1][1] = taken or cond
-        elif stripped == "#else":
+                if op == '#if':
+                    value = condition(arg, macros)
+                elif op == '#ifdef':
+                    value = arg in macros
+                else:
+                    value = arg not in macros
+            stack.append((active, value))
+            active = active and value
+        elif op == '#elif':
+            parent, taken = stack[-1]
+            active = parent and not taken and condition(arg, macros)
+            stack[-1] = (parent, taken or active)
+        elif op == '#else':
             parent, taken = stack[-1]
             active = parent and not taken
-            stack[-1][1] = True
-        elif stripped == "#endif":
+            stack[-1] = (parent, True)
+        elif op == '#endif':
             active = stack.pop()[0]
+        elif active and op in ('#define', '//#define'):
+            name, *value = arg.split(maxsplit=1)
+            replacement = options.get(name, value[0] if value else op == '#define')
+            if replacement is False:
+                macros.pop(name, None)
+            else:
+                macros[name] = '1' if replacement is True else str(replacement)
         elif active:
-            result.append(line)
-    assert not stack, "Unclosed conditional"
-    return "\n".join(result).replace("SHADOW_SOFTNESS", str(softness))
+            selected.append(arg)
+    require(not stack, 'Unclosed conditional')
+    return '\n'.join(selected), macros
 
-pairs = sorted(SHADERS.glob("*.vsh"))
-assert len(pairs) == 24
-assert len([p for p in pairs if p.stem not in BLOOM_PROGRAMS]) == 20
-writers = {"gbuffers_terrain", "gbuffers_block", "gbuffers_entities"}
-for debug, grayscale, shadows, filtering, softness, bias_mode in product(
-        range(7), (False,True), (False,True), (0,1,2,3), (0.0,.5,1.0,1.5,2.0), (0,1)):
-    for vertex in pairs:
-        fragment = vertex.with_suffix(".fsh")
-        vs = preprocess(expand(vertex), debug, grayscale, shadows, filtering, softness, bias_mode)
-        fs = preprocess(expand(fragment), debug, grayscale, shadows, filtering, softness, bias_mode)
-        for source in (vs, fs):
-            assert source.startswith("#version 330 compatibility")
-            assert source.count("void main()") == 1
-            clean = re.sub(r"/\*.*?\*/|//[^\n]*", "", source, flags=re.S)
-            assert not re.search(r"const int colortex\d+Format\s*=\s*[A-Z]", clean), "Active format enum in GLSL"
-            for left, right in (("{", "}"), ("(", ")"), ("[", "]")):
-                depth = 0
-                for char in clean:
-                    depth += (char == left) - (char == right)
-                    assert depth >= 0, str(fragment)
-                assert depth == 0, str(fragment)
-        outputs = stage_variables(vs, "out")
-        for name, signature in stage_variables(fs, "in").items():
-            assert outputs.get(name) == signature, (fragment, name)
-        locations = [int(n) for n in re.findall(
-            r"layout\(location = (\d+)\) out (?:vec4|float)\b", fs)]
-        targets = re.findall(r"/\* RENDERTARGETS: ([0-9,]+) \*/", fs)
-        expected = [] if vertex.stem == "shadow" else ([0, 1, 2] if vertex.stem in writers or vertex.stem == "deferred" else [0])
-        assert locations == expected, (fragment, locations)
-        if vertex.stem in ("final", "shadow"):
-            assert not targets
-        else:
-            assert len(targets) == 1
-            expected_targets = ([0, 5, 6] if vertex.stem == "deferred" else
-                                [BLOOM_TARGETS[vertex.stem]] if vertex.stem in BLOOM_TARGETS else expected)
-            assert list(map(int, targets[0].split(","))) == expected_targets
-        if vertex.stem in writers:
-            assert "writeSurfaceData(lmcoord);" in fs
-            assert "gl_NormalMatrix * gl_Normal" in vs
-        if vertex.stem == "final" and debug:
-            assert "gradeColor(scene.rgb)" not in fs
 
-# Historical UI placement checks use only the exact restored M16 menu.
-# M17 validates the actual menu graph and profile selector separately below.
-raw_props = (SHADERS / "shaders.properties").read_text(encoding="utf-8")
-props = restore_settings_profiles_source("shaders.properties", raw_props)
-all_source = "\n".join(p.read_text(encoding="utf-8") for p in SHADERS.rglob("*") if p.is_file())
-options = set(re.findall(r"^\s*(?://)?#define (\w+)", all_source, re.M))
-# Validate nested option screens as a graph, including missing screens and cycles.
-screens = {}
-for line in props.splitlines():
-    match = re.fullmatch(r"(screen(?:\.\w+)?) = (.*)", line)
-    if match and not match[1].endswith(".columns"):
-        screens[match[1]] = match[2].split()
-def check_screen(name, ancestors=()):
-    assert name not in ancestors, "Option screen cycle: " + name
-    assert name in screens, "Undefined option screen: " + name
-    for option in screens[name]:
-        if option.startswith("[") and option.endswith("]"):
-            check_screen("screen." + option[1:-1], ancestors + (name,))
-        else:
-            assert option in options, "Undefined option: " + option
-for name in screens:
-    check_screen(name)
-for line in props.splitlines():
-    if line.startswith("sliders ="):
-        for option in line.split("=", 1)[1].split():
-            assert option in options, "Undefined slider: " + option
-for option in ("DEBUG_VIEW", "LIGHTING_STRENGTH", "AMBIENT_LIGHT",
-               "DIRECT_LIGHT", "EXPOSURE", "SATURATION", "CONTRAST",
-               "TEMPERATURE", "TINT", "GRAYSCALE", "SHADOWS_ENABLED", "SHADOW_BIAS", "SHADOW_FILTER", "SHADOW_SOFTNESS"):
-    assert len(re.findall(r"\b" + option + r"\b", all_source)) >= 2
-for writer in writers:
-    for buffer in (1, 2):
-        assert "blend.{}.colortex{} = off".format(writer, buffer) in props
+def routing(source):
+    matches = re.findall(r'/\* RENDERTARGETS: ([\d,]+) \*/', source)
+    require(len(matches) <= 1, 'Multiple active draw-buffer declarations')
+    return tuple(map(int, matches[0].split(','))) if matches else ()
 
-# Independent numerical contract checks, including simulated RGBA16 storage.
-def norm(v):
-    length = math.sqrt(sum(x*x for x in v))
-    return tuple(x / length for x in v)
-for original in ((1,0,0), (0,-1,0), (0,0,1), (1,2,3), (-2,1,-4)):
-    n = norm(original)
-    encoded = [round((x*.5+.5)*65535)/65535 for x in n]
-    decoded = norm([x*2-1 for x in encoded])
-    assert max(abs(a-b) for a,b in zip(n, decoded)) < 0.0001
-assert max(sum(a*b for a,b in zip((0,1,0),(0,1,0))), 0) == 1
-assert max(sum(a*b for a,b in zip((0,1,0),(0,-1,0))), 0) == 0
-for level in range(16):
-    uv = (level + .5) / 16
-    assert abs((uv - .5/16)*(16/15) - level/15) < 1e-12
-for ndotl in (0, .5, 1):
-    for block, sky, strength in ((0,0,1), (1,1,1), (0,1,0)):
-        factor = 1 + (.65 + .55*ndotl - 1)*sky*(1-block)*strength
-        assert factor == 1
 
-# M8 retains the complete M1 grading code in the legacy pipeline; defaults stay pinned.
-for relative in ("shaders/lib/color.glsl", "shaders/lib/settings.glsl"):
-    baseline = subprocess.check_output(["git", "-C", str(ROOT), "show",
-                                        BASELINE + ":" + relative]).decode()
-    current = (ROOT / relative).read_text()
-    if relative.endswith("color.glsl"):
-        legacy = preprocess("#define SCENE_COLOR_MODE 0\n" + current, 0, False)
-        strip = lambda value: re.sub(r"\s+", "", re.sub(r"/\*.*?\*/|//[^\n]*", "", value, flags=re.S))
-        assert strip(preprocess(baseline, 0, False)) == strip(legacy)
-    else:
-        assert baseline.replace("\r\n", "\n") == current.replace("\r\n", "\n")
-print("PASS: 24 program pairs (20 original + 4 bloom) x 7 debug views x 2 bias modes x 2 grayscale states x 2 shadow states x 4 filters x 5 softness values")
-print("PASS: includes, conditionals, stage interfaces, MRT routing, option references")
-print("PASS: normal round trips, lightmap endpoints, cave/torch/disabled invariants")
-print("PASS: Milestone 1 legacy grading code/defaults preserved; HDR exposure tested separately")
-print("LIMIT: static structural/numerical validation is NOT Minecraft/Iris/GPU runtime validation")
+def semantic_lines(source):
+    return tuple(line for line in source.splitlines() if line not in ('/*', '*/'))
 
-# Shadow contracts: single depth comparison, correct scope, no active format enums.
-shadow_source = expand(SHADERS / "lib/shadow.glsl")
-assert "uniform sampler2D shadowtex1;" in shadow_source
-assert "uniform sampler2D depthtex1;" in shadow_source
-for name in ("gbufferProjectionInverse", "gbufferModelViewInverse",
-             "shadowModelView", "shadowProjection"):
-    assert "uniform mat4 " + name + ";" in shadow_source
-assert "receiverDepth - effectiveBias <= storedDepth ? 1.0 : 0.0" in shadow_source
-assert "texelFetch(shadowtex1, shadowPixel, 0)" in shadow_source
-assert "greaterThanEqual(shadowCoord" in shadow_source
-assert "cameraPosition" not in re.sub(r"//[^\n]*", "", shadow_source)
-for setting in ("shadowTerrain = true", "shadowBlockEntities = true",
-                "shadowTranslucent = false", "shadowEntities = false",
-                "shadowPlayer = false"):
-    assert setting in props
-shadow_vertex = expand(SHADERS / "shadow.vsh")
-assert "const int shadowMapResolution = 2048;" in shadow_vertex
-assert "const float shadowDistance = 64.0;" in shadow_vertex
-assert "const bool shadowHardwareFiltering = false;" in shadow_vertex
-lighting = (SHADERS / "lib/lighting.glsl").read_text()
-assert "AMBIENT_LIGHT + DIRECT_LIGHT * ndotl * shadowVisibility" in lighting
-for visibility in (0, 1):
-    for ndotl in (0, .5, 1):
-        term = .65 + .55 * ndotl * visibility
-        assert term >= .65
-        for block, sky, strength in ((0,0,1), (1,1,1), (0,1,0)):
-            assert 1 + (term-1)*sky*(1-block)*strength == 1
 
-def visible(current, stored, bias):
-    return 1 if current-bias <= stored else 0
-assert visible(.5,.5,0) == 1
-assert visible(.6,.5,0) == 0
-assert visible(.5001,.5,.0002) == 1
-assert visible(.7,.5,.0002) == 0
+def test_pack():
+    options = option_definitions(ROOT)
+    defaults = {key: spec['default'] for key, spec in options.items()}
+    require(defaults['WATER_OPTICS'] == '0' and defaults['WATER_CLARITY'] == '1.0', 'Water defaults')
+    props = (SHADERS/'shaders.properties').read_text(encoding='utf-8')
+    # Ordinary property comments can contain English text starting with #.
+    props = '\n'.join(line for line in props.splitlines() if not line.startswith('# '))
+    entries = sorted(p.stem for p in SHADERS.glob('*.vsh'))
+    require(set(entries) == {p.stem for p in SHADERS.glob('*.fsh')}, 'Unpaired programs')
+    geometry = {p for p in entries if p.startswith('gbuffers_')}
+    profiles = load_profiles(ROOT)
+    require(profiles and all('WATER_OPTICS' not in p for p in profiles.values()), 'Unexpected profile override')
+    checks = 0
+    with archive('shaders') as tree:
+        @lru_cache(maxsize=None)
+        def prior(name):
+            source = tree.read('shaders/'+name).decode('utf-8')
+            return re.sub(r'^#include "([^"]+)"\s*$',
+                          lambda m: prior(m[1].lstrip('/')), source, flags=re.M)
+        for before, after in BLOOM.items():
+            for suffix in ('.fsh', '.vsh'):
+                require(tree.read('shaders/'+before+suffix) == (SHADERS/(after+suffix)).read_bytes(),
+                        'Changed bloom program ' + after + suffix)
+        old = {Path(n).stem for n in tree.namelist() if n.endswith('.vsh')}
+        require(set(entries) == old | {'composite4'}, 'Unexpected pass set')
+        # Cover every former display selection, both storage modes and all genuine
+        # opt-out routes. Compare BOTH live stages, directives and referenced macro
+        # values against M0, with the four bloom entry names mapped above.
+        cases = [dict(DEBUG_VIEW=j, SCENE_COLOR_MODE=m) for j,m in product(range(10), (0,1))]
+        cases.extend([{FEATURE: True, 'WATER_OPTICS': 0}, {'WATER_OPTICS': 1},
+                      {FEATURE: True, 'WATER_OPTICS': 1, 'WATER_STYLE': 0},
+                      {FEATURE: True, 'WATER_OPTICS': 1, 'DEBUG_VIEW': 9},
+                      {FEATURE: True, 'WATER_OPTICS': 1, 'SCENE_COLOR_MODE': 0}])
+        for name in sorted(old):
+            for ext in ('.vsh','.fsh'):
+                old_source = prior(name+ext)
+                new_source = expand(SHADERS/(BLOOM.get(name,name)+ext))
+                for case in cases:
+                    a, ma = select(old_source, case)
+                    b, mb = select(new_source, case)
+                    require(semantic_lines(a) == semantic_lines(b), f'Legacy stage differs: {name}{ext} {case}')
+                    words = set(re.findall(r'\b\w+\b', a))
+                    require(all(ma.get(k)==mb.get(k) for k in words), f'Legacy macro differs: {name}{ext} {case}')
+                    checks += 1
+    print(f'PASS: {checks} live legacy-stage comparisons, four byte-identical bloom pairs', flush=True)
+    for supported, enabled, style, hdr, debug in product((False,True),(0,1),(0,1),(0,1),(0,7,8,9)):
+        case = {FEATURE:supported, 'WATER_OPTICS':enabled, 'WATER_STYLE':style, 'SCENE_COLOR_MODE':hdr, 'DEBUG_VIEW':debug}
+        active = bool(supported and enabled and style and hdr and not debug)
+        values = dict(defaults, **case)
+        values.pop(FEATURE)
+        properties = parse_properties(select(props, case, values)[0])
+        require(properties['iris.features.optional']=='PER_BUFFER_BLENDING', 'Missing optional feature')
+        require((properties.get('program.composite.enabled', 'true')=='true') == active, 'Resolve scheduling')
+        require(menu_options(properties, options)[0].count('WATER_OPTICS') == 1, 'Water option placement')
+        for name in geometry | {'deferred','composite'}:
+            source, macros = select(expand(SHADERS/(name+'.fsh')), case)
+            require(('AURORA_WATER_OPTICS_ACTIVE' in macros) == active, 'Shader/property option mismatch')
+            route = routing(source)
+            if name in geometry:
+                require((8 in route) == active, 'Ownership target in '+name)
+                blend = properties.get('blend.'+name+'.colortex8')
+                expected = ('off' if name in WRITERS else 'ONE ONE ONE ONE') if active else None
+                require(blend == expected, 'Unexpected blend for '+name)
+            elif name == 'deferred':
+                require(route == ((0,5,6,7,8,9) if active else (0,5,6)), 'Snapshot routing')
+                if active:
+                    for index, fmt in ((7,'RGBA32F'),(8,'RGBA8'),(9,'R16F')):
+                        require(f'const int colortex{index}Format = {fmt};' in source, 'Attachment format')
+            else:
+                require(route == (0,), 'Full resolution optical output')
+        require(('blend.gbuffers_water.colortex7' in properties) == (supported and (active or debug in (7,8,9))),
+                'Surface record blend mode')
+    for language in ('en_us','zh_cn'):
+        labels = parse_language((SHADERS/'lang'/(language+'.lang')).read_text(encoding='utf-8'))
+        require(all('option.'+key in labels for key in options), 'Missing translation for '+language)
+    print('PASS: 64 live capability/setting combinations, writer routing, formats, profiles and translations')
 
-# Independent projection/reconstruction test with camera rotation AND translation.
-# Shadow coordinates of a fixed world point must not depend on camera pose.
-def mv(matrix, vector):
-    return [sum(a*b for a,b in zip(row, vector)) for row in matrix]
-def mm(a, b):
-    return [[sum(a[i][k]*b[k][j] for k in range(4))
-             for j in range(4)] for i in range(4)]
-def inverse(matrix):
-    a = [list(row) + [float(i==j) for j in range(4)]
-         for i,row in enumerate(matrix)]
-    for i in range(4):
-        pivot = max(range(i,4), key=lambda k: abs(a[k][i]))
-        a[i],a[pivot] = a[pivot],a[i]
-        div = a[i][i]
-        assert abs(div) > 1e-12
-        a[i] = [x/div for x in a[i]]
-        for j in range(4):
-            if j != i:
-                factor = a[j][i]
-                a[j] = [x-factor*y for x,y in zip(a[j],a[i])]
-    return [row[4:] for row in a]
-def translate(x,y,z):
-    return [[1,0,0,x],[0,1,0,y],[0,0,1,z],[0,0,0,1]]
-def yaw(angle):
-    c,s = math.cos(angle),math.sin(angle)
-    return [[c,0,s,0],[0,1,0,0],[-s,0,c,0],[0,0,0,1]]
-def divide(v):
-    return [x/v[3] for x in v[:3]]
-near,far = .1,256.0
-projection = [[1.3,0,0,0],[0,1.7,0,0],
-              [0,0,-(far+near)/(far-near),-2*far*near/(far-near)],
-              [0,0,-1,0]]
-light_world = mm(yaw(-.6), translate(0,-20,0))
-light_projection = [[1/64,0,0,0],[0,1/64,0,0],
-                    [0,0,-1/256,0],[0,0,0,1]]
-world_point = [-2,3,-18,1]
-expected = divide(mv(mm(light_projection, light_world), world_point))
-for anchor, angle in (((0,0,0),0), ((3,2,1),.3), ((-1,1,-2),-.2)):
-    player = [world_point[i]-anchor[i] for i in range(3)] + [1]
-    view_matrix = mm(yaw(angle), translate(0,-1.62,0))
-    ndc = divide(mv(mm(projection, view_matrix), player))
-    screen = [x*.5+.5 for x in ndc]
-    recovered_view = divide(mv(inverse(projection),
-                               [x*2-1 for x in screen]+[1]))
-    recovered_player = mv(inverse(view_matrix), recovered_view+[1])
-    light_player = mm(light_world, translate(*anchor))
-    actual = divide(mv(mm(light_projection, light_player), recovered_player))
-    assert max(abs(a-b) for a,b in zip(actual,expected)) < 1e-10
-print("PASS: hard comparison, ambient/block preservation, depth-only caster scope")
-print("PASS: perspective reconstruction and camera-pose-invariant light coordinates")
 
-# PCF numerical oracle. Counts logical comparisons separately from texture reads:
-# every out-of-map tap is lit and performs no fetch, but stays in the denominator.
-MODES = ((0, 0, 1), (1, 1, 9), (2, 2, 25))
-SOFTNESSES = (0.0, .5, 1.0, 1.5, 2.0)
-# Read actual literal offsets; every matched offset must belong to a comparison.
-poisson_source = preprocess(shadow_source,5,False,True,3)
-POISSON_OFFSETS = tuple((float(x),float(y)) for x,y in re.findall(
-    r"visibility \+= compareShadow\(shadowCoord\.xy \+ vec2\(\s*(-?\d+\.\d+),\s*(-?\d+\.\d+)\) \* tapStepUV, shadowCoord\.z, effectiveBias, mapSize\);",
-    poisson_source))
-assert len(POISSON_OFFSETS) == 8
-assert len(set(POISSON_OFFSETS)) == 8
-assert all(x*x+y*y <= 1 for x,y in POISSON_OFFSETS)
-assert all(abs(sum(p[axis] for p in POISSON_OFFSETS)/8) < .001 for axis in (0,1))
-assert min(math.hypot(a[0]-b[0],a[1]-b[1]) for i,a in enumerate(POISSON_OFFSETS)
-           for b in POISSON_OFFSETS[i+1:]) > .6
-assert {(x > 0,y > 0) for x,y in POISSON_OFFSETS} == {(False,False),(False,True),(True,False),(True,True)}
-
-def reference_filter(grid, uv, current=.5, bias=.0002, mode=1, softness=1.0):
-    assert mode in (0, 1, 2, 3)
-    height, width = len(grid), len(grid[0])
-    offsets = [(0, 0)] if mode == 0 else [
-        (x, y) for y in range(-mode, mode+1) for x in range(-mode, mode+1)]
-    if mode == 3:
-        offsets = POISSON_OFFSETS
-    lit, reads = 0.0, 0
-    for x, y in offsets:
-        u, v = uv[0]+x*softness/width, uv[1]+y*softness/height
-        if not (0 <= u < 1 and 0 <= v < 1):
-            lit += 1.0
-            continue
-        reads += 1
-        lit += float(current-bias <= grid[int(v*height)][int(u*width)])
-    return lit / len(offsets), len(offsets), reads
-
-# A wide map keeps the 5x5/softness-2 footprint inside for interior tests.
-size = 16
-lit_map = [[.8]*size for _ in range(size)]
-dark_map = [[.2]*size for _ in range(size)]
-edge = [[.2 if x < 8 else .8 for x in range(size)] for _ in range(size)]
-probe_uvs = ((.01,.01), (7.5/16,8.5/16), (8.5/16,8.5/16), (.99,.99))
-for mode, radius, count in MODES:
-    for softness in SOFTNESSES:
-        for grid, expected in ((lit_map,1), (dark_map,0)):
-            assert reference_filter(grid,(.5,.5),mode=mode,softness=softness) == (expected,count,count)
-        for uv in probe_uvs:
-            value, comparisons, reads = reference_filter(edge,uv,mode=mode,softness=softness)
-            assert comparisons == count and 0 <= reads <= count
-            assert 0 <= value <= 1
-            if mode == 0:
-                assert (value,comparisons,reads) == reference_filter(edge,uv,mode=0,softness=1)
-        for uv in probe_uvs:
-            assert reference_filter(edge,uv,mode=mode,softness=0)[0] == reference_filter(edge,uv,mode=0)[0]
-    # These independent analytic results distinguish compare-then-average from
-    # averaging depth first (which would produce only a binary edge result).
-    for uv, expected in (((7.5/16,8.5/16), radius/(2*radius+1)),
-                         ((8.5/16,8.5/16), (radius+1)/(2*radius+1))):
-        assert abs(reference_filter(edge,uv,mode=mode)[0]-expected) < 1e-12
-    # At every corner only (radius+1)^2 taps are in bounds: 1/1, 4/9, 9/25.
-    for uv in ((.5/16,.5/16), (15.5/16,.5/16), (.5/16,15.5/16), (15.5/16,15.5/16)):
-        value, comparisons, reads = reference_filter(dark_map,uv,mode=mode)
-        expected_reads = (radius+1)**2
-        assert (comparisons,reads) == (count,expected_reads)
-        assert abs(value-(count-expected_reads)/count) < 1e-12
-    # A straight map edge also treats taps beyond either axis as lit.
-    assert abs(reference_filter(dark_map,(.5/16,.5),mode=mode)[0]-radius/(2*radius+1)) < 1e-12
-for uv in ((-1e-6,.5),(1.0,.5),(.5,-1e-6),(.5,1.0)):
-    assert reference_filter(dark_map,uv,mode=0) == (1,1,0)
-assert reference_filter(dark_map,(0,0),mode=0) == (0,1,1)
-
-# Tie the source's actual inclusive loop bounds and accumulation to the oracle.
-# These are structural contracts, not a GLSL interpreter/compiler.
-def function_body(source, name):
-    match = re.search(r"\b" + name + r"\([^)]*\)\s*\{", source)
-    assert match, "Missing function: " + name
-    start, depth = match.end(), 1
-    for index in range(start, len(source)):
-        depth += (source[index] == "{") - (source[index] == "}")
-        if depth == 0:
-            return source[start:index]
-    raise AssertionError("Unclosed function: " + name)
-
-def compact(source):
-    return re.sub(r"\s+", "", re.sub(r"/\*.*?\*/|//[^\n]*", "", source, flags=re.S))
-
-for mode, radius, count in MODES:
-    for softness in SOFTNESSES:
-        source = preprocess(shadow_source,5,False,True,mode,softness)
-        body = compact(function_body(source,"filterShadow")).replace(",effectiveBias,", ",")
-        assert body.count("compareShadow(") == 1
-        assert "textureSize(shadowtex1,0)" in body
-        if mode == 0:
-            assert "for(" not in body and "kernelRadius" not in body
-            assert "tapStepUV" not in body
-            assert "returncompareShadow(shadowCoord.xy,shadowCoord.z,mapSize);" in body
-        else:
-            actual_radius = int(re.search(r"constintkernelRadius=(\d+);",body)[1])
-            assert actual_radius == radius
-            assert (2*actual_radius+1)**2 == count
-            for axis in ('x','y'):
-                assert "for(int{0}=-kernelRadius;{0}<=kernelRadius;++{0})".format(axis) in body
-            assert body.count("for(") == 2
-            assert "vec2texelSize=1.0/vec2(mapSize);" in body
-            assert "tapStepUV=texelSize*"+str(softness)+";" in body
-            assert "offsetUV=vec2(float(x),float(y))*tapStepUV;" in body
-            assert "floatvisibility=0.0;" in body and "floatsampleCount=0.0;" in body
-            assert "visibility+=compareShadow(shadowCoord.xy+offsetUV,shadowCoord.z,mapSize);" in body
-            assert "sampleCount+=1.0;" in body
-            assert "returnvisibility/sampleCount;" in body
-            assert "texelFetch" not in body
-
-# Compare complete tested functions, not a prefix or the moving HEAD commit.
-previous_shadow = subprocess.check_output([
-    "git","-C",str(ROOT),"show",BASELINE+":shaders/lib/shadow.glsl"]).decode()
-def legacy_shadow_body(source, name):
-    body = compact(function_body(source,name))
-    if name == "compareShadow":
-        return body.replace("effectiveBias", "SHADOW_BIAS")
-    if name == "shadowVisibility":
-        return body.replace("floateffectiveBias=effectiveShadowBias(normalView,lightDirectionView);", "").replace(
-            "filterShadow(shadowCoord,effectiveBias)", "filterShadow(shadowCoord)")
-    return body
-for name in ("compareShadow","shadowVisibility","rawShadowDepth"):
-    assert compact(function_body(previous_shadow,name)) == legacy_shadow_body(shadow_source,name), name
-for relative in ("shaders/lib/position.glsl", "shaders/lib/lighting.glsl",
-                 "shaders/lib/gbuffer_write.glsl",
-                 "shaders/shadow.vsh", "shaders/shadow.fsh", "shaders/deferred.vsh",
-                 "shaders/final.vsh"):
-    baseline = subprocess.check_output(["git","-C",str(ROOT),"show",BASELINE+":"+relative]).decode()
-    assert baseline.replace("\r\n","\n") == historical_source(relative, (ROOT/relative).read_text()), relative
-settings = (SHADERS/"lib/shadow_settings.glsl").read_text()
-assert re.search(r"^#define SHADOWS_ENABLED(?: //.*)?$",settings,re.M)
-assert re.search(r"^#define SHADOW_BIAS 0\.0002 //",settings,re.M)
-assert re.search(r"^#define SHADOW_FILTER 1 // \[0 1 2 3\]",settings,re.M)
-assert re.search(r"^#define SHADOW_SOFTNESS 1\.0 // \[0\.0 0\.5 1\.0 1\.5 2\.0\]",settings,re.M)
-language = (SHADERS/"lang/en_us.lang").read_text()
-for mode, label in ((0,"Hard"),(1,"3x3 PCF"),(2,"5x5 PCF"),(3,"Poisson PCF")):
-    assert re.search(r"^value\.SHADOW_FILTER\."+str(mode)+"="+re.escape(label)+r"\s*$",language,re.M)
-for option in ("SHADOW_FILTER","SHADOW_SOFTNESS"):
-    assert re.search(r"^option\."+option+r"=.+$",language,re.M)
-    assert option in props.split("screen =",1)[1].splitlines()[0].split()
-assert "SHADOW_SOFTNESS" in props.split("sliders =",1)[1].splitlines()[0].split()
-print("PASS: Hard/3x3/5x5 have 1/9/25 logical taps; bounded fetch counts checked")
-print("PASS: all-lit, all-shadowed, 1/3-2/3 and 2/5-3/5 edges, all four corners")
-print("PASS: all five softness values; zero equals Hard and Hard ignores softness")
-print("PASS: pinned Milestone 3B transforms, bounds, caster scope, lighting and debug 0-5 unchanged")
-print("PASS: four filter labels, UI references and defaults")
-
-# Poisson contract: eight explicit comparisons, average of visibility not depths.
-for softness in SOFTNESSES:
-    body = compact(function_body(preprocess(shadow_source,5,False,True,3,softness),"filterShadow"))
-    assert body.count("compareShadow(") == body.count("visibility+=") == 8
-    assert "floatvisibility=0.0;" in body and "returnvisibility/8.0;" in body
-    assert "vec2tapStepUV="+str(softness)+"/vec2(mapSize);" in body
-    assert "for(" not in body and "texelFetch" not in body
-    for grid, expected in ((lit_map,1),(dark_map,0)):
-        assert reference_filter(grid,(.5,.5),mode=3,softness=softness) == (expected,8,8)
-    for uv in probe_uvs:
-        value, taps, reads = reference_filter(edge,uv,mode=3,softness=softness)
-        assert 0 <= value <= 1 and taps == 8 and 0 <= reads <= 8
-        assert reference_filter(edge,uv,mode=3,softness=0)[0] == reference_filter(edge,uv,mode=0)[0]
-# Analytic tap counts at a vertical edge for the fixed pattern (not a copied sum).
-assert reference_filter(edge,(7.5/16,8.5/16),mode=3) == (.25,8,8)
-assert reference_filter(edge,(8.5/16,8.5/16),mode=3) == (.75,8,8)
-diagonal = [[.8 if x+y >= 16 else .2 for x in range(size)] for y in range(size)]
-assert reference_filter(diagonal,(8.5/16,8.5/16),mode=3) == (5/8,8,8)
-assert reference_filter(dark_map,(.5/16,.5/16),mode=3) == (.5,8,4)
-# Broader cases include non-square maps, fractional UVs, bias and every softness.
-pattern = [[.2 if (x+2*y)%3 else .8 for x in range(16)] for y in range(12)]
-for softness, u, v, bias in product(SOFTNESSES,(0,.013,.49,.5,.531,.999),
-                                   (0,.02,.41,.5,.731,.999),(0,.0002,.002)):
-    value, taps, reads = reference_filter(pattern,(u,v),mode=3,softness=softness,bias=bias)
-    assert 0 <= value <= 1 and taps == 8 and 0 <= reads <= 8
-    if softness == 0:
-        assert value == reference_filter(pattern,(u,v),mode=0,bias=bias)[0]
-# Prove each prior mode's preprocessed filter body is unchanged against M4.
-grid_settings = subprocess.check_output([
-    "git","-C",str(ROOT),"show",GRID_BASELINE+":shaders/lib/shadow_settings.glsl"]).decode()
-grid_shadow = subprocess.check_output([
-    "git","-C",str(ROOT),"show",GRID_BASELINE+":shaders/lib/shadow.glsl"]).decode()
-for mode, _, _ in MODES:
-    for softness in SOFTNESSES:
-        old = preprocess(grid_settings+grid_shadow,5,False,True,mode,softness)
-        new = preprocess(shadow_source,5,False,True,mode,softness)
-        assert compact(function_body(old,"filterShadow")) == compact(function_body(new,"filterShadow")).replace(",effectiveBias,", ",")
-print("PASS: Poisson 8 separated disk taps, centered pattern, compare-then-average")
-print("PASS: Poisson lit/dark, straight/diagonal edge, boundary and zero-softness cases")
-print("PASS: Hard/3x3/5x5 filter math preserved against Milestone 4 (shared bias parameter only)")
-
-# M6: guard the narrowly scoped API adaptation against the latest M5 baseline.
-def baseline_file(relative):
-    return subprocess.check_output(["git","-C",str(ROOT),"show",BIAS_BASELINE+":"+relative]).decode()
-legacy_shadow = baseline_file("shaders/lib/shadow.glsl")
-legacy_settings = baseline_file("shaders/lib/shadow_settings.glsl")
-for mode, softness, bias_mode in product(range(4),SOFTNESSES,(0,1)):
-    before = preprocess(legacy_settings+legacy_shadow,5,False,True,mode,softness)
-    after = preprocess(shadow_source,5,False,True,mode,softness,bias_mode)
-    old_body = compact(function_body(before,"filterShadow"))
-    new_body = compact(function_body(after,"filterShadow"))
-    assert old_body == new_body.replace(",effectiveBias,", ",")
-    # Reject per-tap recomputation or any alternate bias argument.
-    assert new_body.count(",effectiveBias,mapSize)") == (8 if mode == 3 else 1)
-receiver = compact(function_body(shadow_source,"shadowVisibility"))
-assert receiver.count("effectiveShadowBias(normalView,lightDirectionView)") == 1
-assert "returnfilterShadow(shadowCoord,effectiveBias);" in receiver
-# Deferred only decodes its existing view normal once and passes it with the
-# existing view-space celestial light. Lambert/ambient/block math stays pinned.
-deferred = compact(function_body(restore_fog_plumbing((SHADERS/"deferred.fsh").read_text()),"main"))
-assert "shadowVisibility(pixel,normalView,shadowLightPosition)" in deferred
-# M7 adds one palette call after the unchanged M6 lighting computation.
-restored = deferred.replace("color.rgb=applyCelestialPalette(color.rgb,normalView,levels,visibility);", "").replace(
-    "vec3normalView=decodeNormal(surface.rgb);", "").replace(
-    "shadowVisibility(pixel,normalView,shadowLightPosition)", "shadowVisibility(pixel)").replace(
-    "lightScene(scene.rgb,normalView,levels,visibility)",
-    "lightScene(scene.rgb,decodeNormal(surface.rgb),levels,visibility)")
-assert restored == compact(function_body(baseline_file("shaders/deferred.fsh"),"main"))
-lighting_settings = restore_water_debug_source("lib/lighting_settings.glsl", (SHADERS/"lib/lighting_settings.glsl").read_text())
-assert compact(lighting_settings) == compact(baseline_file("shaders/lib/lighting_settings.glsl"))
-for debug in range(6):
-    old = preprocess(baseline_file("shaders/lib/lighting_settings.glsl")+baseline_file("shaders/final.fsh"),debug,False)
-    new = preprocess(lighting_settings+(SHADERS/"final.fsh").read_text(),debug,False)
-    assert compact(function_body(old,"main")) == compact(function_body(new,"main")).replace(
-        "shadowVisibility(pixel,normalView,shadowLightPosition)", "shadowVisibility(pixel)")
-# Remove only the exact M9, then M8/M7 additions before the complete M5 contract.
-pre_m9_props = historical_source("shaders.properties", raw_props)
-m8_properties_suffix = "\n# M8 scene storage/compositing and display mapping.\nscreen.COLOR_PIPELINE = SCENE_COLOR_MODE TONE_MAPPING TONEMAP_KNEE EXPOSURE\nscreen.COLOR_PIPELINE.columns = 2\n"
-assert pre_m9_props.endswith(m8_properties_suffix)
-pre_m8_props = pre_m9_props[:-len(m8_properties_suffix)].replace("screen = [COLOR_PIPELINE] ", "screen = ").replace(
-    "sliders = TONEMAP_KNEE ", "sliders = ")
-m7_properties_suffix = "\n# M7 fantasy styling; legacy controls retain their existing names.\nscreen.ATMOSPHERE = SKY_STYLE SKY_BLEND SUNSET_GLOW NIGHT_BRIGHTNESS LIGHT_PALETTE LIGHT_PALETTE_STRENGTH\nscreen.ATMOSPHERE.columns = 2\n"
-assert pre_m8_props.endswith(m7_properties_suffix)
-pre_m7_props = pre_m8_props[:-len(m7_properties_suffix)].replace("screen = [ATMOSPHERE] ", "screen = ").replace(
-    "sliders = SKY_BLEND SUNSET_GLOW NIGHT_BRIGHTNESS LIGHT_PALETTE_STRENGTH ", "sliders = ")
-restored_props = pre_m7_props.replace("SHADOW_BIAS SHADOW_BIAS_MODE SHADOW_BIAS_MIN SHADOW_BIAS_MAX SHADOW_FILTER",
-                              "SHADOW_BIAS SHADOW_FILTER").replace(
-    "SHADOW_BIAS SHADOW_BIAS_MIN SHADOW_BIAS_MAX LIGHTING_STRENGTH", "SHADOW_BIAS LIGHTING_STRENGTH")
-assert restored_props == baseline_file("shaders/shaders.properties").replace("\r\n","\n")
-
-bias_source = (SHADERS/"lib/shadow_bias.glsl").read_text()
-constant_source = preprocess(settings+bias_source,0,False,bias_mode=0)
-assert compact(function_body(constant_source,"effectiveShadowBias")) == "returnSHADOW_BIAS;"
-angle_source = preprocess(settings+bias_source,0,False,bias_mode=1)
-assert compact(function_body(angle_source,"effectiveShadowBias")) == (
-    "vec2bounds=shadowBiasBounds();floatangleFactor=1.0-shadowBiasNdotL(normalView,lightDirectionView);"
-    "returnclamp(mix(bounds.x,bounds.y,angleFactor),bounds.x,bounds.y);")
-assert "return clamp(dot(normalUnit, lightUnit), 0.0, 1.0);" in bias_source
-for term in ("isnan(normalView)","isinf(normalView)","isnan(lightDirectionView)","isinf(lightDirectionView)",
-             "normalScale <= 1e-6 || lightScale <= 1e-6", "normalize(normalView / normalScale)",
-             "normalize(lightDirectionView / lightScale)", "if (span <= 1e-8) return 0.0;"):
-    assert term in bias_source
-assert compact(function_body(bias_source,"shadowBiasBounds")) == (
-    "returnclamp(vec2(min(SHADOW_BIAS_MIN,SHADOW_BIAS_MAX),max(SHADOW_BIAS_MIN,SHADOW_BIAS_MAX)),0.0,0.002);")
-
-def clamp(x,lo,hi):
-    return min(hi,max(lo,x))
-def bias_bounds(lo,hi):
-    return clamp(min(lo,hi),0,.002),clamp(max(lo,hi),0,.002)
-def receiver_ndotl(normal,light):
-    if not all(math.isfinite(v) for v in normal+light):
-        return 0.0
-    ns,ls = max(map(abs,normal)),max(map(abs,light))
-    if ns <= 1e-6 or ls <= 1e-6:
-        return 0.0
-    n,l = norm([v/ns for v in normal]),norm([v/ls for v in light])
-    return clamp(sum(a*b for a,b in zip(n,l)),0,1)
-def receiver_bias(ndotl,mode=1,constant=.0002,lo=.0001,hi=.0005):
-    if mode == 0:
-        return constant
-    lo,hi = bias_bounds(lo,hi)
-    return clamp(lo+(hi-lo)*(1-clamp(ndotl,0,1)),lo,hi)
-def debug_bias(bias,lo,hi):
-    lo,hi = bias_bounds(lo,hi)
-    return 0 if hi-lo <= 1e-8 else clamp((bias-lo)/(hi-lo),0,1)
-BIAS_VALUES = (0,.00005,.0001,.0002,.0005,.001,.002)
-for lo,hi in product(BIAS_VALUES,repeat=2):
-    minimum,maximum = bias_bounds(lo,hi)
-    results = [receiver_bias(n,lo=lo,hi=hi) for n in (1,.75,.5,.25,0)]
-    assert all(math.isfinite(x) and minimum <= x <= maximum for x in results)
-    assert results == sorted(results)
-    assert abs(results[0]-minimum) < 1e-12 and abs(results[-1]-maximum) < 1e-12
-    for result in results:
-        assert math.isfinite(debug_bias(result,lo,hi)) and 0 <= debug_bias(result,lo,hi) <= 1
-    if lo == hi:
-        assert debug_bias(lo,lo,hi) == 0
-assert bias_bounds(-.001,.1) == (0,.002)
-assert receiver_bias(-1) == receiver_bias(0)
-assert receiver_bias(2) == receiver_bias(1)
-assert abs(debug_bias(.0002,.0001,.0005)-.25) < 1e-12
-# Directions use the same space, remain normalized, and have finite fallbacks.
-for n,expected in (((0,1,0),1),((1,0,0),0),((0,-1,0),0),((0,0,0),0),
-                   ((0,1e30,0),1),((0,1e-30,0),0),((float('nan'),0,0),0),
-                   ((float('inf'),0,0),0)):
-    value = receiver_ndotl(n,(0,100,0))
-    assert math.isfinite(value) and value == expected
-    assert math.isfinite(receiver_bias(value))
-for bad_light in ((0,0,0),(float('inf'),0,0),(0,float('nan'),0)):
-    assert receiver_ndotl((0,1,0),bad_light) == 0
-n,l = norm((1,2,3)),norm((-2,3,1))
-for angle in (-2,-.3,0,.5,2):
-    rotated_n = tuple(mv(yaw(angle),list(n)+[0])[:3])
-    rotated_l = tuple(mv(yaw(angle),list(l)+[0])[:3])
-    assert abs(receiver_ndotl(rotated_n,rotated_l)-receiver_ndotl(n,l)) < 1e-12
-# Comparison-sensitive depths and both signs of the edge avoid trivial tests.
-for mode,softness,constant in product(range(4),SOFTNESSES,BIAS_VALUES):
-    for uv in probe_uvs:
-        for depth in (.2,.20005,.2002,.8,.8002):
-            for facing in (1,.75,.5,.25,0):
-                value = receiver_bias(facing,mode=0,constant=constant)
-                assert reference_filter(edge,uv,current=depth,bias=value,mode=mode,softness=softness) == reference_filter(
-                    edge,uv,current=depth,bias=constant,mode=mode,softness=softness)
-                angled = receiver_bias(facing)
-                visibility = reference_filter(edge,uv,current=depth,bias=angled,mode=mode,softness=softness)[0]
-                assert 0 <= visibility <= 1
-                if softness == 0:
-                    assert visibility == reference_filter(edge,uv,current=depth,bias=angled,mode=0)[0]
-for option,default in (("SHADOW_BIAS_MODE","0"),("SHADOW_BIAS_MIN","0.0001"),("SHADOW_BIAS_MAX","0.0005")):
-    assert re.search(r"^#define "+option+" "+re.escape(default)+r" //",settings,re.M)
-    assert re.search(r"^option\."+option+r"=.+$",language,re.M)
-    assert option in props.split("screen =",1)[1].splitlines()[0].split()
-assert "#define SHADOW_BIAS_MODE 0 // [0 1]" in settings
-assert "value.SHADOW_BIAS_MODE.0=Constant" in language
-assert "value.SHADOW_BIAS_MODE.1=Angle-Aware" in language
-assert "[0 1 2 3 4 5 6]" in lighting_settings
-assert "value.DEBUG_VIEW.6=Effective Shadow Bias" in language
-for mode in (0,1):
-    debug_source = preprocess(expand(SHADERS/"final.fsh"),6,False,bias_mode=mode)
-    debug_main = compact(function_body(debug_source,"main"))
-    assert "gradeColor" not in debug_main
-    assert "vec3debugColor=vec3(0.0);" in debug_main and "surface.a>0.5" in debug_main
-    assert "texelFetch(depthtex1,pixel,0).r<1.0" in debug_main
-    assert "shadowBiasDebug(effectiveShadowBias(normalView,shadowLightPosition))" in debug_main
-print("PASS: M6 shared bias for 1/9/25/8 taps; constant mode exactly preserves M5 filter/receiver math")
-print("PASS: angle bias bounds, monotonicity, reversed/equal bounds, invalid vectors and camera rotation")
-print("PASS: legacy direct/ambient/block lighting and debug 0-5 preserved; safe ungraded debug 6")
-print("LIMIT: static structural/numerical validation is NOT Minecraft/Iris/GPU runtime validation")
-
-# M7 extends the contracts above; it does not replace their historical baselines.
-from validate_atmosphere import validate_atmosphere
-validate_atmosphere(ROOT, expand, preprocess, compact, function_body)
-
-# M8 preserves prior experiments in legacy mode and adds scene-linear contracts.
-from validate_color_pipeline import validate_color_pipeline
-validate_color_pipeline(ROOT, expand, preprocess, compact, function_body)
-
-# M9 adds bounded fog and blending contracts without replacing prior baselines.
-from validate_fog import validate_fog
-validate_fog(ROOT, expand, preprocess, compact, function_body)
-
-# M10 preserves M9 shaders and adds the four bloom passes.
-from validate_bloom import validate_bloom
-validate_bloom(ROOT, expand, preprocess, compact, function_body)
-
-# M11 preserves previous passes and adds sky-only procedural night ribbons.
-from validate_aurora import validate_aurora
-validate_aurora(ROOT, expand, preprocess, compact, function_body)
-
-# M12 keeps native cloud geometry and adds only source RGB atmosphere.
-from validate_clouds import validate_clouds
-validate_clouds(ROOT, expand, preprocess, compact, function_body)
-
-# M13 scopes water RGB to a flat material/fluid classification before existing fog.
-from validate_water import validate_water
-validate_water(ROOT, expand, preprocess, compact, function_body)
-
-# M14 changes reflection normals while preserving all original geometry/coverage.
-from validate_water_waves import validate_water_waves
-validate_water_waves(ROOT, expand, preprocess, compact, function_body)
-
-# M16 measures same-ray world depth without changing alpha, waves or reflection.
-from validate_water_depth import validate_water_depth
-validate_water_depth(ROOT, expand, preprocess, compact, function_body)
-
-# M17 preserves shader defaults and groups every control exactly once.
-from validate_settings_profiles import validate_settings_profiles
-validate_settings_profiles(ROOT)
-
-# M18 shares rooted foliage displacement between terrain and shadow casters.
-from validate_foliage import validate_foliage
-validate_foliage(ROOT, expand, preprocess, compact, function_body)
-
-# M19 adds independent sun/moon background glow before the existing aurora.
-from validate_celestial_glow import validate_celestial_glow
-validate_celestial_glow(ROOT, expand, preprocess, compact, function_body)
-
-# W1 captures matched scene radiance/depth while pinning every M19 shader file.
-from validate_water_snapshot import validate_water_snapshot
-validate_water_snapshot(ROOT, expand, preprocess, compact, function_body)
-
-# W2 adds footprint-filtered surface normals while preserving the W1 snapshot.
-from validate_water_filtered_waves import validate_water_filtered_waves
-validate_water_filtered_waves(ROOT, expand, preprocess, compact, function_body)
-
-# W3 adds bounded screen reflections and independent analytic ray-hit truth.
-from validate_water_screen_reflection import validate_water_screen_reflection
-validate_water_screen_reflection(ROOT, expand, preprocess, compact, function_body)
-
-# M0 exposes live water metadata while preserving all earlier rendering paths.
-from validate_water_debug import validate_water_debug
-validate_water_debug(ROOT, expand, preprocess, compact, function_body)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--historical', action='store_true', help='Also replay the complete pinned M0 suite')
+    args = parser.parse_args()
+    test_pack()
+    test_lab()
+    if args.historical:
+        print('Replaying original M0 checks from '+BASE, flush=True)
+        test_history()

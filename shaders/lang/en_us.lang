@@ -210,3 +210,10 @@ option.WATER_REFLECTION_STEPS.comment=Larger budgets can reach more on-screen su
 value.DEBUG_VIEW.7=Water Surface Mask
 value.DEBUG_VIEW.8=Filtered Water View Normal
 value.DEBUG_VIEW.9=Water Background Ray Gap (0-16 m)
+
+option.WATER_OPTICS=Water Optical Transport
+value.WATER_OPTICS.0=Off
+value.WATER_OPTICS.1=On
+option.WATER_OPTICS.comment=Depth-dependent absorption and scattering for a single visible water surface above a solid bed. Requires HDR and independent blending.
+option.WATER_CLARITY=Water Clarity
+option.WATER_CLARITY.comment=Water travel distance for the same light loss. Higher values reveal deeper terrain.

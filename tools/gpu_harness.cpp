@@ -406,6 +406,8 @@ GLint storageFormat(const std::string& name) {
     if (name == "RGBA16F") return GL_RGBA16F;
     if (name == "RGBA32F") return GL_RGBA32F;
     if (name == "R32F") return GL_R32F;
+    if (name == "R16F") return GL_R16F;
+    if (name == "RGBA8") return GL_RGBA8;
     throw Failure("manifest", "Unsupported storage format: " + name);
 }
 
@@ -734,6 +736,109 @@ std::vector<std::string> render(const GlApi& gl, const GlInfo& info, const Rende
     writePixelsFile(spec.target.path, output);
     return inactiveBindings;
 }
+
+// Narrow protocol proof, intentionally separate from the ordinary render path.
+// The fragment supplied by the Python fixture copies these three uniforms.
+std::string waterBlendCheck(const GlApi& gl, const GlInfo& info,
+                            const std::string& vertex, const std::string& fragment) {
+    if (info.maxDrawBuffers < 3 || info.maxColorAttachments < 3)
+        throw Failure("water blend limits", "Three simultaneous color attachments required");
+    auto enable = Context::loadFunction<PFNGLENABLEIPROC>("glEnablei");
+    auto disable = Context::loadFunction<PFNGLDISABLEIPROC>("glDisablei");
+    auto blend = Context::loadFunction<PFNGLBLENDFUNCSEPARATEIPROC>("glBlendFuncSeparatei");
+    auto equation = Context::loadFunction<PFNGLBLENDEQUATIONIPROC>("glBlendEquationi");
+    Program program(gl); program.build(vertex, fragment);
+    RenderObjects objects(gl);
+    gl.GenFramebuffers(1, &objects.framebuffer);
+    gl.BindFramebuffer(GL_FRAMEBUFFER, objects.framebuffer);
+    const GLint formats[] = {GL_RGBA32F, GL_RGBA32F, GL_RGBA8};
+    const GLenum attachments[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};
+    for (int slot=0; slot<3; ++slot) {
+        objects.targets.push_back(0); glGenTextures(1, &objects.targets.back());
+        glBindTexture(GL_TEXTURE_2D, objects.targets.back()); textureParameters();
+        glTexImage2D(GL_TEXTURE_2D,0,formats[slot],2,2,0,GL_RGBA,GL_FLOAT,nullptr);
+        gl.FramebufferTexture2D(GL_FRAMEBUFFER,attachments[slot],GL_TEXTURE_2D,objects.targets.back(),0);
+    }
+    gl.DrawBuffers(3,attachments);
+    if (gl.CheckFramebufferStatus(GL_FRAMEBUFFER)!=GL_FRAMEBUFFER_COMPLETE)
+        throw Failure("water blend framebuffer","Mixed-format indexed blend framebuffer incomplete");
+    gl.UseProgram(program.id());
+    glDisable(GL_DEPTH_TEST); glDisable(GL_STENCIL_TEST); glDisable(GL_SCISSOR_TEST);
+    glDisable(GL_CULL_FACE); glDisable(GL_DITHER); glDisable(GL_MULTISAMPLE);
+    glDisable(GL_FRAMEBUFFER_SRGB); glDisable(GL_ALPHA_TEST);
+    glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE); glViewport(0,0,2,2);
+    glMatrixMode(GL_PROJECTION); glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+    glMatrixMode(GL_TEXTURE); glLoadIdentity();
+    for (int slot=0; slot<3; ++slot) equation(slot,GL_FUNC_ADD);
+    disable(GL_BLEND,1);
+    blend(0,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+    blend(2,GL_ONE,GL_ONE,GL_ONE,GL_ONE);
+    const GLfloat base[] = {.2f,.4f,.6f,.8f}, zero[] = {0,0,0,0};
+    const std::array<float,4> water = {.8f,.2f,.4f,.25f};
+    const std::array<float,4> overlay = {.1f,.9f,.3f,.5f};
+    const std::array<float,4> record = {.3f,.4f,.866f,.25f};
+    const std::array<float,4> count = {1.f/255.f,.2f,.6f,0};
+    const std::vector<std::pair<std::string,std::vector<int>>> patterns = {
+        {"one_water",{0}}, {"two_water",{0,0}}, {"water_then_overlay",{0,1}},
+        {"overlay_then_water",{1,0}}, {"opaque_replaces_blocker",{1,2,0}},
+        {"saturation_260_water",std::vector<int>(260,0)}};
+    double maximum = 0; std::ostringstream rows; rows << '[';
+    for (std::size_t index=0; index<patterns.size(); ++index) {
+        gl.ClearBufferfv(GL_COLOR,0,base); gl.ClearBufferfv(GL_COLOR,1,zero); gl.ClearBufferfv(GL_COLOR,2,zero);
+        std::array<double,4> expectedColor={base[0],base[1],base[2],base[3]}, expectedRecord{}, expectedCount{};
+        for (int kind:patterns[index].second) {
+            bool opaque=kind==2;
+            const auto& source=kind==0?water:overlay;
+            std::array<float,4> sourceRecord=kind==0?record:std::array<float,4>{0,0,0,0};
+            std::array<float,4> sourceCount=kind==0?count:std::array<float,4>{opaque?0.f:1.f,0,0,0};
+            if (opaque) { disable(GL_BLEND,0); disable(GL_BLEND,2); }
+            else { enable(GL_BLEND,0); enable(GL_BLEND,2); }
+            for (const auto& binding:std::vector<std::pair<const char*,std::array<float,4>>>{
+                    {"nativeColor",source},{"recordValue",sourceRecord},{"countValue",sourceCount}}) {
+                GLint location=gl.GetUniformLocation(program.id(),binding.first);
+                if (location<0) throw Failure("water blend uniform",std::string("Missing ")+binding.first);
+                gl.Uniform4f(location,binding.second[0],binding.second[1],binding.second[2],binding.second[3]);
+            }
+            glBegin(GL_TRIANGLES);
+            glVertex2f(-1,-1); glVertex2f(3,-1); glVertex2f(-1,3); glEnd();
+            checkGl("water indexed blend draw");
+            for (int channel=0;channel<4;++channel) {
+                expectedColor[channel]=opaque?source[channel]:
+                    (channel==3?source[channel]:source[channel]*source[3])+expectedColor[channel]*(1-source[3]);
+                expectedRecord[channel]=sourceRecord[channel];
+                // RGBA8 destination quantization occurs after every draw.
+                double value=sourceCount[channel]+(opaque?0:expectedCount[channel]);
+                expectedCount[channel]=std::round(std::clamp(value,0.0,1.0)*255)/255;
+            }
+        }
+        std::array<double,4> countRead{};
+        for (int slot=0;slot<3;++slot) {
+            glReadBuffer(attachments[slot]); GLfloat pixels[16]{};
+            glReadPixels(0,0,2,2,GL_RGBA,GL_FLOAT,pixels); checkGl("water indexed blend read");
+            const auto& expected=slot==0?expectedColor:slot==1?expectedRecord:expectedCount;
+            for (int pixel=0;pixel<4;++pixel) for (int channel=0;channel<4;++channel) {
+                double error=std::abs(pixels[pixel*4+channel]-expected[channel]);
+                maximum=std::max(maximum,error);
+                if (!std::isfinite(pixels[pixel*4+channel]) || error>2e-6)
+                    throw Failure("water blend comparison",patterns[index].first+" attachment "+std::to_string(slot));
+                if (slot==2 && pixel==0) countRead[channel]=pixels[channel];
+            }
+        }
+        if(index) rows << ',';
+        rows << "{\"label\":" << jsonQuote(patterns[index].first)
+             << ",\"draws\":" << patterns[index].second.size()
+             << ",\"count_r\":" << std::setprecision(10) << countRead[0] << '}';
+    }
+    rows << ']';
+    std::ostringstream result;
+    result << "{\"cases\":" << patterns.size() << ",\"pixels_per_case\":4,\"attachments\":3"
+           << ",\"max_absolute_error\":" << std::setprecision(12) << maximum
+           << ",\"cases_detail\":" << rows.str()
+           << ",\"scope\":\"Native indexed blend protocol, synthetic constant-output fragment; not Iris property wiring\"}";
+    return result.str();
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
@@ -746,7 +851,9 @@ int main(int argc, char** argv) {
         std::vector<CompileCase> cases;
         RenderSpec spec;
         std::vector<std::string> inactiveBindings;
-        if (command == "--probe" && argc == 2) {
+        if (command == "--water-blend-check" && argc == 4) {
+            absolutePath(argv[2]); absolutePath(argv[3]);
+        } else if (command == "--probe" && argc == 2) {
         } else if (command == "--compile" && argc == 4) {
             cases.push_back({"single", argv[2], argv[3]});
             absolutePath(argv[2]); absolutePath(argv[3]);
@@ -754,7 +861,7 @@ int main(int argc, char** argv) {
             cases = readBatch(argv[2]);
         } else if (command == "--render" && argc == 3) {
             spec = readRender(argv[2]);
-        } else throw Failure("arguments", "Usage: --probe | --compile VERTEX FRAGMENT | --compile-batch MANIFEST | --render MANIFEST");
+        } else throw Failure("arguments", "Usage: --probe | --compile VERTEX FRAGMENT | --compile-batch MANIFEST | --render MANIFEST | --water-blend-check VERTEX FRAGMENT");
         Context context;
         context.initialize(info);
         GlApi gl;
@@ -766,9 +873,12 @@ int main(int argc, char** argv) {
             ++completed;
         }
         activeCase.clear();
+        std::string waterBlendResult;
+        if (command == "--water-blend-check") waterBlendResult = waterBlendCheck(gl,info,argv[2],argv[3]);
         if (command == "--render") inactiveBindings = render(gl, info, spec);
         std::cout << "{\"ok\":true,\"command\":" << jsonQuote(command)
                   << ",\"gl\":" << info.json();
+        if (!waterBlendResult.empty()) std::cout << ",\"water_blend\":" << waterBlendResult;
         if (!cases.empty()) std::cout << ",\"compiled\":" << completed << ",\"case_count\":" << cases.size();
         if (command == "--render") {
             std::cout << ",\"width\":" << spec.target.width << ",\"height\":" << spec.target.height

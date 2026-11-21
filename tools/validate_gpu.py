@@ -274,17 +274,17 @@ def bloom_tests(runner):
         for threshold,knee,strength in ((1.0,.5,.08),(.5,0.0,.2),(2.0,1.0,.08)):
             label = 'bloom-{}x{}-t{}-k{}-s{}'.format(width,height,threshold,knee,strength)
             options = dict(BLOOM_THRESHOLD=threshold,BLOOM_SOFT_KNEE=knee,BLOOM_STRENGTH=strength)
-            extract = runner.render(label+'-extract',runner.pair('composite',options),sw,sh,
+            extract = runner.render(label+'-extract',runner.pair('composite1',options),sw,sh,
                                     [('colortex0',source,'RGBA16F'),('colortex3',dummy,'RGBA16F')],storage='RGBA16F')
             expected_extract = quantize(rgba(area_downsample(source,sw,sh,lambda p: extract_bright(p[:3],threshold,knee))))
             comparisons.append(compare(extract,expected_extract,label+'-extract',half_units=2,absolute=2e-6))
-            horizontal = runner.render(label+'-horizontal',runner.pair('composite1',options),sw,sh,
+            horizontal = runner.render(label+'-horizontal',runner.pair('composite2',options),sw,sh,
                                        [('colortex3',extract,'RGBA16F')],storage='RGBA16F')
             comparisons.append(compare(horizontal,quantize(rgba(blur_axis(extract,True))),label+'-horizontal',half_units=2,absolute=2e-6))
-            vertical = runner.render(label+'-vertical',runner.pair('composite2',options),sw,sh,
+            vertical = runner.render(label+'-vertical',runner.pair('composite3',options),sw,sh,
                                      [('colortex4',horizontal,'RGBA16F')],storage='RGBA16F')
             comparisons.append(compare(vertical,quantize(rgba(blur_axis(horizontal,False))),label+'-vertical',half_units=2,absolute=2e-6))
-            combined = runner.render(label+'-combine',runner.pair('composite3',options),width,height,
+            combined = runner.render(label+'-combine',runner.pair('composite4',options),width,height,
                                      [('colortex0',source,'RGBA16F'),('colortex3',vertical,'RGBA16F')],storage='RGBA16F')
             expected = quantize([[combine(source[y][x],bilinear(vertical,(x+.5)/width,(y+.5)/height),strength=strength)
                                   for x in range(width)] for y in range(height)])
@@ -299,7 +299,7 @@ def bloom_tests(runner):
     bloom = [[(4.0,2.0,1.0,0.0)]]
     for option in (dict(BLOOM_ENABLED=0),dict(BLOOM_STRENGTH=0.0),dict(SCENE_COLOR_MODE=0),dict(DEBUG_VIEW=5)):
         label = 'bloom-bypass-'+next(iter(option))
-        image = runner.render(label,runner.pair('composite3',option),2,1,
+        image = runner.render(label,runner.pair('composite4',option),2,1,
                               [('colortex0',source,'RGBA16F'),('colortex3',bloom,'RGBA16F')],storage='RGBA16F',optional=('colortex3',))
         comparisons.append(compare(image,source,label))
     return dict(graphs=9, passes_per_graph=4, comparisons=comparisons,
@@ -408,14 +408,14 @@ def shader_digest():
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--cxx',help='Installed MinGW g++ compiler; no download')
-    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial','snapshot','filtered-waves','screen-reflections','water-debug'),default='all')
+    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial','snapshot','filtered-waves','screen-reflections','water-debug','water-transport'),default='all')
     parser.add_argument('--report',help='New JSON report path under the project; existing files are never overwritten')
-    parser.add_argument('--debug-plate',help='Save the water-debug suite comparison to a new project PNG')
+    parser.add_argument('--debug-plate',help='Save the selected water suite comparison to a new project PNG')
     args=parser.parse_args()
     plate_path=None
     if args.debug_plate:
         plate_path=(ROOT/args.debug_plate).resolve()
-        require(args.suite=='water-debug' and ROOT.resolve() in plate_path.parents
+        require(args.suite in ('water-debug','water-transport') and ROOT.resolve() in plate_path.parents
                 and plate_path.suffix.lower()=='.png' and plate_path.parent.is_dir()
                 and not plate_path.exists(),'Water debug plate requires a new project PNG path')
 
@@ -488,6 +488,14 @@ def main():
             from validate_gpu_water_debug import debug_tests
             report['water_debug']=debug_tests(runner,plate_path)
             print('PASS: actual water capture and final debug displays',flush=True)
+        if args.suite in ('all','render','water-transport'):
+            from validate_gpu_water_transport import transport_tests
+            from validate_gpu_water_capture import capture_tests
+            if args.suite=='water-transport':
+                report['controls']=harness_controls(runner)
+            report['water_optics_capture']=capture_tests(runner)
+            report['water_transport']=transport_tests(runner,plate_path)
+            print('PASS: water optical transport on the native driver',flush=True)
         require(shader_digest()==report['shader_sha256'],'Shader source changed during validation; report invalid')
         report['ok']=True
         report['finished_utc']=datetime.now(timezone.utc).isoformat()

@@ -1,12 +1,23 @@
 #ifndef AURORA_WATER_PARAMS_INCLUDED
 #define AURORA_WATER_PARAMS_INCLUDED
-// Live parameters only: a small shared start, not the complete future water model.
+#include "/lib/water_optics_settings.glsl"
+// Shared calibration; optical transport fields exist only in the active M1 path.
 struct WaterParams {
-    float reflectionF0;          // Unitless artistic water-like normal reflectance.
-    float worldBlockMeters;      // Calibration convention: one block equals one meter.
-    float debugGapRangeMeters;   // White point of the ray-gap debug view, in meters.
+    float reflectionF0;
+    float worldBlockMeters;
+    float debugGapRangeMeters;
+#ifdef AURORA_WATER_OPTICS_ACTIVE
+    float refractiveIndex;
+    vec3 absorptionPerMeter;
+    vec3 scatteringPerMeter;
+#endif
 };
 WaterParams waterParams() {
+#ifdef AURORA_WATER_OPTICS_ACTIVE
+    return WaterParams(0.02, 1.0, 16.0, 1.333,
+                       vec3(0.18, 0.055, 0.025), vec3(0.012, 0.020, 0.025));
+#else
     return WaterParams(0.02, 1.0, 16.0);
+#endif
 }
 #endif

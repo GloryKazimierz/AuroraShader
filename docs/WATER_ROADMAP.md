@@ -1,8 +1,10 @@
 # AuroraShader: water-first development
 
+The water M1 development branch adds two-segment absorption, bounded scattering and configurable clarity. [Using and verifying water optics](WATER_M1_OPTICS.md).
+
 Updated: 2026-11-21. [中文路线图](WATER_ROADMAP.zh-CN.md).
 Starting implementation: M19 commit `74c7164874e446ebd8e763f146286c2c6908b820`.
-Current work: **Water M0 / W4A common optics and diagnostic capture**, branch `codex/water-04a-optics-foundation`.
+Foundation: **Water M0 / W4A common optics and diagnostic capture**, branch `codex/water-04a-optics-foundation`.
 [The layered architecture](WATER_ARCHITECTURE.md) defines A–L modules, buffer ownership and the active water M0–M7 sequence. M0 is implemented; complete historical CPU, focused offline and native checks passed.
 W3 is implemented; CPU/offline/native checks passed and three static synthetic views are recorded. [W3 notes](WATER_03_SCREEN_REFLECTIONS.md).
 W2 is implemented with CPU/offline/native checks passed; historical native depth

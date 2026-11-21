@@ -1,11 +1,13 @@
 # Aurora water architecture: contracts before effects
 
+The implementation following M0 is documented in [Water M1](WATER_M1_OPTICS.md), including its actual attachment formats, ownership guards and memory cost. The compact typed layout described below remains a design alternative.
+
 Updated: 2026-11-21. [中文](WATER_ARCHITECTURE.zh-CN.md) · [Water roadmap](WATER_ROADMAP.md).
 
 AuroraShader organizes water rendering into five layers, with A–L modules defining
 inputs, outputs and limits. This is a target architecture, not a completed feature list. W1 matched capture, W2 filtered normals and W3
 bounded SSR have recorded automated/native evidence; [W3](WATER_03_SCREEN_REFLECTIONS.md)
-still has native-alpha and reflected-segment-fog limitations. Current **water M0 /
+still has native-alpha and reflected-segment-fog limitations. The original **water M0 /
 W4A** establishes shared parameters and observable surface capture. Complete historical CPU,
 focused offline and native checks passed. Water M0–M7 below are a new sequence, not historical pack M1–M19.
 

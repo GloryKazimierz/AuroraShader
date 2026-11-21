@@ -1,6 +1,11 @@
 #include "/lib/normal.glsl"
 in vec3 normalView;
+#ifdef AURORA_WATER_OPTICS_ACTIVE
+/* RENDERTARGETS: 0,1,2,8 */
+layout(location = 3) out vec4 waterOpticsOwnership;
+#else
 /* RENDERTARGETS: 0,1,2 */
+#endif
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 normalData;
 layout(location = 2) out vec4 lightmapData;
@@ -14,4 +19,7 @@ void writeSurfaceData(vec2 lightmapUV) {
     // The sampled lightmap RGB is STILL multiplied into colortex0 as before.
     vec2 levels = clamp((lightmapUV - vec2(0.5 / 16.0)) * (16.0 / 15.0), 0.0, 1.0);
     lightmapData = vec4(levels, 0.0, 1.0);
+#ifdef AURORA_WATER_OPTICS_ACTIVE
+    waterOpticsOwnership = waterOpticsOpaqueOwnership(ivec2(gl_FragCoord.xy), blendFunc);
+#endif
 }

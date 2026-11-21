@@ -1,11 +1,13 @@
 # Aurora 水体架构：先明确职责，再增加效果
 
+M0 之后的实现见[水体 M1](WATER_M1_OPTICS.zh-CN.md)，其中列出实际启用的缓冲格式、透明层判定和显存成本。本文后面的紧凑型缓冲布局仍是备选设计。
+
 更新日期：2026-11-21。[English](WATER_ARCHITECTURE.md) · [水体路线图](WATER_ROADMAP.zh-CN.md)。
 
 AuroraShader 将水体渲染划分为五层，并用 A–L 模块记录各自输入、输出与边界。
 这些是目标架构，不代表所有功能已经完成。W1 匹配快照、W2 过滤法线、W3 有范围
 限制的 SSR 已有自动／本机证据；[W3](WATER_03_SCREEN_REFLECTIONS.zh-CN.md)
-仍保留原生 alpha 和暂缺反射段雾的限制。本阶段是 **水体 M0／W4A**，分支
+仍保留原生 alpha 和暂缺反射段雾的限制。基础阶段是 **水体 M0／W4A**，分支
 `codex/water-04a-optics-foundation`；完整历史 CPU／专项离线／本机检查已通过。以下水体 M0–M7 是新序列，
 与历史整包 M1–M19 分开编号。
 

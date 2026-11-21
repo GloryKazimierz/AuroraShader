@@ -1,4 +1,5 @@
 // M7 styles only the sky background; stars and textured celestial bodies remain vanilla.
+#include "/lib/water_optics_capture.glsl"
 #include "/lib/sky_palette.glsl"
 #include "/lib/aurora.glsl"
 #include "/lib/celestial_glow.glsl"
@@ -28,10 +29,20 @@ vec3 screenToView(vec3 screenPos) {
 	return tmp.xyz / tmp.w;
 }
 
+#ifdef AURORA_WATER_OPTICS_ACTIVE
+/* RENDERTARGETS: 0,8 */
+layout(location = 1) out vec4 waterOpticsOwnership;
+#else
 /* RENDERTARGETS: 0 */
+#endif
 layout(location = 0) out vec4 color;
 
 void main() {
+#ifdef AURORA_WATER_OPTICS_ACTIVE
+    // A later sky draw is not proof of an opaque background. Known opaque
+    // geometry can overwrite this flag only when it also overwrites scene RGB.
+    waterOpticsOwnership = vec4(1.0, 0.0, 0.0, 0.0);
+#endif
 	if (renderStage == MC_RENDER_STAGE_STARS) {
 		color = vec4(sceneFromDisplay(glcolor.rgb), glcolor.a);
 	} else {

@@ -1,8 +1,10 @@
 # AuroraShader：水体优先开发路线
 
+水体 M1 开发分支已经接入双程吸收、受光源限制的散射和清澈度调节。[启用方法与验证记录](WATER_M1_OPTICS.zh-CN.md)。
+
 更新日期：2026-11-21。[English roadmap](WATER_ROADMAP.md)。
 起点：M19 提交 `74c7164874e446ebd8e763f146286c2c6908b820`。
-当前工作：**水体 M0／W4A 共用光学与诊断采集**，分支 `codex/water-04a-optics-foundation`。
+基础阶段：**水体 M0／W4A 共用光学与诊断采集**，分支 `codex/water-04a-optics-foundation`。
 [分层架构](WATER_ARCHITECTURE.zh-CN.md)明确 A–L 模块、缓冲职责和当前水体 M0–M7 顺序；M0 已实现，完整历史 CPU／专项离线／本机检查通过。
 W3 已实现，CPU／离线／本机检查通过，并记录三种静态合成视角，见 [W3 学习笔记](WATER_03_SCREEN_REFLECTIONS.zh-CN.md)。
 W2 已实现，CPU／离线／本机检查通过；历史水深颜色本机回归也已通过。

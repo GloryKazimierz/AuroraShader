@@ -1,4 +1,5 @@
 // M8 keeps baked Minecraft shading, then converts RGB for scene composition.
+#include "/lib/water_optics_capture.glsl"
 #include "/lib/scene_color.glsl"
 #ifdef APPLY_LATE_FOG
 #include "/lib/fog.glsl"
@@ -24,6 +25,17 @@ in vec4 glcolor;
 #ifdef WRITE_SURFACE_DATA
 #include "/lib/gbuffer_write.glsl"
 #else
+#ifdef AURORA_WATER_OPTICS_ACTIVE
+#ifdef APPLY_WATER_STYLE
+/* RENDERTARGETS: 0,7,8 */
+layout(location = 1) out vec4 waterOpticsSurface;
+layout(location = 2) out vec4 waterOpticsOwnership;
+#else
+/* RENDERTARGETS: 0,8 */
+layout(location = 1) out vec4 waterOpticsOwnership;
+#endif
+layout(location = 0) out vec4 color;
+#else
 #ifdef AURORA_WATER_DEBUG_CAPTURE
 /* RENDERTARGETS: 0,7 */
 layout(location = 0) out vec4 color;
@@ -31,6 +43,7 @@ layout(location = 1) out vec4 waterDebugSurface;
 #else
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 color;
+#endif
 #endif
 #endif
 
@@ -55,6 +68,11 @@ void main() {
 	}
     // RGB only: alpha coverage, discard and surface-data attachments stay unchanged.
     color.rgb = sceneFromDisplay(color.rgb);
+#ifdef AURORA_WATER_OPTICS_ACTIVE
+#ifndef WRITE_SURFACE_DATA
+    waterOpticsOwnership = vec4(1.0, 0.0, 0.0, 0.0);
+#endif
+#endif
 #ifdef APPLY_LATE_FOG
     // Reconstruct this foreground fragment, not the already composed background.
 #ifdef AURORA_WATER_CONTINUOUS_VIEW
@@ -69,6 +87,10 @@ void main() {
     // invalid data conservatively. The final depth check also rejects occluders.
     waterDebugSurface = captureWaterDebugSurface(fogView, normalView, waterWorldDx,
         waterWorldDy, waterSurface, gl_FragCoord.z);
+#endif
+#ifdef AURORA_WATER_OPTICS_ACTIVE
+    captureWaterOpticsSurface(fogView, normalView, lmcoord, waterWorldDx, waterWorldDy,
+        waterSurface, blendFunc, color, gl_FragCoord.z, waterOpticsSurface, waterOpticsOwnership);
 #endif
     // Use the water's own position; existing late fog still runs once afterward.
     color.rgb = applyWaterStyle(color.rgb, fogView, normalView, lmcoord, waterSurface, blendFunc, fogColor, waterWorldDx, waterWorldDy);

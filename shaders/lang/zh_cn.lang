@@ -210,3 +210,10 @@ option.WATER_REFLECTION_STEPS.comment=更多步数可覆盖更多屏幕内表面
 value.DEBUG_VIEW.7=水面覆盖掩码
 value.DEBUG_VIEW.8=过滤后水面观察空间法线
 value.DEBUG_VIEW.9=水面至背景沿视线间距（0–16 米）
+
+option.WATER_OPTICS=水体光学
+value.WATER_OPTICS.0=关
+value.WATER_OPTICS.1=开
+option.WATER_OPTICS.comment=水底与观察者之间只有一层水面时，按水深计算吸收与散射。需要 HDR 和独立混合支持。
+option.WATER_CLARITY=水体清澈度
+option.WATER_CLARITY.comment=同等光线衰减所需的水中距离。数值越高，越能看清深处的水底。

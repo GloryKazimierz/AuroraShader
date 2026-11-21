@@ -6,6 +6,14 @@ textures and lightmaps with directional lighting, shadows, atmosphere and gentle
 water effects. The aim is a coherent, playable pack with its own identity.
 
 **Current priority: convincing, beautiful water from every view.**
+Open **Shader Pack Settings → Water → Water Optical Transport** to enable depth-dependent
+absorption and scattering. **Water Clarity** adjusts how far the bottom remains visible.
+This optional HDR pass operates above a single water surface with a known solid bed.
+It uses separate light-to-bed and bed-to-eye travel distances, attenuates reflected
+air paths, and preserves scene alpha. Its confidence checks keep the existing
+appearance around overlapping translucent geometry. Default **Off** retains the W3 water.
+[Water optics and validation](docs/WATER_M1_OPTICS.md) · [中文原理与证据](docs/WATER_M1_OPTICS.zh-CN.md).
+
 Water M0 on `codex/water-04a-optics-foundation` builds on the
 [W3 scene reflection](https://github.com/GloryKazimierz/AuroraShader/commit/df94fe404146c1364920f709569898359c84c8ed).
 Open **Shader Pack Settings → Advanced → Debug View** for the water mask (7),
@@ -40,11 +48,12 @@ waterfall and translucent edges at different depths, times and weather condition
 | Bloom | Four-pass half-resolution bright-pixel extraction, separable blur and recombination |
 | Aurora | Bounded procedural teal/violet sky ribbons at night, with weather/vision fallbacks |
 | Water | Fluid classification, gentle tint, analytic sky-color reflection, world-anchored, pixel-filtered multiscale wave normals and luminance-preserving background-depth color |
+| Water optical transport | Optional in linear HDR. Two water travel segments, source-limited scattering, three clarity settings and validated transparent-layer ownership |
 | Water scene reflection | Matched eligible opaque color/depth snapshot, bounded 64/128-cell screen traversal, unknown-occluder guard and confidence-weighted fallback |
 | Foliage | Eleven vanilla leaf types, short grass and joined tall grass; shared terrain/shadow wind with fixed grass roots |
 | Settings | English/Simplified Chinese, grouped pages, three quality profiles and ten view selections (scene plus nine diagnostics) |
 
-Water reflection can replace its analytic sky fallback with a valid recorded scene
+The default W3 water reflection can replace its analytic sky fallback with a valid recorded scene
 hit. Local scene reflection works independently of sky-style/blend and local sky
 light; the existing dimension, fluid and upward-face scope remains. Waves change
 reflection normals; they do not move the mesh or shoreline. Water Surface Detail 1 (default) uses six
@@ -56,9 +65,9 @@ Sun/moon glow adds bounded light to the sky background. It fades with horizon,
 weather and vision conditions; it is not physical scattering or terrain illumination.
 Screen-space tracing has no hidden or off-screen geometry. Its finite depth
 tolerance is an approximation; it is not hardware RTX or path tracing. Reflected
-water-to-hit atmospheric attenuation remains unmodeled; existing camera-to-water
+water-to-hit atmospheric attenuation is added by the optional M1 optical pass; in W3, existing camera-to-water
 fog is applied once. The analytic fallback still omits actual aurora, discs and
-cloud shapes. Physical transmission/refraction, PBR, SSAO, volumetric lighting
+cloud shapes. Stepped refraction, PBR, SSAO, volumetric lighting
 and custom volumetric cloud geometry remain planned.
 
 ## Settings and quality profiles
@@ -159,22 +168,29 @@ their own integration observations.
 Run from this D: checkout:
 
 ```powershell
-python -B tools/validate.py
+python -B tools/validate.py --historical
 python -B tools/compile_glsl.py --compiler C:/VulkanSDK/1.4.363.0/Bin/glslangValidator.exe
 python -B tools/compile_glsl.py --profiles-only --compiler C:/VulkanSDK/1.4.363.0/Bin/glslangValidator.exe
 python -B tools/validate_gpu.py --cxx C:/msys64/ucrt64/bin/g++.exe --suite screen-reflections
 python -B tools/validate_gpu.py --cxx C:/msys64/ucrt64/bin/g++.exe --suite water-debug
+python -B tools/validate_gpu.py --cxx C:/msys64/ucrt64/bin/g++.exe --suite water-transport
 git diff --check
 ```
 
-The first tool checks source contracts and independent numerical invariants;
-the second uses an installed offline compiler. The optional Windows native tool
+The first command compares the live rendering paths with the previous water release
+and checks the current pass routing, menus and test world. Its optional historical
+replay runs the original numerical suite on its pinned Git tree. The second
+command compiles the actual checkout with an installed offline compiler. The optional Windows native tool
 builds a hidden OpenGL harness with installed MinGW. It never downloads dependencies
 or launches Minecraft. Generated inputs, binaries and compiler temporary files
 stay on the project drive and are removed after the run.
 
+To exercise the installed Iris GLSL and properties preprocessors without opening a
+world, run `python -B tools/validate_iris_water.py --iris-jar PATH --slf4j-jar PATH`
+with the local Iris 1.10.5 mod and SLF4J API jars and JDK 21 on PATH.
+
 Native suites: `probe`, `compile`, `profiles`, `render`, `depth`, `foliage`,
-`celestial`, `snapshot`, `filtered-waves`, `screen-reflections`, `water-debug`, or default `all`.
+`celestial`, `snapshot`, `filtered-waves`, `screen-reflections`, `water-debug`, `water-transport`, or default `all`.
 Use `--report docs/validation/NEW_NAME.json` to retain a new result; existing
 reports are never overwritten. Synthetic rendering covers bloom, water normals,
 final color, water-depth color, foliage math and celestial glow. Foliage wrappers exercise the
@@ -219,9 +235,10 @@ is not a GPU-performance benchmark.
 | Foliage and shared shadow motion | [M18](docs/MILESTONE_18.md) / [中文](docs/MILESTONE_18.zh-CN.md) |
 | Angular sun/moon glow | [M19](docs/MILESTONE_19.md) / [中文](docs/MILESTONE_19.zh-CN.md) |
 | Water specialization and all-view criteria | [Water roadmap](docs/WATER_ROADMAP.md) / [中文](docs/WATER_ROADMAP.zh-CN.md) |
+| Optical water transport | [M1 optics](docs/WATER_M1_OPTICS.md) / [中文](docs/WATER_M1_OPTICS.zh-CN.md) |
 | Matched scene/depth capture | [W1](docs/WATER_01_SNAPSHOT.md) / [中文](docs/WATER_01_SNAPSHOT.zh-CN.md) |
 
-`shaders/` contains 24 program pairs and configuration. Shared code/settings live
+`shaders/` contains 25 program pairs and configuration. Shared code/settings live
 in `shaders/lib/`, native geometry helpers in `shaders/lib/geometry/`, translations
 in `shaders/lang/`, optional validation tools in `tools/`, and learning notes and
 retained evidence in `docs/`.

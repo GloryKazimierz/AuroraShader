@@ -135,7 +135,11 @@ def parse_profiles(properties,options):
 
 def load_profiles(root):
     root=Path(root)
-    return parse_profiles(parse_properties((root/'shaders/shaders.properties').read_text(encoding='utf-8')),option_definitions(root))
+    # Rendering directives can have alternatives inside Iris conditionals. Profiles
+    # here are unconditional; parse their own keys with the same duplicate checks.
+    lines=(root/'shaders/shaders.properties').read_text(encoding='utf-8').splitlines()
+    return parse_profiles(parse_properties('\n'.join(line for line in lines if line.startswith('profile.'))),
+                          option_definitions(root))
 
 
 def profile_configurations(root):
