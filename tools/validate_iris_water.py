@@ -23,6 +23,37 @@ class WaterDirectives {
         int programs = 0, settings = 0;
         for (String line : Files.readAllLines(root.resolve("cases.tsv"))) {
             String[] c = line.split("\t");
+            if (c[0].equals("fft_settings")) {
+                var env=new ArrayList<StringPair>();
+                for (int i=2;i<c.length;i++) {
+                    var pair=c[i].split("=",2);
+                    env.add(new StringPair(pair[0],pair[1]));
+                }
+                var props=new Properties();
+                props.load(new StringReader(PropertiesPreprocessor.preprocessSource(properties,env)));
+                boolean active=c[1].equals("1");
+                for (String name:List.of("setup","begin","begin1")) {
+                    if (!Boolean.toString(active).equals(props.getProperty("program."+name+".enabled","true")))
+                        throw new AssertionError("Compute dispatch "+name+" "+line);
+                }
+                for (var image:Map.of("waterSpectrumSeed","rg rg32f","waterFftRows","rgba rgba32f",
+                                      "waterFftOutput","rgba rgba32f").entrySet()) {
+                    var required=image.getKey()+"Sampler "+image.getValue()+" float false false 128 64";
+                    if (!Objects.equals(props.getProperty("image."+image.getKey()),active?required:null))
+                        throw new AssertionError("Compute image declaration "+line+" "+image.getKey());
+                }
+                settings++;
+                continue;
+            }
+            if (c[0].equals("fft_compute")) {
+                var source=JcppProcessor.glslPreprocessSource(Files.readString(root.resolve(c[1])),List.of());
+                var groups=ConstDirectiveParser.findDirectives(source).stream()
+                    .filter(d->d.getKey().equals("workGroups")).map(d->d.getValue().replaceAll("\\s+","")).toList();
+                if (!groups.equals(List.of(c[2])) || !source.contains("imageStore("))
+                    throw new AssertionError("Iris FFT workGroups or output missing: "+c[1]+" "+groups);
+                programs++;
+                continue;
+            }
             if (c[0].equals("caustic_dispatch")) {
                 var env = new ArrayList<StringPair>();
                 for (int i=2;i<c.length;i++) {
@@ -230,6 +261,19 @@ def verify(work, iris_jar, slf4j_jar):
             name=f'exit-{program}-{enabled}-{support}-{optics}.fsh'
             (work/name).write_text(configure(expand(SHADERS/(program+'.fsh')),opts),encoding='utf-8')
             lines.append(['shader',name,target,'-',str(int(on)),marker])
+    for compute,images,fft,detail,waves in product((0,1),repeat=5):
+        opts=dict(WATER_FFT=fft,WATER_SURFACE_DETAIL=detail,WATER_WAVES=waves)
+        if compute:
+            opts['IRIS_FEATURE_COMPUTE_SHADERS']=1
+        if images:
+            opts['IRIS_FEATURE_CUSTOM_IMAGES']=1
+        active=bool(compute and images and fft and detail and waves)
+        lines.append(['fft_settings',str(int(active)),*(f'{k}={v}' for k,v in opts.items())])
+        if active:
+            for program,groups in [('setup','ivec3(16,8,1)'),('begin','ivec3(2,64,1)'),('begin1','ivec3(2,64,1)')]:
+                name=program+'.csh'
+                (work/name).write_text(configure(expand(SHADERS/name),opts),encoding='utf-8')
+                lines.append(['fft_compute',name,groups])
     (work/'cases.tsv').write_text('\n'.join('\t'.join(row) for row in lines),encoding='utf-8')
     env=dict(os.environ,TEMP=str(work),TMP=str(work),TMPDIR=str(work))
     subprocess.run(['javac','-J-XX:-UsePerfData',f'-J-Djava.io.tmpdir={work}','-cp',cp,str(java)],

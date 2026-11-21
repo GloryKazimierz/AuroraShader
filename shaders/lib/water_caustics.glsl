@@ -127,7 +127,9 @@ float causticResolutionWeight(vec2 footprintX,vec2 footprintY) {
     if(any(isnan(footprintX)) || any(isinf(footprintX))
         || any(isnan(footprintY)) || any(isinf(footprintY))) return 0.0;
     float span=max(length(footprintX),length(footprintY));
-#if WATER_SURFACE_DETAIL == 1
+#ifdef AURORA_WATER_FFT_ACTIVE
+    float shortest=1.5; // Finest FFT band; conservative whole-field filter.
+#elif WATER_SURFACE_DETAIL == 1
     float shortest=128.0/length(vec2(151.0,97.0));
 #else
     float shortest=128.0/length(vec2(7.0,13.0));

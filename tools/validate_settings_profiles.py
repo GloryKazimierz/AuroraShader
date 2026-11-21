@@ -151,6 +151,9 @@ def profile_configurations(root):
             yield path.stem,dict(profiles[name])
             if name.startswith('WATER_'):
                 yield path.stem,dict(profiles[name],IRIS_FEATURE_PER_BUFFER_BLENDING=True)
+            if name=='WATER_ULTRA':
+                yield path.stem,dict(profiles[name],IRIS_FEATURE_PER_BUFFER_BLENDING=True,
+                                     IRIS_FEATURE_COMPUTE_SHADERS=True,IRIS_FEATURE_CUSTOM_IMAGES=True)
 
 
 def matching_profiles(profiles,current):

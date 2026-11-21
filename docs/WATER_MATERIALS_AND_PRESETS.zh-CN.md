@@ -34,3 +34,5 @@
 [基础水体计时](validation/WATER_M1_timing_720p.json) · [反射空区跳过计时](validation/WATER_M2_BOUNDS_720p.json) · [焦散计时](validation/WATER_CAUSTICS_TIMING.json)
 
 [普通折射的分辨率梯度计时](validation/WATER_FAST_REFRACTION_TIMING.json)
+
+极致档还开启经过几何验证的平面折射和[双尺度频谱波](WATER_M6_SPECTRAL_NORMALS.zh-CN.md)。缺少计算或自定义图像能力时，使用解析波。

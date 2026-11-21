@@ -37,6 +37,8 @@ def configure(source, overrides):
     lines[1:1] = ['#define MC_RENDER_STAGE_SKY 4', '#define MC_RENDER_STAGE_STARS 5', '#define MC_RENDER_STAGE_VOID 6']
     if overrides.get('IRIS_FEATURE_PER_BUFFER_BLENDING'):
         lines.insert(1, '#define IRIS_FEATURE_PER_BUFFER_BLENDING')
+    for feature in ('IRIS_FEATURE_COMPUTE_SHADERS','IRIS_FEATURE_CUSTOM_IMAGES'):
+        if overrides.get(feature):lines.insert(1,'#define '+feature)
     return '\n'.join(lines) + '\n'
 
 def water_debug_configurations():

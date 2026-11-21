@@ -209,7 +209,7 @@ def test_pack():
         values = dict(defaults, **case)
         values.pop(FEATURE)
         properties = parse_properties(select(props, case, values)[0])
-        require(properties['iris.features.optional']=='PER_BUFFER_BLENDING', 'Missing optional feature')
+        require(set(properties['iris.features.optional'].split())=={ 'PER_BUFFER_BLENDING','COMPUTE_SHADERS','CUSTOM_IMAGES' }, 'Missing optional feature')
         require((properties.get('program.composite1.enabled', 'true')=='true') == active, 'Resolve scheduling')
         require(menu_options(properties, options)[0].count('WATER_OPTICS') == 1, 'Water option placement')
         for name in geometry | {'deferred','composite1'}:

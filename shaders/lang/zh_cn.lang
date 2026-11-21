@@ -261,3 +261,5 @@ option.WATER_UNDERWATER=有限水面水下光学
 option.WATER_UNDERWATER.comment=实验功能，需要水体光学与屏幕反射。仅依据实际可见顶面出口计算折射与全反射；缺失或近裁剪水面保留原生效果，不增加图像缓冲。
 value.WATER_UNDERWATER.0=关闭
 value.WATER_UNDERWATER.1=仅实际可见出口
+option.WATER_FFT=双尺度频谱波
+option.WATER_FFT.comment=用两组不同波长模拟水面，水面反光与水底焦散共用法线。需要精细波纹和计算着色能力。

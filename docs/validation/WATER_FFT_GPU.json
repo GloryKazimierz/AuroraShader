@@ -1,0 +1,299 @@
+{
+  "schema": 1,
+  "started_utc": "2026-11-21T19:28:05.395034+00:00",
+  "suite": "water-fft",
+  "shader_sha256": "7bfbfe8ed207efbd5dbc527db009b528f5f364c75378ed56be1748c9df89725d",
+  "scope": "Native OpenGL synthetic inputs only: no Iris patcher, Minecraft world, render-order/texture-binding integration, screenshots or performance measurement.",
+  "ok": true,
+  "gl": {
+    "vendor": "Intel",
+    "renderer": "Intel(R) Iris(R) Xe Graphics",
+    "version": "3.3.0 - Build 31.0.101.3962",
+    "glsl_version": "3.30 - Build 31.0.101.3962",
+    "major": 3,
+    "minor": 3,
+    "profile_mask": 2,
+    "profile": "compatibility",
+    "max_texture_size": 16384,
+    "max_texture_units": 32,
+    "max_draw_buffers": 8,
+    "max_color_attachments": 8
+  },
+  "build": {
+    "compiler": "g++.exe",
+    "flags": [
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-static"
+    ],
+    "diagnostics": ""
+  },
+  "water_fft": {
+    "cpu": {
+      "speed_reset_checks": [
+        {
+          "speed": 0.0,
+          "cascade": 0,
+          "reset_error": 0.0
+        },
+        {
+          "speed": 0.0,
+          "cascade": 1,
+          "reset_error": 0.0
+        },
+        {
+          "speed": 1.0,
+          "cascade": 0,
+          "reset_error": 0.0
+        },
+        {
+          "speed": 1.0,
+          "cascade": 1,
+          "reset_error": 0.0
+        },
+        {
+          "speed": 2.0,
+          "cascade": 0,
+          "reset_error": 0.0
+        },
+        {
+          "speed": 2.0,
+          "cascade": 1,
+          "reset_error": 0.0
+        }
+      ],
+      "dft_vs_recursive_fft_errors": [
+        8.005932084973442e-16,
+        3.061616997868383e-17,
+        2.837048893407221e-15,
+        9.813077866773595e-18
+      ],
+      "cascades": [
+        {
+          "cascade": 0,
+          "period_m": 16.0,
+          "wavelength_band_m": [
+            1.5,
+            8.0
+          ],
+          "shape_sum": 7.815107775045726,
+          "seed_scale": 25.640737399789643,
+          "expected_slope_variance": 0.0027104812304609835,
+          "actual_height_rms": 0.027139241917924585,
+          "actual_slope_rms": 0.047281310158023594,
+          "imaginary_residual": 4.812502393120033e-17,
+          "hermitian_error": 0.0,
+          "time_reset_error": 0.0
+        },
+        {
+          "cascade": 1,
+          "period_m": 64.0,
+          "wavelength_band_m": [
+            8.0,
+            32.0
+          ],
+          "shape_sum": 1514.0109475800589,
+          "seed_scale": 6.31606645181376,
+          "expected_slope_variance": 0.0018830869039994057,
+          "actual_height_rms": 0.1287574368950531,
+          "actual_slope_rms": 0.04446312215125381,
+          "imaginary_residual": 2.758345852074684e-16,
+          "hermitian_error": 0.0,
+          "time_reset_error": 0.0
+        }
+      ],
+      "custom_image_bytes": 327680,
+      "scope": "Independent CPU mathematics; no native dispatch or Iris runtime claimed"
+    },
+    "capability": {
+      "ok": true,
+      "gl": {
+        "vendor": "Intel",
+        "renderer": "Intel(R) Iris(R) Xe Graphics",
+        "version": "4.3.0 - Build 31.0.101.3962",
+        "glsl_version": "4.30 - Build 31.0.101.3962",
+        "major": 4,
+        "minor": 3,
+        "profile_mask": 2,
+        "profile": "compatibility",
+        "max_texture_size": 16384,
+        "max_texture_units": 32,
+        "max_draw_buffers": 8,
+        "max_color_attachments": 8
+      },
+      "dispatch_verified": false,
+      "max_invocations": 1024,
+      "shared_bytes": 32768,
+      "image_units": 8,
+      "compute_image_uniforms": 8,
+      "allocated_image_bytes": 327680,
+      "elapsed_nanoseconds": []
+    },
+    "ui_speed_checks": [
+      {
+        "speed": 0,
+        "periodic600_and3600_bit_exact": true,
+        "max_dft_error": 0.0
+      },
+      {
+        "speed": 2,
+        "periodic600_and3600_bit_exact": true,
+        "max_dft_error": 7.221267989410141e-07
+      }
+    ],
+    "production": {
+      "resolution": [
+        64,
+        64
+      ],
+      "actual_water_max_normal_error": 6.484985626276085e-08,
+      "actual_shadow_quantized_max_normal_error": 7.652287154668452e-06,
+      "camera_anchor_max_error": 0.0,
+      "varied_water_pixels": 4096,
+      "exact_fallbacks": [
+        {
+          "label": "Missing compute=False images=False",
+          "channels": 16384,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0,
+            "relative": 0.0
+          }
+        },
+        {
+          "label": "Missing compute=False images=True",
+          "channels": 16384,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0,
+            "relative": 0.0
+          }
+        },
+        {
+          "label": "Missing compute=True images=False",
+          "channels": 16384,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0,
+            "relative": 0.0
+          }
+        },
+        {
+          "label": "Invalid FFT image falls back exactly",
+          "channels": 16384,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0,
+            "relative": 0.0
+          }
+        }
+      ],
+      "zero_strength_exact": true,
+      "fft_foam_identity_and_shore_evidence": true,
+      "fft_legacy_unresolved_variance_disabled": true,
+      "scope": "Actual water/shadow fragment programs on authored geometry, with actual native compute output; no Iris scheduling or Minecraft runtime claim"
+    },
+    "compute_executed": true,
+    "frames": [
+      {
+        "seconds": 0.0,
+        "samples": 8192,
+        "max_seed_error": 0.001090010186491518,
+        "max_seed_relative_error": 2.9107992280578527e-05,
+        "max_height_slope_error": 6.390366757980104e-08
+      },
+      {
+        "seconds": 17.5,
+        "samples": 8192,
+        "max_seed_error": 0.001090010186491518,
+        "max_seed_relative_error": 2.9107992280578527e-05,
+        "max_height_slope_error": 5.526159944646558e-07
+      },
+      {
+        "seconds": 617.5,
+        "samples": 8192,
+        "max_seed_error": 0.001090010186491518,
+        "max_seed_relative_error": 2.9107992280578527e-05,
+        "max_height_slope_error": 5.526159944646558e-07
+      },
+      {
+        "seconds": 3617.5,
+        "samples": 8192,
+        "max_seed_error": 0.001090010186491518,
+        "max_seed_relative_error": 2.9107992280578527e-05,
+        "max_height_slope_error": 5.526159944646558e-07
+      }
+    ],
+    "single_mode_max_error": 1.0438695538170228e-08,
+    "periodic600_and3600_bit_exact": true,
+    "scope": "Actual native4.3 compute/images and independent CPU DFT; Iris patcher/program dispatch unobserved",
+    "observed_exit": {
+      "cases": [
+        {
+          "case": "exit-reversed",
+          "covered": 2112,
+          "color": {
+            "label": "Exit metadata color0 exit-reversed",
+            "channels": 12288,
+            "max_absolute_error": 0.0,
+            "max_tolerance_fraction": 0.0,
+            "tolerance": {
+              "half_ulps": 0,
+              "absolute": 0.0,
+              "relative": 0.0
+            }
+          }
+        },
+        {
+          "case": "exit-up",
+          "covered": 2112,
+          "color": {
+            "label": "Exit metadata color0 exit-up",
+            "channels": 12288,
+            "max_absolute_error": 0.0,
+            "max_tolerance_fraction": 0.0,
+            "tolerance": {
+              "half_ulps": 0,
+              "absolute": 0.0,
+              "relative": 0.0
+            }
+          }
+        },
+        {
+          "case": "real-bottom",
+          "covered": 2112,
+          "color": {
+            "label": "Exit metadata color0 real-bottom",
+            "channels": 12288,
+            "max_absolute_error": 0.0,
+            "max_tolerance_fraction": 0.0,
+            "tolerance": {
+              "half_ulps": 0,
+              "absolute": 0.0,
+              "relative": 0.0
+            }
+          }
+        }
+      ],
+      "spectral_exit_normals": 3840
+    },
+    "caustic_filter": {
+      "cases": 16,
+      "fft_shortest_wavelength_m": 1.5,
+      "legacy_detail_wavelength_m": 0.713205374517255,
+      "scope": "Actual caustic helper native readback; footprint filter only, not full FFT caustic flux quality"
+    }
+  },
+  "finished_utc": "2026-11-21T19:30:12.471272+00:00"
+}

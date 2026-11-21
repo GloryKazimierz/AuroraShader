@@ -101,7 +101,7 @@ def integration_tests(runner):
     return dict(cases=reports,pixels=samples,refraction_changed=changed,dispersion_changed=chromatic_changed,
                 exact_native_fallbacks=invalid,alpha_exact=True)
 
-def scene_capture(runner,pitch):
+def scene_capture(runner,pitch,wave_field=None,seconds=None):
     authored=make_scene(pitch);mask=authored["mask"]
     common={n:(n,k,v) for n,k,v in authored["uniforms"]}
     vertex=runner.scratch/("captured-water-"+str(pitch)+".vert")
@@ -115,12 +115,21 @@ flat out int waterSurface;
 texcoord=gl_MultiTexCoord0.xy; lmcoord=vec2(.5/16.0,15.5/16.0);
 glcolor=vec4(1);normalView=benchNormal;waterSurface=1;
 """
-    write_text(vertex,WATER_VERTEX.replace("void main() {",declarations+"\nvoid main() {"+setup))
+    source=WATER_VERTEX.replace("void main() {",declarations+"\nvoid main() {"+setup)
+    if vertex.exists():
+        require(vertex.read_text(encoding='utf-8')==source,'Capture vertex unexpectedly changed')
+    else:
+        write_text(vertex,source)
     atlas=[[(.18,.32,.38,.55 if pixel[0] else 0.) for pixel in row] for row in mask]
     textures=[("gtexture",atlas,"RGBA32F"),("lightmap",[[(1.,1.,1.,1.)]],"RGBA32F"),
               ("colortex5",authored["color"],"RGBA16F"),("colortex6",authored["depth"],"R32F"),
               ("depthtex1",authored["depth"],"R32F"),("depthtex2",authored["depth"],"R32F")]
     options=dict(IRIS_FEATURE_PER_BUFFER_BLENDING=True,WATER_OPTICS=1,FOG_ENABLED=0,WATER_SCREEN_REFLECTIONS=0)
+    if seconds is not None:
+        common["frameTimeCounter"]=("frameTimeCounter","f1",(seconds,))
+    if wave_field is not None:
+        options.update(WATER_FFT=1,IRIS_FEATURE_COMPUTE_SHADERS=True,IRIS_FEATURE_CUSTOM_IMAGES=True)
+        textures.append(("waterFftOutputSampler",wave_field,"RGBA32F"))
     _,fragment=runner.pair("gbuffers_water",options)
     uniforms=list(common.values())
     optional=[n for n,_,_ in uniforms]+[n for n,_,_ in textures]

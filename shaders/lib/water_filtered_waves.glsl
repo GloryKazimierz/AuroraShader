@@ -12,6 +12,7 @@ bool waterWaveFootprintValid(vec2 worldDx, vec2 worldDy) {
         && !any(greaterThan(abs(worldDx), vec2(65536.0)))
         && !any(greaterThan(abs(worldDy), vec2(65536.0)));
 }
+#include "/lib/water_fft_sample.glsl"
 float waterWaveSinc(float x) {
     // Only called for |x| < pi/2 after finite checks. This even degree-10
     // polynomial avoids driver sin(x)/x precision loss near zero. The alternating
@@ -40,6 +41,10 @@ float waterWavePixelFilter(vec2 waveVector, vec2 worldDx, vec2 worldDy) {
 vec2 waterFilteredWaveGradient(vec2 tile, vec2 worldDx, vec2 worldDy) {
     if (!waterWaveFootprintValid(worldDx, worldDy)
         || any(isnan(tile)) || any(isinf(tile))) return vec2(0.0);
+#ifdef AURORA_WATER_FFT_ACTIVE
+    vec2 spectralGradient;
+    if(waterFftGradient(tile,worldDx,worldDy,spectralGradient))return spectralGradient;
+#endif
     // The first three modes retain M14's conceptual height spectrum. The smaller
     // modes add surface detail, not vertex displacement or a simulated current.
 #include "/lib/water_wave_spectrum.glsl"

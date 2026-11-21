@@ -188,7 +188,7 @@ public:
         // documented generic function-pointer form; Windows preserves its address.
         return reinterpret_cast<Function>(reinterpret_cast<void(*)()>(load(name)));
     }
-    void initialize(GlInfo& info) {
+    void initialize(GlInfo& info, int requestedMajor = 3, int requestedMinor = 3) {
         instance_ = GetModuleHandleW(nullptr);
         WNDCLASSW description{};
         description.style = CS_OWNDC;
@@ -219,11 +219,11 @@ public:
         if (!bootstrap_) failWindows("wglCreateContext", GetLastError());
         if (!wglMakeCurrent(dc_, bootstrap_)) failWindows("wglMakeCurrent bootstrap", GetLastError());
         auto create = loadFunction<PFNWGLCREATECONTEXTATTRIBSARBPROC>("wglCreateContextAttribsARB");
-        const int attributes[] = {WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-            WGL_CONTEXT_MINOR_VERSION_ARB, 3, WGL_CONTEXT_PROFILE_MASK_ARB,
+        const int attributes[] = {WGL_CONTEXT_MAJOR_VERSION_ARB, requestedMajor,
+            WGL_CONTEXT_MINOR_VERSION_ARB, requestedMinor, WGL_CONTEXT_PROFILE_MASK_ARB,
             WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB, 0};
         modern_ = create(dc_, nullptr, attributes);
-        if (!modern_) failWindows("wglCreateContextAttribsARB 3.3 compatibility", GetLastError());
+        if (!modern_) failWindows("wglCreateContextAttribsARB " + std::to_string(requestedMajor) + "." + std::to_string(requestedMinor) + " compatibility", GetLastError());
         if (!wglMakeCurrent(dc_, modern_)) failWindows("wglMakeCurrent modern", GetLastError());
         wglDeleteContext(bootstrap_);
         bootstrap_ = nullptr;
@@ -349,6 +349,15 @@ public:
         gl_.GetProgramiv(program_, GL_LINK_STATUS, &passed);
         if (passed != GL_TRUE) throw Failure("program link", vertex + " + " + fragment + "\n" + log(program_, true));
         checkGl("program link");
+    }
+    void buildCompute(const std::string& path) {
+        compile(vertex_, GL_COMPUTE_SHADER, path);
+        program_ = gl_.CreateProgram();
+        if (!program_) throw Failure("program creation", "glCreateProgram returned zero");
+        gl_.AttachShader(program_, vertex_); gl_.LinkProgram(program_);
+        GLint passed = GL_FALSE; gl_.GetProgramiv(program_, GL_LINK_STATUS, &passed);
+        if (passed != GL_TRUE) throw Failure("program link", path + "\n" + log(program_, true));
+        checkGl("compute program link");
     }
     GLuint id() const { return program_; }
 };

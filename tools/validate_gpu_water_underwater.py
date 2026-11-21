@@ -201,7 +201,7 @@ def composite_tests(runner,plate_path=None):
     return dict(changed_pixels=changed,tir_pixels=tir_changed,transmission_pixels=transmitted_changed,
                 controls=controls,alpha_exact=True,no_exit_exact=True,tir_strength_checks=strength_checks)
 
-def producer_tests(runner):
+def producer_tests(runner,fft_field=None):
     from validate_gpu import write_text,require,compare
     from render_water_bench import WATER_VERTEX
     from validate_gpu_water_capture import WATER_TARGETS
@@ -223,13 +223,19 @@ def producer_tests(runner):
     cases=[('exit-reversed',{},True),('exit-up',{'testNormal':data['up']},True),('real-bottom',{'testHeight':(.015625,)},False),('glass',{'material':(0,)},False),('side',{'testNormal':(1.,0.,0.)},False),
         ('above',{'isEyeInWater':(0,)},False),('lava',{'isEyeInWater':(2,)},False),
         ('blind',{'blindness':(1.,)},False),('unknown-blend',{'blendFunc':(1,1,1,1)},False)]
-    results=[]
+    results=[]; reference=None; varied=0
+    if fft_field is not None:
+        cases=cases[:3]
+        textures.append(('waterFftOutputSampler',fft_field,'RGBA32F'))
     for label,changes,valid in cases:
         bindings={n:(n,k,changes.get(n,v)) for n,k,v in common.values()}
         options=dict(WATER_OPTICS=1,WATER_UNDERWATER=1,IRIS_FEATURE_PER_BUFFER_BLENDING=True,
                      WATER_WAVES=0,WATER_SCREEN_REFLECTIONS=0,FOG_ENABLED=0)
+        if fft_field is not None:
+            options.update(WATER_WAVES=1,WATER_FFT=1,IRIS_FEATURE_COMPUTE_SHADERS=True,
+                           IRIS_FEATURE_CUSTOM_IMAGES=True)
         _,fs=runner.pair('gbuffers_water',options)
-        optional=list(bindings)
+        optional=list(bindings)+(['waterFftOutputSampler'] if fft_field is not None else [])
         record=runner.render('Actual exit producer '+label,(vertex,fs),width,height,textures,list(bindings.values()),
                              optional=optional,extra_targets=WATER_TARGETS,read_target=1)
         count=runner.render('Actual exit ownership '+label,(vertex,fs),width,height,textures,list(bindings.values()),
@@ -244,17 +250,29 @@ def producer_tests(runner):
                 eligible=valid and sum(v*u for v,u in zip(data['rays'][y][x],data['up']))>.03
                 if eligible:
                     require(record[y][x][3]==depth[y][x][0],'Exit producer changed raw depth')
-                    require(max(abs(a-b) for a,b in zip(record[y][x][:3],data['up']))<2e-6,'Exit producer changed base normal')
+                    drift=max(abs(a-b) for a,b in zip(record[y][x][:3],data['up']))
+                    if fft_field is None:
+                        require(drift<2e-6,'Exit producer changed base normal')
+                    else:
+                        require(sum(a*b for a,b in zip(record[y][x][:3],data['up']))>.65,'FFT exit flipped inward')
+                        varied+=drift>1e-4
                     require(count[y][x][0]==f32(1/255) and count[y][x][3]==f32(1/255),'Exit counter/marker not byte1')
                 else:
                     require(record[y][x]==(0,0,0,0) and count[y][x]==(1,0,0,0),'Invalid exit not an opaque ownership blocker')
         require(covered>100,'Producer fixture has no rasterized exit')
+        if fft_field is not None and valid:
+            if reference is None:
+                reference=record
+            else:
+                compare(record,reference,'FFT upward and reversed top emit same field')
         # Native scene color must not depend on writing extra exit metadata.
         on=runner.render('Exit producer color',(vertex,fs),width,height,textures,list(bindings.values()),optional=optional,extra_targets=WATER_TARGETS)
         _,fs0=runner.pair('gbuffers_water',dict(options,WATER_UNDERWATER=0))
         off=runner.render('Exit producer baseline',(vertex,fs0),width,height,textures,list(bindings.values()),optional=optional,extra_targets=WATER_TARGETS)
         results.append(dict(case=label,covered=covered,color=compare(on,off,'Exit metadata color0 '+label)))
-    return dict(cases=results)
+    if fft_field is not None:
+        require(varied>100,'FFT field was not visible on the underside')
+    return dict(cases=results,spectral_exit_normals=varied)
 
 def boundary_tests(runner):
     from validate_gpu import require

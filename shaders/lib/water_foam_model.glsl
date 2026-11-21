@@ -26,6 +26,12 @@ WaterFoamFlow waterFoamFlowAt(vec2 materialXZ, float seconds, float strength,
         || !waterFoamFinite(strength) || !waterFoamFinite(speed)
         || seconds < 0.0 || seconds > 3600.0
         || !waterWaveFootprintValid(worldDx, worldDy)) return result;
+#ifdef AURORA_WATER_FFT_ACTIVE
+    // Height/slopes alone define no horizontal material displacement. Retain
+    // shoreline evidence/history without inventing FFT compression foam.
+    result.valid = true;
+    return result;
+#else
     strength = clamp(strength, 0.0, 1.0);
     speed = clamp(speed, 0.0, 2.0);
     // Same six conceptual height modes as W2. Lambda*sum(A*|kappa|)<0.178:
@@ -48,6 +54,7 @@ WaterFoamFlow waterFoamFlowAt(vec2 materialXZ, float seconds, float strength,
     result.valid = waterFoamFinite2(result.displacement) && waterFoamFinite2(result.velocity)
                 && waterFoamFinite(result.areaRatio) && result.areaRatio > 0.675;
     return result;
+#endif
 }
 bool waterFoamMaterialPoint(vec2 surfaceXZ, float seconds, float strength, float speed,
                            vec2 worldDx, vec2 worldDy, out vec2 materialXZ,

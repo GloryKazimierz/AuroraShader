@@ -408,14 +408,14 @@ def shader_digest():
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--cxx',help='Installed MinGW g++ compiler; no download')
-    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial','snapshot','filtered-waves','screen-reflections','water-debug','water-transport','water-stability','water-bounds','water-refraction','water-motion','water-foam','water-glints','water-caustics','water-caustics-time','water-caustic-waves','water-materials','water-underwater','water-refracted-caustics'),default='all')
+    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial','snapshot','filtered-waves','screen-reflections','water-debug','water-transport','water-stability','water-bounds','water-refraction','water-motion','water-foam','water-glints','water-caustics','water-caustics-time','water-caustic-waves','water-materials','water-underwater','water-refracted-caustics','water-fft'),default='all')
     parser.add_argument('--report',help='New JSON report path under the project; existing files are never overwritten')
     parser.add_argument('--debug-plate',help='Save the selected water suite comparison to a new project PNG')
     args=parser.parse_args()
     plate_path=None
     if args.debug_plate:
         plate_path=(ROOT/args.debug_plate).resolve()
-        require(args.suite in ('water-debug','water-transport','water-stability','water-refraction','water-motion','water-foam','water-glints','water-caustics','water-caustic-waves','water-materials','water-underwater') and ROOT.resolve() in plate_path.parents
+        require(args.suite in ('water-debug','water-transport','water-stability','water-refraction','water-motion','water-foam','water-glints','water-caustics','water-caustic-waves','water-materials','water-underwater','water-fft') and ROOT.resolve() in plate_path.parents
                 and plate_path.suffix.lower()=='.png' and plate_path.parent.is_dir()
                 and not plate_path.exists(),'Water debug plate requires a new project PNG path')
 
@@ -543,6 +543,16 @@ def main():
         if args.suite=='water-refracted-caustics':
             from validate_gpu_water_caustics import combined_tests
             report['refracted_caustics']=combined_tests(runner)
+        if args.suite=='water-fft':
+            from validate_gpu_water_fft import fft_tests
+            result=fft_tests(runner,str(Path(cxx).resolve()),plate_path)
+            require(result.get('compute_executed'),'OpenGL 4.3 compute unavailable on this adapter')
+            from validate_gpu_water_underwater import producer_tests
+            result['observed_exit']=producer_tests(runner,result.pop('field_at_17_5'))
+            from validate_gpu_water_fft_filter import filter_tests
+            result['caustic_filter']=filter_tests(runner)
+            report['water_fft']=result
+            print('PASS: native spectral field, independent DFT and production water/shadow sampling',flush=True)
         if args.suite=='water-caustics-time':
             from validate_gpu_water_caustics import benchmark_tests
             report['water_caustics_timing']=benchmark_tests(runner)

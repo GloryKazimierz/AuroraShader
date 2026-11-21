@@ -5,6 +5,11 @@
 // An isotropic Beckmann slope distribution has E[|slope|^2]=alpha^2.
 // Use the missing mean slope variance of the six filtered height modes.
 float waterUnresolvedSlopeVariance(vec2 dx,vec2 dy,float strength) {
+#ifdef AURORA_WATER_FFT_ACTIVE
+    // Measured spectral normals do not yet supply integrated unresolved FFT
+    // variance. Keep base material roughness, never the legacy six-wave proxy.
+    return 0.0;
+#else
 #include "/lib/water_wave_spectrum.glsl"
     float variance=0.0;
     for(int i=0;i<6;++i) {
@@ -13,6 +18,7 @@ float waterUnresolvedSlopeVariance(vec2 dx,vec2 dy,float strength) {
         variance+=0.5*dot(rms,rms)*(1.0-weight*weight);
     }
     return variance*strength*strength;
+#endif
 }
 float waterBeckmannMask(float cosine,float roughness) {
     float a=cosine/(roughness*sqrt(max(1.0-cosine*cosine,1e-10)));

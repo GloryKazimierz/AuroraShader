@@ -261,3 +261,5 @@ option.WATER_UNDERWATER=Finite Underwater Optics
 option.WATER_UNDERWATER.comment=Experimental, requires Water Optics and screen reflections. Uses observed top exits for Snell refraction and total internal reflection. Missing or near-clipped interfaces keep native water. No new image buffers.
 value.WATER_UNDERWATER.0=Off
 value.WATER_UNDERWATER.1=Observed Exit Only
+option.WATER_FFT=Dual-Cascade Spectral Waves
+option.WATER_FFT.comment=Simulate two wavelength bands with optional compute. Drives water and caustic normals. Requires detailed waves.
