@@ -10,6 +10,7 @@ import subprocess
 from functools import lru_cache
 from itertools import product
 from validate_settings_profiles import restore_settings_profiles_source
+from validate_water_filtered_waves import restore_water_filtered_source
 
 M15_BASELINE = 'bc811801441709143cbb2ef33a2db3dadc597ee7'
 LUMA = (.2126, .7152, .0722)
@@ -375,7 +376,7 @@ def validate_water_depth(root,expand,preprocess,compact,function_body):
     assert len(list(shaders.glob('*.vsh'))) == len(list(shaders.glob('*.fsh'))) == 24
     assert restore_water_depth_source('lang/en_us.lang',read('lang/en_us.lang')).startswith(prior('lang/en_us.lang'))
     new_files=set(str(path.relative_to(root)).replace('\\','/') for path in shaders.rglob('*') if path.is_file())-set(old_files)
-    assert new_files == {'shaders/lib/water_depth.glsl','shaders/lib/water_depth_settings.glsl','shaders/lang/zh_cn.lang','shaders/lib/foliage.glsl','shaders/lib/foliage_settings.glsl','shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl','shaders/lib/water_scene_snapshot.glsl'},new_files
+    assert new_files == {'shaders/lib/water_depth.glsl','shaders/lib/water_depth_settings.glsl','shaders/lang/zh_cn.lang','shaders/lib/foliage.glsl','shaders/lib/foliage_settings.glsl','shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl','shaders/lib/water_scene_snapshot.glsl','shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl'},new_files
     source=read('lib/water_depth.glsl')
     assert source.startswith('#ifndef AURORA_WATER_DEPTH_INCLUDED\n#define AURORA_WATER_DEPTH_INCLUDED\n')
     assert source.endswith('#endif\n')
@@ -399,7 +400,7 @@ def validate_water_depth(root,expand,preprocess,compact,function_body):
     assert code.index('greaterThanEqual(gl_FragCoord.xy') < code.index('ivec2pixel=') < code.index('texelFetch(')
     assert code.index('backgroundDepth<=surfaceDepth') < code.index('reconstructViewPosition(')
     assert code.index('rayGap<=0.0') < code.index('mat3(gbufferModelViewInverse)') < code.index('floatdrop=')
-    water=read('lib/water.glsl')
+    water=restore_water_filtered_source('lib/water.glsl',read('lib/water.glsl'))
     effect=body(water,'applyWaterStyle')
     assert water.count(DEPTH_CALL) == water.count(NEW_EARLY_RETURN) == 1
     assert effect.index('waterSurface!=1') < effect.index('supportedBlend=') < effect.index('celestialEnvironmentWeight()')

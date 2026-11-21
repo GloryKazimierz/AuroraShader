@@ -674,3 +674,7 @@ validate_celestial_glow(ROOT, expand, preprocess, compact, function_body)
 # W1 captures matched scene radiance/depth while pinning every M19 shader file.
 from validate_water_snapshot import validate_water_snapshot
 validate_water_snapshot(ROOT, expand, preprocess, compact, function_body)
+
+# W2 adds footprint-filtered surface normals while preserving the W1 snapshot.
+from validate_water_filtered_waves import validate_water_filtered_waves
+validate_water_filtered_waves(ROOT, expand, preprocess, compact, function_body)

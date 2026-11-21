@@ -2,7 +2,9 @@
 
 Updated: 2026-11-21. [中文路线图](WATER_ROADMAP.zh-CN.md).
 Starting implementation: M19 commit `74c7164874e446ebd8e763f146286c2c6908b820`.
-Current work: **W1 matched scene/depth capture**, branch `codex/water-01-scene-snapshot`.
+Current work: **W2 filtered multiscale wave normals**, branch `codex/water-02-filtered-waves`.
+W2 is implemented with CPU/offline/native checks passed; historical native depth
+regression also passed. [W2 evidence](WATER_02_FILTERED_WAVES.md).
 W1 is implemented and CPU/offline/native checks passed; no water consumer or
 Minecraft/Iris runtime result exists yet. See [W1 evidence](WATER_01_SNAPSHOT.md).
 
@@ -26,7 +28,7 @@ projects and existing junctions remain unchanged. Project and generated files st
 | Existing system | Current scope | Important gap |
 |---|---|---|
 | M13 water style | Fluid classification, source tint, Fresnel-shaped analytic sky-color mix | Native alpha also attenuates reflection; no scene reflection or optical composition |
-| M14 waves | Three world-anchored analytic slopes perturb the reflection normal | No flow field, refraction, silhouette movement or distant detail filtering |
+| M14 / W2 waves | Three broad waves plus three pixel-footprint-filtered ripples; original broad-wave fallback | No flow field, refraction, silhouette movement or unresolved-variance roughness |
 | M16 depth color | Same-pixel vertical background gap shifts source chroma while preserving luminance | Not water-path length, absorption or transmitted-background attenuation |
 | Shared gates | Water style is restricted by sky access, camera fluid state and upward-facing surface eligibility | Cave water, underwater views and waterfall faces need distinct treatment |
 
@@ -45,7 +47,7 @@ each row fits one commit. Debuggable, reversible increments come before extra ef
 | Stage | Deliverable | Dependency and completion question |
 |---|---|---|
 | **W1 — implemented; automated checks passed** | Matched linear scene-color and depth snapshots before the applicable distance-fog step; explicit producer/consumer contracts | CPU/offline/native checks verified the producer contract and original-output preservation within their test scope. No consumer; actual Iris binding/flip and Minecraft rendering remain unobserved. A snapshot is not yet reflection or transmission. |
-| **W2 — planned** | Shared multiscale water normals with pixel-footprint filtering | Preserve world/time continuity; retain broad motion while filtering unresolved ripples. Use one normal model for later reflection/refraction/glints. Geometry displacement waits for shoreline and culling contracts. |
+| **W2 — implemented; CPU/offline/native checks passed** | Shared multiscale water normals with pixel-footprint filtering | Synthetic affine-footprint and actual-fragment comparisons passed; historical native depth regression passed. Minecraft appearance unobserved. Geometry displacement and unresolved-variance roughness remain planned. |
 | **W3 — planned** | Screen-space ray-traced reflection, confidence and environment fallback | Needs W1 depth/color agreement and W2 normals. Validate hits independently, then blend failures smoothly. Cover borders, occlusion, thin objects and moving cameras. |
 | **W4 — planned** | Owned water composition: Fresnel reflection/transmission balance, depth attenuation and guarded refraction | Needs reliable scene inputs and water coverage. Define water-path estimates, layered-transparency limits and fog ownership before replacing native source blending. |
 | **W5 — planned** | Distinct still-water, directional-flow and waterfall motion | Use verified fluid inputs where available; label any inferred flow. Join top/side motion and keep banks attached. A global scrolling pattern is not measured river flow. |

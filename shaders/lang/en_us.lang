@@ -193,3 +193,8 @@ option.SUN_GLOW_STRENGTH=Sun Glow Strength
 option.SUN_GLOW_STRENGTH.comment=Controls the added warm sky glow around the sun. Zero disables only sun glow.
 option.MOON_GLOW_STRENGTH=Moon Glow Strength
 option.MOON_GLOW_STRENGTH.comment=Full moon is brightest; new moon has no added glow. Zero disables only moon glow.
+
+option.WATER_SURFACE_DETAIL=Fine Water Ripples
+value.WATER_SURFACE_DETAIL.0=Off
+value.WATER_SURFACE_DETAIL.1=On
+option.WATER_SURFACE_DETAIL.comment=Adds fine ripples to filtered broad-wave normals. Off keeps broad waves. No geometry displacement or simulated water flow.

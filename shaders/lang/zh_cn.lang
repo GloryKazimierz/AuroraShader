@@ -193,3 +193,8 @@ option.SUN_GLOW_STRENGTH=太阳光晕强度
 option.SUN_GLOW_STRENGTH.comment=控制太阳周围新增的暖色天空光晕。设为零只关闭太阳光晕。
 option.MOON_GLOW_STRENGTH=月亮光晕强度
 option.MOON_GLOW_STRENGTH.comment=满月最亮，新月不添加光晕。设为零只关闭月亮光晕。
+
+option.WATER_SURFACE_DETAIL=水面细波纹
+value.WATER_SURFACE_DETAIL.0=关
+value.WATER_SURFACE_DETAIL.1=开
+option.WATER_SURFACE_DETAIL.comment=在过滤后的长波法线上增加细波纹。关闭后保留长波；不移动水面或模拟水流。

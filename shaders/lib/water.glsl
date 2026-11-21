@@ -4,6 +4,7 @@
 #include "/lib/lighting_settings.glsl"
 #include "/lib/sky_palette.glsl"
 #include "/lib/water_waves.glsl"
+#include "/lib/water_filtered_waves.glsl"
 #include "/lib/water_depth.glsl"
 
 float waterFresnel(float normalDotView) {
@@ -13,7 +14,8 @@ float waterFresnel(float normalDotView) {
     return 0.02 + 0.98 * squared * squared * grazing;
 }
 vec3 applyWaterStyle(vec3 scene, vec3 viewPosition, vec3 normalView, vec2 lightmapUV,
-                     int waterSurface, ivec4 blendState, vec3 vanillaFog) {
+                     int waterSurface, ivec4 blendState, vec3 vanillaFog,
+                     vec2 waterWorldDx, vec2 waterWorldDy) {
 #if WATER_STYLE == 0 || SCENE_COLOR_MODE == 0 || DEBUG_VIEW != 0
     return scene;
 #else
@@ -56,7 +58,7 @@ vec3 applyWaterStyle(vec3 scene, vec3 viewPosition, vec3 normalView, vec2 lightm
     vec3 up = celestialUnit(upPosition);
     // Face eligibility uses the original normal, so animation cannot toggle the face mask.
     float upwardSurface = smoothstep(0.5, 0.95, dot(normal, up));
-    normal = waterWaveNormal(normal, viewPosition, upwardSurface);
+    normal = waterFilteredWaveNormal(normal, viewPosition, upwardSurface, waterWorldDx, waterWorldDy);
     vec3 reflected = reflect(-towardEye, normal);
     // Preserve the strong grazing reflection at the horizon; fade only just below it.
     float aboveHorizon = smoothstep(-0.10, 0.0, dot(reflected, up));

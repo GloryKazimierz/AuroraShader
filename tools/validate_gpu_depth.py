@@ -40,7 +40,7 @@ void main() {
     ivec2 pixel=ivec2(gl_FragCoord.xy);
     vec4 source=texelFetch(testScene,pixel,0);
     vec3 surface=texelFetch(testSurface,pixel,0).xyz;
-    color=vec4(applyWaterStyle(source.rgb,surface,testNormal,testLightmap,testMaterial,testBlend,vec3(0.2)),source.a);
+    color=vec4(applyWaterStyle(source.rgb,surface,testNormal,testLightmap,testMaterial,testBlend,vec3(0.2),vec2(0.0),vec2(0.0)),source.a);
 }
 '''
     width,height=7,3

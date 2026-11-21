@@ -12,6 +12,7 @@ from validate_bloom import BLOOM_PROGRAMS, restore_bloom_properties
 from validate_aurora import restore_aurora_source
 from validate_water import restore_water_plumbing, restore_water_source
 from validate_water_snapshot import restore_water_snapshot_source, restore_water_snapshot_plumbing
+from validate_water_filtered_waves import restore_water_filtered_plumbing
 
 M8_BASELINE = '7ac62da5bada1ab0fd0eb6c66cb27222d6ed3586'
 GUARDED = ('pipeline_settings', 'color_space', 'scene_color', 'atmosphere_settings',
@@ -205,7 +206,7 @@ def validate_fog(root, expand, preprocess, compact, function_body):
             assert len(declarations) == len(set(declarations)), path.name
             definitions = re.findall(r'^(?:float|vec[234]|void|bool|int)\s+(\w+)\([^;]*?\)\s*\{', source, re.M)
             assert len(definitions) == len(set(definitions)), path.name
-            m = body(source, 'main')
+            m = body(restore_water_filtered_plumbing(source), 'main')
             if path.stem in LATE_PROGRAMS or path.stem == 'deferred':
                 for name in ('applyAtmosphericFog', 'applyLateAtmosphericFog'):
                     if not mode or not enabled:

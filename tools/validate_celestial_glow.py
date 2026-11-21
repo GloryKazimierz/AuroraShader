@@ -6,6 +6,7 @@ import subprocess
 from pathlib import Path
 from itertools import product
 from validate_water_snapshot import restore_water_snapshot_source
+from validate_water_filtered_waves import FILTER_OPTIONS
 
 M18_BASELINE = '60871f45b7e84e331bacaf541874c7ae4df86090'
 GLOW_OPTIONS = {'CELESTIAL_GLOW','SUN_GLOW_STRENGTH','MOON_GLOW_STRENGTH'}
@@ -284,7 +285,7 @@ def validate_celestial_glow(root,expand,preprocess,compact,function_body):
         previous=subprocess.check_output(['git','-C',str(root),'show',M18_BASELINE+':'+path]).decode('utf-8').replace('\r\n','\n')
         assert restore_celestial_glow_source(relative,read(relative))==previous,relative
     current_files={str(path.relative_to(root)).replace('\\','/') for path in shaders.rglob('*') if path.is_file()}
-    assert current_files-set(old_files)=={'shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl','shaders/lib/water_scene_snapshot.glsl'}
+    assert current_files-set(old_files)=={'shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl','shaders/lib/water_scene_snapshot.glsl','shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl'}
     assert len(list(shaders.glob('*.vsh')))==len(list(shaders.glob('*.fsh')))==24
     helper=read('lib/celestial_glow.glsl')
     code=compact(helper)
@@ -315,8 +316,8 @@ def validate_celestial_glow(root,expand,preprocess,compact,function_body):
                             overrides={'SCENE_COLOR_MODE':mode,'CELESTIAL_GLOW':enabled,'SKY_STYLE':style})
         if not mode or not enabled or not style or debug:
             assert body(selected,'applyCelestialGlow')=='returnscene;'
-    options=option_definitions(root)
-    properties=parse_properties(read('shaders.properties'))
+    options={key:value for key,value in option_definitions(root).items() if key not in FILTER_OPTIONS}
+    properties=parse_properties(restore_water_snapshot_source('shaders.properties',read('shaders.properties')))
     controls,screens=menu_options(properties,options)
     assert len(options)==len(controls)==57 and len(screens)==12
     for name,default,values in (('CELESTIAL_GLOW','1',('0','1')),
@@ -333,7 +334,7 @@ def validate_celestial_glow(root,expand,preprocess,compact,function_body):
         for glow,sun_strength,moon_strength in product(('0','1'),('0.0','1.0'),('0.0','0.5')):
             current.update(CELESTIAL_GLOW=glow,SUN_GLOW_STRENGTH=sun_strength,MOON_GLOW_STRENGTH=moon_strength)
             assert matching_profiles(profiles,current)==(name,)
-    en,zh=(parse_language(read('lang/'+language)) for language in ('en_us.lang','zh_cn.lang'))
+    en,zh=(parse_language(restore_water_snapshot_source('lang/'+language,read('lang/'+language))) for language in ('en_us.lang','zh_cn.lang'))
     assert len(en)==len(zh)==179 and set(en)==set(zh)
     assert GLOW_LABELS<=set(en)
     assert all(re.search(r'[\u3400-\u9fff]',zh[key]) for key in GLOW_LABELS)

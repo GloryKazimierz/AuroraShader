@@ -6,15 +6,17 @@ textures and lightmaps with directional lighting, shadows, atmosphere and gentle
 water effects. The aim is a coherent, playable pack with its own identity.
 
 **Current priority: convincing, beautiful water from every view.**
-W1 on `codex/water-01-scene-snapshot` starts from M19 commit `74c7164`.
-It captures matched lit color before camera-path fog and surface depth for future
-water reflection/transmission. W1 adds no water consumer or visual effect yet.
-There are still 57 controls and three quality profiles. The water roadmap covers
-filtered waves, screen-space traced reflections, transmission/absorption, verified
-flow, underwater optics, shoreline effects and measured quality/performance.
+W2 on `codex/water-02-filtered-waves` starts from W1 commit `5d3e917`.
+It adds three small ripples to the original three broad waves and filters their
+normals by the screen-pixel footprint. W1 provides matched pre-camera-fog color
+and depth for future reflection/transmission; no snapshot consumer exists yet.
+There are 58 controls and three quality profiles. The water roadmap covers
+screen-space traced reflections, transmission/absorption, verified flow, underwater
+optics, shoreline effects and measured quality/performance.
 
 [中文路线图](docs/AURORA_ROADMAP.zh-CN.md) ·
 [中文水体专项路线](docs/WATER_ROADMAP.zh-CN.md) ·
+[波纹过滤原理](docs/WATER_02_FILTERED_WAVES.zh-CN.md) ·
 [English roadmap](docs/AURORA_ROADMAP.md)
 
 ## Current features
@@ -27,14 +29,17 @@ flow, underwater optics, shoreline effects and measured quality/performance.
 | Fog and clouds | Height/distance atmosphere, compatible late-source fog and native-cloud color; original cloud geometry retained |
 | Bloom | Four-pass half-resolution bright-pixel extraction, separable blur and recombination |
 | Aurora | Bounded procedural teal/violet sky ribbons at night, with weather/vision fallbacks |
-| Water | Fluid classification, gentle tint, analytic sky-color reflection, world-anchored wave normals and luminance-preserving background-depth color |
+| Water | Fluid classification, gentle tint, analytic sky-color reflection, world-anchored, pixel-filtered multiscale wave normals and luminance-preserving background-depth color |
 | Water tracing foundation | Matched eligible opaque color/depth snapshot; water ray tracing and physical transmission remain planned |
 | Foliage | Eleven vanilla leaf types, short grass and joined tall grass; shared terrain/shadow wind with fixed grass roots |
 | Settings | English/Simplified Chinese, grouped pages, three quality profiles and seven debug views |
 
 Water reflection uses an analytic sky palette. Waves change reflection normals;
-they do not move the mesh or shoreline. Depth color uses a background height gap,
-not measured water-volume thickness. Native water alpha is retained.
+they do not move the mesh or shoreline. Water Surface Detail 1 (default) uses six
+filtered waves; 0 restores the original three-wave normal path exactly. Filtering
+does not yet convert unresolved waves into reflection roughness or eliminate
+nonlinear highlight aliasing. Depth color uses a background height gap, not measured
+water-volume thickness. Native water alpha is retained.
 Sun/moon glow adds bounded light to the sky background. It fades with horizon,
 weather and vision conditions; it is not physical scattering or terrain illumination.
 There is no SSR, physical water transmission/refraction, PBR, SSAO, volumetric
@@ -137,7 +142,7 @@ Run from this D: checkout:
 python -B tools/validate.py
 python -B tools/compile_glsl.py --compiler C:/VulkanSDK/1.4.363.0/Bin/glslangValidator.exe
 python -B tools/compile_glsl.py --profiles-only --compiler C:/VulkanSDK/1.4.363.0/Bin/glslangValidator.exe
-python -B tools/validate_gpu.py --cxx C:/msys64/ucrt64/bin/g++.exe --suite snapshot
+python -B tools/validate_gpu.py --cxx C:/msys64/ucrt64/bin/g++.exe --suite filtered-waves
 git diff --check
 ```
 
@@ -148,7 +153,7 @@ or launches Minecraft. Generated inputs, binaries and compiler temporary files
 stay on the project drive and are removed after the run.
 
 Native suites: `probe`, `compile`, `profiles`, `render`, `depth`, `foliage`,
-`celestial`, `snapshot`, or default `all`.
+`celestial`, `snapshot`, `filtered-waves`, or default `all`.
 Use `--report docs/validation/NEW_NAME.json` to retain a new result; existing
 reports are never overwritten. Synthetic rendering covers bloom, water normals,
 final color, water-depth color, foliage math and celestial glow. Foliage wrappers exercise the
@@ -157,7 +162,9 @@ geometry/shadow rasterization. Celestial checks also execute the actual sky pair
 with synthetic stage identifiers; this checks source branching without Iris's
 actual enum injection or sky meshes. Snapshot checks use simultaneous mixed-format
 render targets and compare the actual deferred output against pinned M19 source.
-They do not execute Iris's buffer flipping. The tool does not run Iris's patcher or reproduce
+They do not execute Iris's buffer flipping. Filtered-wave checks execute actual
+screen derivatives across synthetic fields and compare original/off/zero actual
+water-fragment output with W1. The tool does not run Iris's patcher or reproduce
 Minecraft's resource binding, draw scheduling or world rendering.
 
 User-confirmed Minecraft evidence is retained in [M3A](docs/MILESTONE_3A.md) and

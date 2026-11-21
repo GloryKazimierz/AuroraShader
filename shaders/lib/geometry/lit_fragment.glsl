@@ -28,6 +28,19 @@ layout(location = 0) out vec4 color;
 #endif
 
 void main() {
+#ifdef APPLY_WATER_STYLE
+    vec2 waterWorldDx = vec2(0.0);
+    vec2 waterWorldDy = vec2(0.0);
+#if WATER_SURFACE_DETAIL == 1
+#define AURORA_WATER_CONTINUOUS_VIEW
+    // Derivatives require continuous coordinates and uniform control flow. Do
+    // this before alpha discard and every material/environment/reflection gate.
+    vec2 waterScreenUV = gl_FragCoord.xy / vec2(viewWidth, viewHeight);
+    vec3 waterViewPosition = reconstructViewPosition(waterScreenUV, gl_FragCoord.z);
+    waterWorldDx = (mat3(gbufferModelViewInverse) * dFdx(waterViewPosition)).xz;
+    waterWorldDy = (mat3(gbufferModelViewInverse) * dFdy(waterViewPosition)).xz;
+#endif
+#endif
 	color = texture(gtexture, texcoord) * glcolor;
 	color *= texture(lightmap, lmcoord);
 	if (color.a < alphaTestRef) {
@@ -37,11 +50,15 @@ void main() {
     color.rgb = sceneFromDisplay(color.rgb);
 #ifdef APPLY_LATE_FOG
     // Reconstruct this foreground fragment, not the already composed background.
+#ifdef AURORA_WATER_CONTINUOUS_VIEW
+    vec3 fogView = waterViewPosition;
+#else
     vec2 fogUV = gl_FragCoord.xy / vec2(viewWidth, viewHeight);
     vec3 fogView = reconstructViewPosition(fogUV, gl_FragCoord.z);
+#endif
 #ifdef APPLY_WATER_STYLE
     // Use the water's own position; existing late fog still runs once afterward.
-    color.rgb = applyWaterStyle(color.rgb, fogView, normalView, lmcoord, waterSurface, blendFunc, fogColor);
+    color.rgb = applyWaterStyle(color.rgb, fogView, normalView, lmcoord, waterSurface, blendFunc, fogColor, waterWorldDx, waterWorldDy);
 #endif
     color.rgb = applyLateAtmosphericFog(color.rgb, fogView);
 #endif

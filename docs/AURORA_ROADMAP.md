@@ -16,7 +16,10 @@ Aurora's fantasy identity. [The water roadmap](WATER_ROADMAP.md) owns the ranked
 dependencies and controlled observation matrix. W1 matched scene/depth capture is
 implemented on `codex/water-01-scene-snapshot`, with CPU/offline/native checks passed.
 There is no water consumer yet; Minecraft/Iris runtime remains unobserved.
-[W1 implementation and evidence](WATER_01_SNAPSHOT.md).
+[W1 implementation and evidence](WATER_01_SNAPSHOT.md). Current work is W2 filtered
+multiscale wave normals on `codex/water-02-filtered-waves`, implemented with
+CPU/offline/native checks passed; historical native depth regression also passed.
+[W2 evidence](WATER_02_FILTERED_WAVES.md). Minecraft/Iris appearance is unobserved.
 The proposed M20 Iris-preprocessing bridge was not implemented and is deferred
 behind this water-first work.
 
@@ -59,6 +62,7 @@ rather than turning every surface into a uniform color wash.
 | M18 | Shared world-anchored leaf/grass displacement and matching shadows; profiles expanded to seven controls | CPU/offline/native checks recorded; Minecraft/Iris observation remains pending |
 | M19 | Independent angular sun/moon sky glow with bounded color and artistic lunar-phase brightness | CPU/offline/native checks recorded; Minecraft/Iris observation remains pending |
 | W1 | Matched pre-fog scene color/depth snapshot producer; no consumer yet | CPU/offline/native checks passed; Minecraft/Iris observation remains pending |
+| W2 | Multiscale water normals with per-wave pixel-footprint filtering and original-wave fallback | CPU/offline/native W2 checks passed; historical native depth regression passed; Minecraft/Iris unobserved |
 
 M6–M18 remain available as historical branches. M19 builds on M18 without
 upgrading any runtime status merely because development continues.
@@ -126,7 +130,7 @@ Each step should ship a small, reviewable increment with its own learning notes.
    palettes; explain angular width versus pixel footprint and finite fallbacks.
 14. **Water-first specialization — current priority.** W1 implements matched
    scene/depth capture before the deferred fog call. Planned work follows with
-   filtered multiscale normals, guarded SSR,
+   implemented W2 filtered multiscale normals, then planned guarded SSR,
    owned reflection/transmission composition and then flow/waterfall/underwater detail.
    [The dedicated water roadmap](WATER_ROADMAP.md) records the full dependencies,
    tracing limits, shore/foam/rain/caustics plans and scene/performance observations.

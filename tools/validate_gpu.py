@@ -408,7 +408,7 @@ def shader_digest():
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--cxx',help='Installed MinGW g++ compiler; no download')
-    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial','snapshot'),default='all')
+    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial','snapshot','filtered-waves'),default='all')
     parser.add_argument('--report',help='New JSON report path under the project; existing files are never overwritten')
     args=parser.parse_args()
     require(os.name=='nt','This optional WGL runner requires Windows; no GPU checks performed')
@@ -464,6 +464,12 @@ def main():
                 report['controls']=harness_controls(runner)
             report['water_snapshot']=snapshot_tests(runner,compare)
             print('PASS: matched water-scene snapshot and MRT checks',flush=True)
+        if args.suite in ('all','render','filtered-waves'):
+            from validate_gpu_water_filtered import filtered_wave_tests
+            if args.suite=='filtered-waves':
+                report['controls']=harness_controls(runner)
+            report['water_filtered_waves']=filtered_wave_tests(runner,compare)
+            print('PASS: filtered water waves and actual derivative checks',flush=True)
         require(shader_digest()==report['shader_sha256'],'Shader source changed during validation; report invalid')
         report['ok']=True
         report['finished_utc']=datetime.now(timezone.utc).isoformat()

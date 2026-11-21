@@ -155,6 +155,17 @@ def configurations():
     for mode, debug in product((0, 1), range(1, 7)):
         yield 'deferred', dict(SCENE_COLOR_MODE=mode, DEBUG_VIEW=debug)
 
+    # W2: existing water variants use detail1 by default. Add only the legacy
+    # detail0 gate/control counterparts so the original wave route stays linked.
+    for mode, style, waves, debug in product((0, 1), (0, 1), (0, 1), range(7)):
+        yield 'gbuffers_water', dict(SCENE_COLOR_MODE=mode, WATER_STYLE=style,
+                                    WATER_WAVES=waves, DEBUG_VIEW=debug, WATER_SURFACE_DETAIL=0)
+    for strength, speed, reflection, fog in product((0.0, .3, .6, 1.0), (0, 1, 2), (0.0, .75), (0, 1)):
+        yield 'gbuffers_water', dict(SCENE_COLOR_MODE=1, WATER_STYLE=1, WATER_WAVES=1,
+                                    WATER_WAVE_STRENGTH=strength, WATER_WAVE_SPEED=speed,
+                                    WATER_REFLECTION_STRENGTH=reflection, FOG_ENABLED=fog,
+                                    WATER_SURFACE_DETAIL=0)
+
     # M17 adds actual profile selections without replacing prior configurations.
     from validate_settings_profiles import profile_configurations
     yield from profile_configurations(ROOT)

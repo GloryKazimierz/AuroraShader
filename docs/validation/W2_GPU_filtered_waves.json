@@ -1,0 +1,573 @@
+{
+  "schema": 1,
+  "started_utc": "2026-11-21T14:43:24.923139+00:00",
+  "suite": "filtered-waves",
+  "shader_sha256": "7ab9456b47b812ca97b15e2b6858e03cbfe96c6d31a6f8921c7597f89619dd1e",
+  "scope": "Native OpenGL synthetic inputs only: no Iris patcher, Minecraft world, render-order/texture-binding integration, screenshots or performance measurement.",
+  "ok": true,
+  "gl": {
+    "vendor": "Intel",
+    "renderer": "Intel(R) Iris(R) Xe Graphics",
+    "version": "3.3.0 - Build 31.0.101.3962",
+    "glsl_version": "3.30 - Build 31.0.101.3962",
+    "major": 3,
+    "minor": 3,
+    "profile_mask": 2,
+    "profile": "compatibility",
+    "max_texture_size": 16384,
+    "max_texture_units": 32,
+    "max_draw_buffers": 8,
+    "max_color_attachments": 8
+  },
+  "build": {
+    "compiler": "g++.exe",
+    "flags": [
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-static"
+    ],
+    "diagnostics": ""
+  },
+  "controls": {
+    "comparisons": [
+      {
+        "label": "copy-RGBA32F",
+        "channels": 24,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "copy-RGBA16F",
+        "channels": 24,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "two-samplers",
+        "channels": 24,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "matrix-and-coverage",
+        "channels": 60,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "discard-preserves-clear",
+        "channels": 24,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      }
+    ],
+    "rejected": [
+      "existing output without modification",
+      "invalid GLSL",
+      "truncated raw texture",
+      "uniform type mismatch",
+      "varying link mismatch",
+      "misspelled inactive sampler",
+      "unwritten zero target"
+    ]
+  },
+  "water_filtered_waves": {
+    "filter_samples": 40,
+    "normal_cases": 29,
+    "normal_samples": 3440,
+    "exact_bypass_samples": 480,
+    "derivative_samples": 960,
+    "changed_near_normals": 120,
+    "comparisons": [
+      {
+        "label": "filtered-wave-pixel-filter",
+        "channels": 160,
+        "max_absolute_error": 5.5738748283573614e-08,
+        "max_tolerance_fraction": 0.13934687070893403,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 4e-07,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-near",
+        "channels": 480,
+        "max_absolute_error": 3.936496665787881e-07,
+        "max_tolerance_fraction": 0.006560827776313134,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-near-actual-derivative",
+        "channels": 480,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-mid",
+        "channels": 480,
+        "max_absolute_error": 3.4764119224636736e-07,
+        "max_tolerance_fraction": 0.005794019870772789,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-mid-actual-derivative",
+        "channels": 480,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-grazing",
+        "channels": 480,
+        "max_absolute_error": 1.0589162493385151e-07,
+        "max_tolerance_fraction": 0.0017648604155641918,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-grazing-actual-derivative",
+        "channels": 480,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-far",
+        "channels": 480,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-far-actual-derivative",
+        "channels": 480,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-tile-seam",
+        "channels": 480,
+        "max_absolute_error": 2.5534626096543334e-07,
+        "max_tolerance_fraction": 0.004255771016090555,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-tile-seam-actual-derivative",
+        "channels": 480,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-rotated",
+        "channels": 480,
+        "max_absolute_error": 2.1878761110802336e-07,
+        "max_tolerance_fraction": 0.0036464601851337224,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-rotated-actual-derivative",
+        "channels": 480,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-nonuniform",
+        "channels": 480,
+        "max_absolute_error": 3.884324222408475e-07,
+        "max_tolerance_fraction": 0.0064738737040141246,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-nonuniform-actual-derivative",
+        "channels": 480,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-translation",
+        "channels": 480,
+        "max_absolute_error": 3.3324973305014216e-07,
+        "max_tolerance_fraction": 0.005554162217502369,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-negative-anchor",
+        "channels": 480,
+        "max_absolute_error": 3.924475851365891e-07,
+        "max_tolerance_fraction": 0.006540793085609818,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-world-limit",
+        "channels": 480,
+        "max_absolute_error": 3.482723129749621e-07,
+        "max_tolerance_fraction": 0.005804538549582701,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-integer-extremes",
+        "channels": 480,
+        "max_absolute_error": 3.150332278448187e-07,
+        "max_tolerance_fraction": 0.0052505537974136445,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-static",
+        "channels": 480,
+        "max_absolute_error": 5.096791354172736e-07,
+        "max_tolerance_fraction": 0.00849465225695456,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-fast",
+        "channels": 480,
+        "max_absolute_error": 2.8263139530138037e-07,
+        "max_tolerance_fraction": 0.0047105232550230065,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-cycle-left",
+        "channels": 480,
+        "max_absolute_error": 3.6326219107069013e-07,
+        "max_tolerance_fraction": 0.006054369851178168,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-cycle-right",
+        "channels": 480,
+        "max_absolute_error": 6.211289349938864e-07,
+        "max_tolerance_fraction": 0.010352148916564774,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-reset-left",
+        "channels": 480,
+        "max_absolute_error": 4.1830400648174004e-07,
+        "max_tolerance_fraction": 0.006971733441362334,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-reset-right",
+        "channels": 480,
+        "max_absolute_error": 4.284816572039385e-07,
+        "max_tolerance_fraction": 0.007141360953398975,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-bad-time",
+        "channels": 480,
+        "max_absolute_error": 5.096791354172736e-07,
+        "max_tolerance_fraction": 0.00849465225695456,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-infinite-time",
+        "channels": 480,
+        "max_absolute_error": 5.096791354172736e-07,
+        "max_tolerance_fraction": 0.00849465225695456,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-negative-time",
+        "channels": 480,
+        "max_absolute_error": 5.096791354172736e-07,
+        "max_tolerance_fraction": 0.00849465225695456,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-maximum",
+        "channels": 480,
+        "max_absolute_error": 5.817993580792269e-07,
+        "max_tolerance_fraction": 0.009696655967987114,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-partial",
+        "channels": 480,
+        "max_absolute_error": 8.710652671644475e-08,
+        "max_tolerance_fraction": 0.001451775445274079,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-excluded",
+        "channels": 480,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-zero",
+        "channels": 480,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-disabled",
+        "channels": 480,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-original-exact-original",
+        "channels": 480,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-original-grazing-exact-original",
+        "channels": 480,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-discard",
+        "channels": 480,
+        "max_absolute_error": 3.244385131974392e-07,
+        "max_tolerance_fraction": 0.005407308553290653,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 6e-05,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-discard-actual-derivative",
+        "channels": 480,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      },
+      {
+        "label": "filtered-wave-singular",
+        "channels": 480,
+        "max_absolute_error": 0.0,
+        "max_tolerance_fraction": 0.0,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 0,
+          "relative": 0.0
+        }
+      }
+    ],
+    "actual_fragment": {
+      "configurations": 4,
+      "pixels_per_configuration": 120,
+      "changed_detailed_pixels": 48,
+      "comparisons": [
+        {
+          "label": "water-fragment-original-exact-W1",
+          "channels": 480,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0,
+            "relative": 0.0
+          }
+        },
+        {
+          "label": "water-fragment-disabled-exact-W1",
+          "channels": 480,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0,
+            "relative": 0.0
+          }
+        },
+        {
+          "label": "water-fragment-zero-exact-W1",
+          "channels": 480,
+          "max_absolute_error": 0.0,
+          "max_tolerance_fraction": 0.0,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0,
+            "relative": 0.0
+          }
+        }
+      ],
+      "scope": "Actual pack fragment with synthetic water vertex/material/atlas inputs; original, off and zero exact against W1."
+    },
+    "scope": "Actual helper and dFdx/dFdy on dyadic affine synthetic fields; tile seam, anisotropy, discard and transforms. Not Minecraft rasterization."
+  },
+  "finished_utc": "2026-11-21T14:45:59.338603+00:00"
+}

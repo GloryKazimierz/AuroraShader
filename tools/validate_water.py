@@ -6,6 +6,7 @@ from functools import lru_cache
 from itertools import product
 from validate_water_waves import restore_water_wave_source
 from validate_foliage import restore_foliage_source, expand_without_foliage
+from validate_water_filtered_waves import restore_water_filtered_source, restore_water_filtered_plumbing
 
 M12_BASELINE = '4e7b8b4bb943d24eee9e46745ffeaef16bee5f4f'
 WATER_VERTEX_DECL = '''#ifdef APPLY_WATER_STYLE
@@ -38,6 +39,7 @@ screen.WATER.columns = 2
 
 def restore_water_plumbing(source):
     """Remove the exact nested water call before older late-fog block restoration."""
+    source = restore_water_filtered_plumbing(source)
     assert source.count(WATER_CALL) <= 1
     return source.replace('#ifdef APPLY_WATER_STYLE\n'+WATER_CALL+'#endif\n','',1).replace(WATER_CALL,'',1)
 
@@ -176,7 +178,7 @@ def validate_water(root,expand,preprocess,compact,function_body):
     assert assignments == ['block.10001 = minecraft:water']
     # Bind the M13 oracle to the precisely restored waves-off implementation.
     source = restore_water_wave_source('lib/water.glsl',read('lib/water.glsl'))
-    vertex,fragment = restore_foliage_source('lib/geometry/lit_vertex.glsl',read('lib/geometry/lit_vertex.glsl')),read('lib/geometry/lit_fragment.glsl')
+    vertex,fragment = restore_foliage_source('lib/geometry/lit_vertex.glsl',read('lib/geometry/lit_vertex.glsl')),restore_water_filtered_source('lib/geometry/lit_fragment.glsl',read('lib/geometry/lit_fragment.glsl'))
     code = compact(source)
     for token in ('floatgrazing=1.0-clamp(normalDotView,0.0,1.0);',
                   'return0.02+0.98*squared*squared*grazing;',

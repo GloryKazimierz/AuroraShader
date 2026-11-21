@@ -8,6 +8,7 @@ import re
 import subprocess
 from itertools import product
 from pathlib import Path
+from validate_water_filtered_waves import restore_water_filtered_source
 
 M19_BASELINE = '74c7164874e446ebd8e763f146286c2c6908b820'
 INVALID_SNAPSHOT = ((0.0, 0.0, 0.0, 0.0), 1.0)
@@ -65,6 +66,7 @@ def restore_water_snapshot_source(relative, source):
     relative = relative.replace('\\', '/')
     if relative.startswith('shaders/'):
         relative = relative[len('shaders/'):]
+    source = restore_water_filtered_source(relative, source)
     if relative == 'deferred.fsh':
         for addition in (SNAPSHOT_INCLUDE, SNAPSHOT_UNIFORM, SNAPSHOT_DECLARATIONS,
                          SNAPSHOT_OUTPUTS, SNAPSHOT_INITIALIZERS, SNAPSHOT_CALL):
@@ -129,7 +131,7 @@ def validate_water_snapshot(root, expand, preprocess, compact, function_body):
     assert len(old_files) == 99
     current_files = {str(path.relative_to(root)).replace('\\', '/')
                      for path in shaders.rglob('*') if path.is_file()}
-    assert current_files == set(old_files) | {'shaders/lib/water_scene_snapshot.glsl'}
+    assert current_files == set(old_files) | {'shaders/lib/water_scene_snapshot.glsl','shaders/lib/water_filtered_waves.glsl','shaders/lib/water_surface_settings.glsl'}
     for path in old_files:
         previous = subprocess.check_output(['git', '-C', str(root), 'show', M19_BASELINE + ':' + path]).decode('utf-8').replace('\r\n', '\n')
         assert restore_water_snapshot_source(path, read(path[len('shaders/'):])) == previous, path
