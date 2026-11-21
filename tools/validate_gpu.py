@@ -408,14 +408,14 @@ def shader_digest():
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--cxx',help='Installed MinGW g++ compiler; no download')
-    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial','snapshot','filtered-waves','screen-reflections','water-debug','water-transport','water-stability','water-bounds','water-refraction','water-motion','water-foam','water-glints'),default='all')
+    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial','snapshot','filtered-waves','screen-reflections','water-debug','water-transport','water-stability','water-bounds','water-refraction','water-motion','water-foam','water-glints','water-caustics','water-caustics-time','water-caustic-waves'),default='all')
     parser.add_argument('--report',help='New JSON report path under the project; existing files are never overwritten')
     parser.add_argument('--debug-plate',help='Save the selected water suite comparison to a new project PNG')
     args=parser.parse_args()
     plate_path=None
     if args.debug_plate:
         plate_path=(ROOT/args.debug_plate).resolve()
-        require(args.suite in ('water-debug','water-transport','water-stability','water-refraction','water-motion','water-foam','water-glints') and ROOT.resolve() in plate_path.parents
+        require(args.suite in ('water-debug','water-transport','water-stability','water-refraction','water-motion','water-foam','water-glints','water-caustics','water-caustic-waves') and ROOT.resolve() in plate_path.parents
                 and plate_path.suffix.lower()=='.png' and plate_path.parent.is_dir()
                 and not plate_path.exists(),'Water debug plate requires a new project PNG path')
 
@@ -525,6 +525,16 @@ def main():
             from validate_gpu_water_glints import glint_tests
             report['water_glints']=glint_tests(runner,plate_path if args.suite=='water-glints' else None)
             print('PASS: sun and moon highlights and wave roughness',flush=True)
+        if args.suite in ('all','render','water-caustics'):
+            from validate_gpu_water_caustics import caustics_tests
+            report['water_caustics']=caustics_tests(runner,plate_path if args.suite=='water-caustics' else None)
+            print('PASS: shadow-space caustics and refracted receiver tests',flush=True)
+        if args.suite in ('all','render','water-caustic-waves'):
+            from validate_gpu_water_caustics import wave_capture_views
+            report['water_caustic_waves']=wave_capture_views(runner,plate_path if args.suite=='water-caustic-waves' else None)
+        if args.suite=='water-caustics-time':
+            from validate_gpu_water_caustics import benchmark_tests
+            report['water_caustics_timing']=benchmark_tests(runner)
         require(shader_digest()==report['shader_sha256'],'Shader source changed during validation; report invalid')
         report['ok']=True
         report['finished_utc']=datetime.now(timezone.utc).isoformat()

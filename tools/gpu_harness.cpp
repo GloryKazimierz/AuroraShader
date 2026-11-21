@@ -403,6 +403,7 @@ std::size_t pixels(int width, int height) {
     return count;
 }
 GLint storageFormat(const std::string& name) {
+    if (name == "RGBA16") return GL_RGBA16;
     if (name == "RGBA16F") return GL_RGBA16F;
     if (name == "RGBA32F") return GL_RGBA32F;
     if (name == "R32F") return GL_R32F;
@@ -874,6 +875,57 @@ std::string waterBlendCheck(const GlApi& gl, const GlInfo& info,
     return result.str();
 }
 
+std::string depthStorageCheck(const GlApi& gl, const std::string& vertex, const std::string& fragment) {
+    Program program(gl); program.build(vertex,fragment);
+    RenderObjects objects(gl);
+    gl.ActiveTexture(GL_TEXTURE0);
+    gl.GenFramebuffers(1,&objects.framebuffer);
+    gl.BindFramebuffer(GL_FRAMEBUFFER,objects.framebuffer);
+    objects.targets.push_back(0);glGenTextures(1,&objects.targets.back());
+    glBindTexture(GL_TEXTURE_2D,objects.targets.back());textureParameters();
+    glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA32F,1,1,0,GL_RGBA,GL_FLOAT,nullptr);
+    gl.FramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,objects.targets.back(),0);
+    objects.inputs.push_back(0);glGenTextures(1,&objects.inputs.back());
+    const GLenum output=GL_COLOR_ATTACHMENT0;gl.DrawBuffers(1,&output);glReadBuffer(output);
+    gl.UseProgram(program.id());
+    GLint location=gl.GetUniformLocation(program.id(),"testDepth");
+    if(location<0) throw Failure("depth storage comparison","Missing active testDepth uniform");
+    glEnable(GL_DEPTH_TEST);glDepthFunc(GL_ALWAYS);glDepthMask(GL_TRUE);
+    glDisable(GL_BLEND);glDisable(GL_STENCIL_TEST);glDisable(GL_SCISSOR_TEST);
+    glDisable(GL_CULL_FACE);glDisable(GL_DITHER);glDisable(GL_MULTISAMPLE);
+    glDisable(GL_FRAMEBUFFER_SRGB);glDisable(GL_ALPHA_TEST);
+    glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);glViewport(0,0,1,1);
+    glMatrixMode(GL_PROJECTION);glLoadIdentity();glMatrixMode(GL_MODELVIEW);glLoadIdentity();
+    const float values[]={0.f,std::ldexp(1.f,-24),.12345679f,.25f,
+        std::nextafter(.5f,0.f),.5f,std::nextafter(.5f,1.f),.75f,std::nextafter(1.f,0.f),
+        .000001f,12345.5f/65534.f,54321.5f/65534.f};
+    const GLenum formats[]={GL_DEPTH_COMPONENT24,GL_DEPTH_COMPONENT32F};
+    std::ostringstream rows;rows << '[';
+    for(int format=0;format<2;++format) {
+        glBindTexture(GL_TEXTURE_2D,objects.inputs.back());textureParameters();
+        glTexImage2D(GL_TEXTURE_2D,0,formats[format],1,1,0,GL_DEPTH_COMPONENT,GL_FLOAT,nullptr);
+        gl.FramebufferTexture2D(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,objects.inputs.back(),0);
+        if(gl.CheckFramebufferStatus(GL_FRAMEBUFFER)!=GL_FRAMEBUFFER_COMPLETE)
+            throw Failure("depth storage comparison","Depth framebuffer incomplete");
+        glBindTexture(GL_TEXTURE_2D,0);
+        for(std::size_t index=0;index<sizeof(values)/sizeof(values[0]);++index) {
+            gl.Uniform1f(location,values[index]);glClearDepth(1.0);glClear(GL_DEPTH_BUFFER_BIT);
+            glBegin(GL_TRIANGLES);glVertex2f(-1.f,-1.f);glVertex2f(3.f,-1.f);glVertex2f(-1.f,3.f);glEnd();
+            float color[4]={0.f,0.f,0.f,0.f},stored=0.f;
+            glReadPixels(0,0,1,1,GL_RGBA,GL_FLOAT,color);
+            glReadPixels(0,0,1,1,GL_DEPTH_COMPONENT,GL_FLOAT,&stored);
+            checkGl("native depth storage readback");
+            float tolerance=format==0?1.f/16777215.f:0.f;
+            if(color[0]!=values[index] || !std::isfinite(stored) || std::abs(stored-values[index])>tolerance)
+                throw Failure("depth storage comparison","Unexpected depth/color conversion");
+            if(format || index) rows << ',';
+            rows << "{\"format\":" << jsonQuote(format==0?"D24":"D32F")
+                 << ",\"source\":" << std::setprecision(12) << values[index]
+                 << ",\"stored\":" << stored << '}';
+        }
+    }
+    rows << ']';return rows.str();
+}
 } // namespace
 
 int main(int argc, char** argv) {
@@ -886,7 +938,7 @@ int main(int argc, char** argv) {
         std::vector<CompileCase> cases;
         RenderSpec spec;
         std::vector<std::string> inactiveBindings;
-        if (command == "--water-blend-check" && argc == 4) {
+        if ((command == "--water-blend-check" || command == "--depth-storage-check") && argc == 4) {
             absolutePath(argv[2]); absolutePath(argv[3]);
         } else if (command == "--probe" && argc == 2) {
         } else if (command == "--compile" && argc == 4) {
@@ -896,7 +948,7 @@ int main(int argc, char** argv) {
             cases = readBatch(argv[2]);
         } else if ((command == "--render" || command == "--time-render") && argc == 3) {
             spec = readRender(argv[2]);
-        } else throw Failure("arguments", "Usage: --probe | --compile VERTEX FRAGMENT | --compile-batch MANIFEST | --render MANIFEST | --time-render MANIFEST | --water-blend-check VERTEX FRAGMENT");
+        } else throw Failure("arguments", "Usage: --probe | --compile VERTEX FRAGMENT | --compile-batch MANIFEST | --render MANIFEST | --time-render MANIFEST | --water-blend-check VERTEX FRAGMENT | --depth-storage-check VERTEX FRAGMENT");
         Context context;
         context.initialize(info);
         GlApi gl;
@@ -909,6 +961,8 @@ int main(int argc, char** argv) {
         }
         activeCase.clear();
         std::string waterBlendResult;
+        std::string depthResult;
+        if (command == "--depth-storage-check") depthResult = depthStorageCheck(gl,argv[2],argv[3]);
         if (command == "--water-blend-check") waterBlendResult = waterBlendCheck(gl,info,argv[2],argv[3]);
         std::vector<GLuint64> elapsedNanoseconds;
         if (command == "--time-render") inactiveBindings = render(gl, info, spec, &elapsedNanoseconds);
@@ -923,6 +977,7 @@ int main(int argc, char** argv) {
             }
             std::cout << ']';
         }
+        if (!depthResult.empty()) std::cout << ",\"depth_storage\":" << depthResult;
         if (!waterBlendResult.empty()) std::cout << ",\"water_blend\":" << waterBlendResult;
         if (!cases.empty()) std::cout << ",\"compiled\":" << completed << ",\"case_count\":" << cases.size();
         if (command == "--render" || command == "--time-render") {

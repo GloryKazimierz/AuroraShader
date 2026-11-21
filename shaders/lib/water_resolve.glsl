@@ -7,6 +7,10 @@
 #include "/lib/fog.glsl"
 #include "/lib/water_transport.glsl"
 #include "/lib/water_reflection_filter.glsl"
+#include "/lib/water_caustics.glsl"
+#ifdef AURORA_WATER_CAUSTICS_ACTIVE
+uniform sampler2D colortex1;
+#endif
 uniform sampler2D colortex7;
 uniform sampler2D colortex8;
 uniform sampler2D depthtex0;
@@ -102,8 +106,8 @@ vec3 resolveWaterOptics(vec3 nativeScene, ivec2 pixel, ivec2 size) {
     float viewMeters = length(bottomView - surfaceView) * params.worldBlockMeters;
     if (!waterTraceFinite3(worldDelta) || !waterResolveScalar(viewMeters)
         || drop <= 0.001 || viewMeters <= 0.001 || viewMeters >= 64.0) return nativeScene;
-    // A screen-border/depth-discontinuity confidence avoids replacing edge mixtures
-    // by a full water solution. This is same-pixel transmission, not refracted SSR.
+    // Screen-border/depth-discontinuity confidence avoids replacing edge mixtures
+    // by a full water solution. This is the same-ray fallback for refraction.
     vec2 edge = min(vec2(pixel) + 0.5, vec2(size - pixel) - 0.5);
     float confidence = smoothstep(0.0, 2.0, min(edge.x, edge.y))
                      * smoothstep(0.65, 0.90, normalUp) * smoothstep(0.03, 0.12, eyeUp)
@@ -127,8 +131,35 @@ vec3 resolveWaterOptics(vec3 nativeScene, ivec2 pixel, ivec2 size) {
 #if SKY_STYLE != 0
     skySource = auroraSkyLinear(up, fogColor) * clamp(SKY_BLEND, 0.0, 1.0) * environment;
 #endif
+#ifdef AURORA_WATER_CAUSTICS_ACTIVE
+    vec3 transmitted;
+    if (float(WATER_CAUSTICS_STRENGTH)>0.0 && WATER_WAVES==1 && float(WATER_WAVE_STRENGTH)>0.0) {
+        float causticGain = 1.0;
+        if (directShare>0.0 && all(equal(textureSize(colortex1,0),size))) {
+            vec4 receiver = texelFetch(colortex1,pixel,0);
+            vec3 n = receiver.xyz*2.0-1.0;
+            if (waterTraceFinite4(receiver) && receiver.a==1.0 && dot(n,n)>1e-12) {
+                // Iris view transforms are rigid; normalize after world conversion.
+                vec3 bedNormal = normalize(mat3(gbufferModelViewInverse)*normalize(n));
+                vec3 lightWorld = mat3(gbufferModelViewInverse)*celestialUnit(shadowLightPosition);
+                vec2 footprintX,footprintY;
+                if(waterCausticPixelFootprint(bottomView,size,gbufferProjection,gbufferProjectionInverse,
+                    gbufferModelViewInverse,footprintX,footprintY)) {
+                    causticGain = waterShadowCausticGain(viewToPlayerPosition(surfaceView),
+                        viewToPlayerPosition(bottomView),bedNormal,lightWorld,directShare,footprintX,footprintY);
+                }
+            }
+        }
+        transmitted = waterTransportRadiance(source, directShare, viewMeters, lightMeters,
+                                                 ownership.g, ownership.b, skySource, causticGain);
+    } else {
+        transmitted = waterTransportRadiance(source, directShare, viewMeters, lightMeters,
+                                             ownership.g, ownership.b, skySource);
+    }
+#else
     vec3 transmitted = waterTransportRadiance(source, directShare, viewMeters, lightMeters,
                                              ownership.g, ownership.b, skySource);
+#endif
 #if WATER_REFRACTION > 0
     transmitted = applyWaterRefractionTransport(transmitted,surfaceView,up,normal,
                                                 lightCosine,ownership.gb,skySource);

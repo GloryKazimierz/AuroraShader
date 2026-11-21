@@ -1,0 +1,133 @@
+{
+  "fixture": "Analytic light-space wave, 8-bit and 16-bit capture versus full-float reference",
+  "measurements": {
+    "cases": [
+      {
+        "format": "RGBA8",
+        "depth_m": 0.25,
+        "slope_amplitude": 0.02,
+        "wavelength_m": 0.75,
+        "max_gain_error": 0.0015110969543457031,
+        "rms_gain_error": 0.0007786293250155725,
+        "max_temporal_residual": 0.00010097026824951172,
+        "meets_quality_target": true
+      },
+      {
+        "format": "RGBA16",
+        "depth_m": 0.25,
+        "slope_amplitude": 0.02,
+        "wavelength_m": 0.75,
+        "max_gain_error": 1.0251998901367188e-05,
+        "rms_gain_error": 3.3031248095972517e-06,
+        "max_temporal_residual": 1.537799835205078e-05,
+        "meets_quality_target": true
+      },
+      {
+        "format": "RGBA8",
+        "depth_m": 0.5,
+        "slope_amplitude": 0.06,
+        "wavelength_m": 1.5,
+        "max_gain_error": 0.0016789436340332031,
+        "rms_gain_error": 0.0007355678249601172,
+        "max_temporal_residual": 0.00031304359436035156,
+        "meets_quality_target": true
+      },
+      {
+        "format": "RGBA16",
+        "depth_m": 0.5,
+        "slope_amplitude": 0.06,
+        "wavelength_m": 1.5,
+        "max_gain_error": 1.4483928680419922e-05,
+        "rms_gain_error": 6.48210039185247e-06,
+        "max_temporal_residual": 1.811981201171875e-05,
+        "meets_quality_target": true
+      },
+      {
+        "format": "RGBA8",
+        "depth_m": 2.0,
+        "slope_amplitude": 0.08,
+        "wavelength_m": 4.0,
+        "max_gain_error": 0.010273575782775879,
+        "rms_gain_error": 0.003117660975309513,
+        "max_temporal_residual": 0.011050820350646973,
+        "meets_quality_target": false
+      },
+      {
+        "format": "RGBA16",
+        "depth_m": 2.0,
+        "slope_amplitude": 0.08,
+        "wavelength_m": 4.0,
+        "max_gain_error": 3.612041473388672e-05,
+        "rms_gain_error": 1.3104869714877599e-05,
+        "max_temporal_residual": 4.5180320739746094e-05,
+        "meets_quality_target": true
+      },
+      {
+        "format": "RGBA8",
+        "depth_m": 4.0,
+        "slope_amplitude": 0.08,
+        "wavelength_m": 4.0,
+        "max_gain_error": 0.011027216911315918,
+        "rms_gain_error": 0.0034660333050426486,
+        "max_temporal_residual": 0.015200495719909668,
+        "meets_quality_target": false
+      },
+      {
+        "format": "RGBA16",
+        "depth_m": 4.0,
+        "slope_amplitude": 0.08,
+        "wavelength_m": 4.0,
+        "max_gain_error": 4.553794860839844e-05,
+        "rms_gain_error": 1.4683898850688026e-05,
+        "max_temporal_residual": 5.7578086853027344e-05,
+        "meets_quality_target": true
+      },
+      {
+        "format": "RGBA8",
+        "depth_m": 8.0,
+        "slope_amplitude": 0.03,
+        "wavelength_m": 4.0,
+        "max_gain_error": 0.0130692720413208,
+        "rms_gain_error": 0.004592377205429076,
+        "max_temporal_residual": 0.015968680381774902,
+        "meets_quality_target": false
+      },
+      {
+        "format": "RGBA16",
+        "depth_m": 8.0,
+        "slope_amplitude": 0.03,
+        "wavelength_m": 4.0,
+        "max_gain_error": 5.364418029785156e-05,
+        "rms_gain_error": 1.920377826575547e-05,
+        "max_temporal_residual": 7.43865966796875e-05,
+        "meets_quality_target": true
+      },
+      {
+        "format": "RGBA8",
+        "depth_m": 16.0,
+        "slope_amplitude": 0.02,
+        "wavelength_m": 4.0,
+        "max_gain_error": 0.005482912063598633,
+        "rms_gain_error": 0.0020350539522887637,
+        "max_temporal_residual": 0.0005947351455688477,
+        "meets_quality_target": false
+      },
+      {
+        "format": "RGBA16",
+        "depth_m": 16.0,
+        "slope_amplitude": 0.02,
+        "wavelength_m": 4.0,
+        "max_gain_error": 3.349781036376953e-05,
+        "rms_gain_error": 9.466757226354278e-06,
+        "max_temporal_residual": 3.9696693420410156e-05,
+        "meets_quality_target": true
+      }
+    ],
+    "target": {
+      "max_gain_error": 0.005,
+      "rms_gain_error": 0.0015,
+      "max_temporal_residual": 0.002
+    },
+    "scope": "Actual UNORM textures versus retained floating reference at fixed receiver positions, two nearby wave phases; not Minecraft temporal evaluation"
+  }
+}

@@ -23,6 +23,21 @@ class WaterDirectives {
         int programs = 0, settings = 0;
         for (String line : Files.readAllLines(root.resolve("cases.tsv"))) {
             String[] c = line.split("\t");
+            if (c[0].equals("caustic_dispatch")) {
+                var env = new ArrayList<StringPair>();
+                for (int i=2;i<c.length;i++) {
+                    var p=c[i].split("=",2);
+                    env.add(new StringPair(p[0],p[1]));
+                }
+                var cfg=new Properties();
+                cfg.load(new StringReader(PropertiesPreprocessor.preprocessSource(properties,env)));
+                boolean on=c[1].equals("1");
+                if (!Boolean.toString(on).equals(cfg.getProperty("shadowTranslucent"))
+                    || !Objects.equals(cfg.getProperty("blend.shadow"), on?"off":null))
+                    throw new AssertionError("Translucent shadow caster routing: "+line);
+                settings++;
+                continue;
+            }
             if (c[0].equals("contact")) {
                 var env=new ArrayList<StringPair>();
                 for (int i=2;i<c.length;i++) {
@@ -45,7 +60,7 @@ class WaterDirectives {
                 if (!route.equals(c[2])) throw new AssertionError(c[1] + " routes to " + route);
                 var formats = new TreeMap<String,String>();
                 for (var v : ConstDirectiveParser.findDirectives(source)) {
-                    if (v.getKey().matches("colortex(7|8|9|10|13|14|15)Format")) formats.put(v.getKey(),v.getValue());
+                    if (v.getKey().matches("(colortex(7|8|9|10|13|14|15)|shadowcolor0)Format")) formats.put(v.getKey(),v.getValue());
                 }
                 if (!String.join(",", formats.values()).equals(c[3].replace("-","")))
                     throw new AssertionError(c[1] + " formats " + formats);
@@ -170,6 +185,22 @@ def verify(work, iris_jar, slf4j_jar):
         highlight=bool(glint and support and optics)
         lines.append(['shader',filename,'0,13,14' if history else '0','RGBA16F,RG32F' if history else '-',
                       str(int(highlight)),'applyWaterGlint('])
+    for caustic,support,shadows,optics,hdr,style,debug in product((0,1),repeat=7):
+        opts=dict(WATER_CAUSTICS=caustic,WATER_OPTICS=optics,SCENE_COLOR_MODE=hdr,WATER_STYLE=style,
+                  DEBUG_VIEW=7*debug)
+        if shadows:
+            opts['SHADOWS_ENABLED']=1
+        if support:
+            opts[FEATURE]=1
+        active=bool(caustic and support and shadows and optics and hdr and style and not debug)
+        lines.append(['caustic_dispatch',str(int(active)),*(f'{k}={v}' for k,v in opts.items())])
+    for caustic,support,shadows in product((0,1),repeat=3):
+        opts=dict(WATER_CAUSTICS=caustic,WATER_OPTICS=1,SHADOWS_ENABLED=bool(shadows))
+        opts[FEATURE]=bool(support)
+        name=f'caustic-{caustic}-{support}-{shadows}.fsh'
+        (work/name).write_text(configure(expand(SHADERS/'shadow.fsh'),opts),encoding='utf-8')
+        on=bool(shadows and caustic and support)
+        lines.append(['shader',name,'0' if on else '-','RGBA16' if on else '-',str(int(on)),'causticRecord ='])
     (work/'cases.tsv').write_text('\n'.join('\t'.join(row) for row in lines),encoding='utf-8')
     env=dict(os.environ,TEMP=str(work),TMP=str(work),TMPDIR=str(work))
     subprocess.run(['javac','-J-XX:-UsePerfData',f'-J-Djava.io.tmpdir={work}','-cp',cp,str(java)],

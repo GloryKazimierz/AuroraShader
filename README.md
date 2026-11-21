@@ -256,3 +256,5 @@ equations and interface contracts in the learning notes.
 [Animated currents and water contact](docs/WATER_CURRENTS.md) · [河流、瀑布和涉水涟漪](docs/WATER_CURRENTS.zh-CN.md)
 
 [Foam, sun and moon glints](docs/WATER_M5_FOAM.md) · [岸边泡沫与日月高光](docs/WATER_M5_FOAM.zh-CN.md)
+
+[Water-bed caustics, settings and optical model](docs/WATER_M4_CAUSTICS.md) · [中文水底焦散图解](docs/WATER_M4_CAUSTICS.zh-CN.md) · [Driver comparison](docs/validation/WATER_CAUSTIC_WAVES_views.png)

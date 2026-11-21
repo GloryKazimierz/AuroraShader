@@ -8,10 +8,28 @@ vec3 waterRefractedTransport(WaterRefractionHit hit,vec3 surfaceView,vec3 up,
     float viewMeters=hit.pathLength*params.worldBlockMeters;
     float waterCosine=sqrt(max(1.0-(1.0-lightCosine*lightCosine)/(waterIOR*waterIOR),0.0));
     float lightMeters=drop/max(waterCosine,.001);
-    // M4 receiver hook belongs here: any caustic gain acts on this hit's q*L,
-    // at hit.position/receiverNormal, before either Beer leg; never reuse source q.
+#ifdef AURORA_WATER_CAUSTICS_ACTIVE
+    if (float(WATER_CAUSTICS_STRENGTH)<=0.0 || WATER_WAVES==0 || float(WATER_WAVE_STRENGTH)<=0.0)
+        return waterTransportRadiance(hit.radiance,hit.directShare,viewMeters,lightMeters,
+                                      levels.x,levels.y,skySource);
+    float causticGain=1.0;
+    vec2 footprintX,footprintY;
+    // Every color ray owns its actual endpoint, fitted receiver normal and q.
+    // Never substitute source-pixel metadata for a displaced refraction hit.
+    if(hit.directShare>0.0 && waterCausticPixelFootprint(hit.position,textureSize(colortex5,0),
+        gbufferProjection,gbufferProjectionInverse,gbufferModelViewInverse,footprintX,footprintY)) {
+        vec3 receiverNormal=normalize(mat3(gbufferModelViewInverse)*hit.receiverNormal);
+        vec3 lightWorld=mat3(gbufferModelViewInverse)*celestialUnit(shadowLightPosition);
+        causticGain=waterShadowCausticGain(viewToPlayerPosition(surfaceView),
+            viewToPlayerPosition(hit.position),receiverNormal,lightWorld,hit.directShare,
+            footprintX,footprintY,waterIOR);
+    }
+    return waterTransportRadiance(hit.radiance,hit.directShare,viewMeters,lightMeters,
+                                  levels.x,levels.y,skySource,causticGain);
+#else
     return waterTransportRadiance(hit.radiance,hit.directShare,viewMeters,lightMeters,
                                   levels.x,levels.y,skySource);
+#endif
 }
 vec3 applyWaterRefractionTransport(vec3 sameRay,vec3 surfaceView,vec3 up,vec3 normal,
                                    float lightCosine,vec2 levels,vec3 skySource) {

@@ -240,3 +240,6 @@ value.WATER_FOAM.1=Local
 value.WATER_FOAM.2=Persistent (High)
 option.WATER_CELESTIAL_GLINT=Sun and Moon Glints
 option.WATER_CELESTIAL_GLINT.comment=Directional water highlights with moon phases, shadowing and roughness from unresolved waves.
+option.WATER_CAUSTICS=Underwater Caustics
+option.WATER_CAUSTICS.comment=Focus sunlight on shallow sunlit beds. Uses a 16-bit shadow color target at 2048 square.
+option.WATER_CAUSTICS_STRENGTH=Caustic Strength

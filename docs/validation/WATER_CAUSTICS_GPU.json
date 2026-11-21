@@ -1,0 +1,733 @@
+{
+  "schema": 1,
+  "started_utc": "2026-11-21T18:43:29.009184+00:00",
+  "suite": "water-caustics",
+  "shader_sha256": "95c29842402ae67fef2d0bda567c3c57e2f3b4351bf2881ac0327f316c3f7e52",
+  "scope": "Native OpenGL synthetic inputs only: no Iris patcher, Minecraft world, render-order/texture-binding integration, screenshots or performance measurement.",
+  "ok": true,
+  "gl": {
+    "vendor": "Intel",
+    "renderer": "Intel(R) Iris(R) Xe Graphics",
+    "version": "3.3.0 - Build 31.0.101.3962",
+    "glsl_version": "3.30 - Build 31.0.101.3962",
+    "major": 3,
+    "minor": 3,
+    "profile_mask": 2,
+    "profile": "compatibility",
+    "max_texture_size": 16384,
+    "max_texture_units": 32,
+    "max_draw_buffers": 8,
+    "max_color_attachments": 8
+  },
+  "build": {
+    "compiler": "g++.exe",
+    "flags": [
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-static"
+    ],
+    "diagnostics": ""
+  },
+  "water_caustics": {
+    "depth_storage": {
+      "native_values": [
+        {
+          "format": "D24",
+          "source": 0,
+          "stored": 0
+        },
+        {
+          "format": "D24",
+          "source": 5.96046447754e-08,
+          "stored": 5.96046518808e-08
+        },
+        {
+          "format": "D24",
+          "source": 0.123456791043,
+          "stored": 0.123456783593
+        },
+        {
+          "format": "D24",
+          "source": 0.25,
+          "stored": 0.250000029802
+        },
+        {
+          "format": "D24",
+          "source": 0.499999970198,
+          "stored": 0.499999970198
+        },
+        {
+          "format": "D24",
+          "source": 0.5,
+          "stored": 0.500000059605
+        },
+        {
+          "format": "D24",
+          "source": 0.500000059605,
+          "stored": 0.500000059605
+        },
+        {
+          "format": "D24",
+          "source": 0.75,
+          "stored": 0.75
+        },
+        {
+          "format": "D24",
+          "source": 0.999999940395,
+          "stored": 0.999999940395
+        },
+        {
+          "format": "D24",
+          "source": 9.99999997475e-07,
+          "stored": 1.01327907487e-06
+        },
+        {
+          "format": "D24",
+          "source": 0.188383132219,
+          "stored": 0.188383117318
+        },
+        {
+          "format": "D24",
+          "source": 0.828905582428,
+          "stored": 0.828905582428
+        },
+        {
+          "format": "D32F",
+          "source": 0,
+          "stored": 0
+        },
+        {
+          "format": "D32F",
+          "source": 5.96046447754e-08,
+          "stored": 5.96046447754e-08
+        },
+        {
+          "format": "D32F",
+          "source": 0.123456791043,
+          "stored": 0.123456791043
+        },
+        {
+          "format": "D32F",
+          "source": 0.25,
+          "stored": 0.25
+        },
+        {
+          "format": "D32F",
+          "source": 0.499999970198,
+          "stored": 0.499999970198
+        },
+        {
+          "format": "D32F",
+          "source": 0.5,
+          "stored": 0.5
+        },
+        {
+          "format": "D32F",
+          "source": 0.500000059605,
+          "stored": 0.500000059605
+        },
+        {
+          "format": "D32F",
+          "source": 0.75,
+          "stored": 0.75
+        },
+        {
+          "format": "D32F",
+          "source": 0.999999940395,
+          "stored": 0.999999940395
+        },
+        {
+          "format": "D32F",
+          "source": 9.99999997475e-07,
+          "stored": 9.99999997475e-07
+        },
+        {
+          "format": "D32F",
+          "source": 0.188383132219,
+          "stored": 0.188383132219
+        },
+        {
+          "format": "D32F",
+          "source": 0.828905582428,
+          "stored": 0.828905582428
+        }
+      ],
+      "packed_ownership": [
+        {
+          "format": "RGBA8",
+          "accepted": 23,
+          "rejected_boundary_bins": 1,
+          "unrelated_depth_rejections": 24
+        },
+        {
+          "format": "RGBA16",
+          "accepted": 24,
+          "rejected_boundary_bins": 0,
+          "unrelated_depth_rejections": 24
+        }
+      ],
+      "negative_harness_control": true,
+      "scope": "Actual depth-attachment D24/D32F writes/readback followed by real packed shader decoding"
+    },
+    "packing": [
+      {
+        "format": "RGBA8",
+        "samples": 135,
+        "invalid_samples": 6,
+        "max_normal_component_error": 0.00128898024559021,
+        "nominal_double_buffer_mib_2048": 32
+      },
+      {
+        "format": "RGBA16",
+        "samples": 135,
+        "invalid_samples": 6,
+        "max_normal_component_error": 6.109476089477539e-06,
+        "nominal_double_buffer_mib_2048": 64
+      }
+    ],
+    "capture": [
+      {
+        "label": "flat",
+        "water_pixels": 409,
+        "perturbed": 0
+      },
+      {
+        "label": "filtered",
+        "water_pixels": 409,
+        "perturbed": 409
+      },
+      {
+        "label": "opaque",
+        "water_pixels": 0,
+        "perturbed": 0
+      },
+      {
+        "label": "side",
+        "water_pixels": 0,
+        "perturbed": 0
+      }
+    ],
+    "core": {
+      "cases": [
+        {
+          "label": "flat",
+          "samples": 64,
+          "active": 0,
+          "max_gain_error": 1.0728836068452097e-06,
+          "mean_area_weighted_flux": 1.0000006854534143
+        },
+        {
+          "label": "curved",
+          "samples": 64,
+          "active": 64,
+          "max_gain_error": 0.00015487952419313,
+          "mean_area_weighted_flux": 1.0000011643928917
+        },
+        {
+          "label": "deep-filtered",
+          "samples": 64,
+          "active": 64,
+          "max_gain_error": 8.957015477029096e-05,
+          "mean_area_weighted_flux": null
+        },
+        {
+          "label": "deep-disabled",
+          "samples": 64,
+          "active": 0,
+          "max_gain_error": 0,
+          "mean_area_weighted_flux": null
+        }
+      ],
+      "negative_cases": [
+        "torch-only",
+        "shadowed",
+        "unknown-overlay",
+        "wrong-shadow-depth",
+        "different-interface",
+        "source-obstacle",
+        "different-bed",
+        "vertical-wall",
+        "map-edge",
+        "no-sun",
+        "no-medium"
+      ],
+      "max_gain_error": 0.00015487952419313,
+      "bound": "Local flat-plane normalization; no multi-path/global photon conservation claim"
+    },
+    "transport": {
+      "samples": 27,
+      "comparison": {
+        "label": "gain applies only to qL",
+        "channels": 108,
+        "max_absolute_error": 1.4305114737211966e-07,
+        "max_tolerance_fraction": 0.005930096810413763,
+        "tolerance": {
+          "half_ulps": 0,
+          "absolute": 2e-06,
+          "relative": 2e-05
+        }
+      },
+      "torch_exact": true
+    },
+    "footprint": {
+      "plane_comparisons": [
+        {
+          "label": "perspective plane footprint (10.0, 64, 36)",
+          "channels": 16,
+          "max_absolute_error": 0.00010030492001078528,
+          "max_tolerance_fraction": 0.02830862665340302,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0002,
+            "relative": 2e-05
+          }
+        },
+        {
+          "label": "perspective plane footprint (10.0, 256, 144)",
+          "channels": 16,
+          "max_absolute_error": 0.00017229080788183637,
+          "max_tolerance_fraction": 0.16787989823414537,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0002,
+            "relative": 2e-05
+          }
+        },
+        {
+          "label": "perspective plane footprint (10.0, 1920, 1080)",
+          "channels": 16,
+          "max_absolute_error": 0.00016851255759320338,
+          "max_tolerance_fraction": 0.5434353333167157,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0002,
+            "relative": 2e-05
+          }
+        },
+        {
+          "label": "perspective plane footprint (35.0, 64, 36)",
+          "channels": 16,
+          "max_absolute_error": 7.478711211206246e-06,
+          "max_tolerance_fraction": 0.014870187950772681,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0002,
+            "relative": 2e-05
+          }
+        },
+        {
+          "label": "perspective plane footprint (35.0, 256, 144)",
+          "channels": 16,
+          "max_absolute_error": 2.064271197355083e-05,
+          "max_tolerance_fraction": 0.0748796549863519,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0002,
+            "relative": 2e-05
+          }
+        },
+        {
+          "label": "perspective plane footprint (35.0, 1920, 1080)",
+          "channels": 16,
+          "max_absolute_error": 1.3440679396126143e-05,
+          "max_tolerance_fraction": 0.06397581990730945,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0002,
+            "relative": 2e-05
+          }
+        },
+        {
+          "label": "perspective plane footprint (70.0, 64, 36)",
+          "channels": 16,
+          "max_absolute_error": 8.273584974460846e-06,
+          "max_tolerance_fraction": 0.026451501335736673,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0002,
+            "relative": 2e-05
+          }
+        },
+        {
+          "label": "perspective plane footprint (70.0, 256, 144)",
+          "channels": 16,
+          "max_absolute_error": 9.894880506067238e-06,
+          "max_tolerance_fraction": 0.04336161338465704,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0002,
+            "relative": 2e-05
+          }
+        },
+        {
+          "label": "perspective plane footprint (70.0, 1920, 1080)",
+          "channels": 16,
+          "max_absolute_error": 4.810041637881568e-06,
+          "max_tolerance_fraction": 0.023606494444199294,
+          "tolerance": {
+            "half_ulps": 0,
+            "absolute": 0.0002,
+            "relative": 2e-05
+          }
+        }
+      ],
+      "plane_samples": 36,
+      "filter_cases": 6,
+      "scope": "Analytic perspective horizontal-plane footprint; no divergent hardware derivatives; camera ray footprint, not complete refracted-ray-bundle Jacobian"
+    },
+    "composite": {
+      "pixels": 9216,
+      "changed": 8820,
+      "max_analytic_delta_error": 3.375281280820763e-05,
+      "exact_RGBA16F_zero_controls": [
+        "strength-zero",
+        "waves-off",
+        "wave-strength-zero"
+      ],
+      "max_RGBA32F_zero_diagnostic_ulps": 0,
+      "alpha_exact": true
+    },
+    "combined_refraction": {
+      "combinations": [
+        {
+          "refraction": 0,
+          "caustics": 0,
+          "pixels": 9216
+        },
+        {
+          "refraction": 0,
+          "caustics": 1,
+          "pixels": 9216
+        },
+        {
+          "refraction": 2,
+          "caustics": 0,
+          "pixels": 9216
+        },
+        {
+          "refraction": 2,
+          "caustics": 1,
+          "pixels": 9216
+        }
+      ],
+      "analytic_queries": [
+        {
+          "source": [
+            48,
+            28
+          ],
+          "target": [
+            49,
+            26
+          ],
+          "gain": 0.9425997261899415,
+          "target_q": 0.5
+        },
+        {
+          "source": [
+            56,
+            28
+          ],
+          "target": [
+            57,
+            26
+          ],
+          "gain": 0.9527334197611332,
+          "target_q": 0.125
+        },
+        {
+          "source": [
+            64,
+            28
+          ],
+          "target": [
+            64,
+            26
+          ],
+          "gain": 0.9997439589454545,
+          "target_q": 0.5
+        },
+        {
+          "source": [
+            72,
+            28
+          ],
+          "target": [
+            71,
+            26
+          ],
+          "gain": 1.0539616137494616,
+          "target_q": 0.875
+        },
+        {
+          "source": [
+            80,
+            28
+          ],
+          "target": [
+            79,
+            26
+          ],
+          "gain": 1.0615637842626535,
+          "target_q": 0.5
+        },
+        {
+          "source": [
+            48,
+            32
+          ],
+          "target": [
+            49,
+            29
+          ],
+          "gain": 0.94308981432363,
+          "target_q": 0.5
+        },
+        {
+          "source": [
+            56,
+            32
+          ],
+          "target": [
+            57,
+            29
+          ],
+          "gain": 0.9521299865880822,
+          "target_q": 0.125
+        },
+        {
+          "source": [
+            64,
+            32
+          ],
+          "target": [
+            64,
+            29
+          ],
+          "gain": 0.9998212431811888,
+          "target_q": 0.5
+        },
+        {
+          "source": [
+            72,
+            32
+          ],
+          "target": [
+            71,
+            29
+          ],
+          "gain": 1.054833114911341,
+          "target_q": 0.875
+        },
+        {
+          "source": [
+            80,
+            32
+          ],
+          "target": [
+            79,
+            29
+          ],
+          "gain": 1.0603667259546,
+          "target_q": 0.5
+        },
+        {
+          "source": [
+            48,
+            36
+          ],
+          "target": [
+            49,
+            33
+          ],
+          "gain": 0.9436667426067911,
+          "target_q": 0.8125
+        },
+        {
+          "source": [
+            56,
+            36
+          ],
+          "target": [
+            57,
+            33
+          ],
+          "gain": 0.9515264088519717,
+          "target_q": 0.4375
+        },
+        {
+          "source": [
+            64,
+            36
+          ],
+          "target": [
+            64,
+            33
+          ],
+          "gain": 0.9999006010948915,
+          "target_q": 0.8125
+        },
+        {
+          "source": [
+            72,
+            36
+          ],
+          "target": [
+            71,
+            33
+          ],
+          "gain": 1.0557004583550684,
+          "target_q": 0.25
+        },
+        {
+          "source": [
+            80,
+            36
+          ],
+          "target": [
+            79,
+            33
+          ],
+          "gain": 1.0590180105419758,
+          "target_q": 0.8125
+        },
+        {
+          "source": [
+            48,
+            40
+          ],
+          "target": [
+            49,
+            37
+          ],
+          "gain": 0.944336815882516,
+          "target_q": 0.1875
+        },
+        {
+          "source": [
+            56,
+            40
+          ],
+          "target": [
+            57,
+            37
+          ],
+          "gain": 0.9509234180295315,
+          "target_q": 0.75
+        },
+        {
+          "source": [
+            64,
+            40
+          ],
+          "target": [
+            64,
+            37
+          ],
+          "gain": 0.9999821194285895,
+          "target_q": 0.1875
+        },
+        {
+          "source": [
+            72,
+            40
+          ],
+          "target": [
+            71,
+            37
+          ],
+          "gain": 1.056561658001923,
+          "target_q": 0.5625
+        },
+        {
+          "source": [
+            80,
+            40
+          ],
+          "target": [
+            79,
+            37
+          ],
+          "gain": 1.0575107261681314,
+          "target_q": 0.1875
+        },
+        {
+          "source": [
+            48,
+            44
+          ],
+          "target": [
+            49,
+            40
+          ],
+          "gain": 0.9451068858731727,
+          "target_q": 0.1875
+        },
+        {
+          "source": [
+            56,
+            44
+          ],
+          "target": [
+            57,
+            40
+          ],
+          "gain": 0.9503217579366767,
+          "target_q": 0.75
+        },
+        {
+          "source": [
+            64,
+            44
+          ],
+          "target": [
+            64,
+            40
+          ],
+          "gain": 1.0000659004174342,
+          "target_q": 0.1875
+        },
+        {
+          "source": [
+            72,
+            44
+          ],
+          "target": [
+            71,
+            40
+          ],
+          "gain": 1.057414593487733,
+          "target_q": 0.5625
+        },
+        {
+          "source": [
+            80,
+            44
+          ],
+          "target": [
+            79,
+            40
+          ],
+          "gain": 1.0558378930630614,
+          "target_q": 0.1875
+        }
+      ],
+      "max_receiver_rgb_error": 5.8209768183825616e-05,
+      "source_target_q_differences": 22,
+      "source_only_change_error": 0.0,
+      "target_q_zero_exact": true,
+      "spectral_queries": 25,
+      "max_spectral_rgb_error": 4.376368632069694e-05
+    },
+    "memory_mib_at_2048_double_side": {
+      "RGBA8": 32,
+      "RGBA16_UNORM_selected": 64,
+      "RGBA32F_reference_only": 128
+    },
+    "scope": "Native synthetic inputs; no Minecraft/Iris runtime or full path-traced volume claim"
+  },
+  "finished_utc": "2026-11-21T18:46:56.419174+00:00"
+}

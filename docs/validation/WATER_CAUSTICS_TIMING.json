@@ -1,0 +1,100 @@
+{
+  "benchmark": {
+    "output_size": [
+      512,
+      288
+    ],
+    "shadow_size": [
+      2048,
+      2048
+    ],
+    "warmups": 6,
+    "samples": 25,
+    "passes": [
+      {
+        "caustics": 0,
+        "samples_ms": [
+          0.545116,
+          0.48204,
+          0.481104,
+          0.479596,
+          0.4823,
+          0.482976,
+          0.477672,
+          0.479232,
+          0.478816,
+          0.476944,
+          0.456872,
+          0.405496,
+          0.410748,
+          0.409344,
+          0.408408,
+          0.411424,
+          0.409136,
+          0.4082,
+          0.408772,
+          0.41002,
+          0.40326,
+          0.41938,
+          0.402948,
+          0.419328,
+          0.405184
+        ],
+        "minimum_ms": 0.402948,
+        "median_ms": 0.419328,
+        "p95_ms": 0.482976
+      },
+      {
+        "caustics": 1,
+        "samples_ms": [
+          4.4109,
+          4.402164,
+          4.338412,
+          3.70318,
+          3.637348,
+          3.317392,
+          3.21412,
+          3.257852,
+          3.262064,
+          3.277508,
+          3.270176,
+          3.248388,
+          3.264352,
+          4.29312,
+          3.28302,
+          3.3423,
+          3.295084,
+          3.321864,
+          3.25156,
+          3.254628,
+          3.230864,
+          3.266016,
+          3.85112,
+          3.344744,
+          3.256656
+        ],
+        "minimum_ms": 3.21412,
+        "median_ms": 3.28302,
+        "p95_ms": 4.402164
+      }
+    ],
+    "incremental_median_ms": 2.863692,
+    "changed_pixels": 145461,
+    "max_caustic_texture_fetches": 109,
+    "scope": "GL_TIME_ELAPSED around the actual full composite draw after warmup; authored water-only fixture, fog/SSR disabled; texture upload/readback excluded. Not Minecraft FPS or an1080p extrapolation."
+  },
+  "driver": {
+    "vendor": "Intel",
+    "renderer": "Intel(R) Iris(R) Xe Graphics",
+    "version": "3.3.0 - Build 31.0.101.3962",
+    "glsl_version": "3.30 - Build 31.0.101.3962",
+    "major": 3,
+    "minor": 3,
+    "profile_mask": 2,
+    "profile": "compatibility",
+    "max_texture_size": 16384,
+    "max_texture_units": 32,
+    "max_draw_buffers": 8,
+    "max_color_attachments": 8
+  }
+}

@@ -240,3 +240,6 @@ value.WATER_FOAM.1=本地
 value.WATER_FOAM.2=持续（高档）
 option.WATER_CELESTIAL_GLINT=日月水面高光
 option.WATER_CELESTIAL_GLINT.comment=按太阳、月相、遮阴和距离计算水面亮带；未解析的细波会让远处高光变宽。
+option.WATER_CAUSTICS=水底焦散
+option.WATER_CAUSTICS.comment=在阳光照到的浅水底部形成明暗光纹。使用 2048 像素的 16 位阴影颜色缓冲。
+option.WATER_CAUSTICS_STRENGTH=焦散强度
