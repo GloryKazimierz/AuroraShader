@@ -140,3 +140,5 @@ and fine normal detail have different sampling limits.
 [Wave-model reference](https://developer.nvidia.com/gpugems/gpugems/part-i-natural-effects/chapter-1-effective-water-simulation-physical-models).
 The first structural deliverable is W1's trustworthy scene/depth input, which makes
 later reflection and transmission reviewable without confusing depth or fog spaces.
+
+[Above-water refraction and dispersion](WATER_M3_REFRACTION.md) now follow the captured water surface to a matched background hit.

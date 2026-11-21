@@ -60,6 +60,9 @@ def water_optics_configurations():
     for variant in variants:
         for path in sorted(SHADERS.glob('*.vsh')):
             yield path.stem, dict(enabled, **variant)
+    for mode, hdr, debug, support in product((0,1,2,3),(0,1),(0,8),(False,True)):
+        yield 'composite', dict(WATER_OPTICS=1,WATER_REFRACTION=mode,SCENE_COLOR_MODE=hdr,
+                                DEBUG_VIEW=debug,IRIS_FEATURE_PER_BUFFER_BLENDING=support)
     for tiles, ssr, budget in product((0,1),(0,1),(64,128)):
         for name in ('deferred1','gbuffers_water','composite'):
             yield name, dict(enabled,WATER_TRACE_TILES=tiles,WATER_SCREEN_REFLECTIONS=ssr,

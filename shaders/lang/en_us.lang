@@ -220,3 +220,10 @@ option.WATER_CLARITY.comment=Water travel distance for the same light loss. High
 
 option.WATER_TRACE_TILES=Reflection Depth Bounds
 option.WATER_TRACE_TILES.comment=Skip screen-space reflection walks that cannot reach any opaque depth in their bounded area.
+
+option.WATER_REFRACTION=Water Refraction
+value.WATER_REFRACTION.0=Off
+value.WATER_REFRACTION.1=64 Steps
+value.WATER_REFRACTION.2=128 Steps
+value.WATER_REFRACTION.3=RGB / 128 Steps
+option.WATER_REFRACTION.comment=Optical water only. Validates a 3x3 footprint per step; RGB can trace three rays. Uncertain targets keep same-ray transport. Cost is not yet measured.

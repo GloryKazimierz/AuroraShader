@@ -61,8 +61,10 @@ def condition(expr, macros):
         defined = re.fullmatch(r'defined\s*\(\s*(\w+)\s*\)', token)
         if defined:
             return defined[1] in macros
-        match = re.fullmatch(r'(\w+)\s*(==|!=)\s*(\d+)', token)
+        match = re.fullmatch(r'(\w+)\s*(==|!=|>)\s*(\d+)', token)
         require(match, 'Unsupported validation condition: ' + token)
+        if match[2] == '>':
+            return int(macros.get(match[1],'0')) > int(match[3])
         equal = str(macros.get(match[1], '0')) == match[3]
         return equal if match[2] == '==' else not equal
     return any(all(clause(c) for c in group.split('&&')) for group in expr.split('||'))
@@ -74,6 +76,8 @@ def parsed(source):
     # Keep the exact Iris line directives inside comments. Strip explanatory prose.
     for line in source.splitlines():
         line = line.strip()
+        if line.startswith('#'):
+            line = line.partition('//')[0].rstrip()
         if not line or line.startswith('//'):
             if not line.startswith('//#define '):
                 continue

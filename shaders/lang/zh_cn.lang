@@ -220,3 +220,10 @@ option.WATER_CLARITY.comment=同等光线衰减所需的水中距离。数值越
 
 option.WATER_TRACE_TILES=反射深度加速
 option.WATER_TRACE_TILES.comment=利用分块记录的最近深度，提前跳过确定无法相交的反射路径。
+
+option.WATER_REFRACTION=水面折射
+value.WATER_REFRACTION.0=关
+value.WATER_REFRACTION.1=64 步
+value.WATER_REFRACTION.2=128 步
+value.WATER_REFRACTION.3=RGB／128 步
+option.WATER_REFRACTION.comment=需要水体光学。每步检查 3×3 邻域，RGB 最多追踪三条射线；无法确认目标时保留同射线透光。耗时尚未测量。

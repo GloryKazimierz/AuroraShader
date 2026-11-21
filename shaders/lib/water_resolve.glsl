@@ -11,6 +11,9 @@ uniform sampler2D colortex7;
 uniform sampler2D colortex8;
 uniform sampler2D depthtex0;
 uniform vec3 shadowLightPosition;
+#include "/lib/water_refraction_settings.glsl"
+#include "/lib/water_refraction.glsl"
+#include "/lib/water_refraction_transport.glsl"
 
 bool waterResolveScalar(float value) {
     return !isnan(value) && !isinf(value);
@@ -126,6 +129,10 @@ vec3 resolveWaterOptics(vec3 nativeScene, ivec2 pixel, ivec2 size) {
 #endif
     vec3 transmitted = waterTransportRadiance(source, directShare, viewMeters, lightMeters,
                                              ownership.g, ownership.b, skySource);
+#if WATER_REFRACTION > 0
+    transmitted = applyWaterRefractionTransport(transmitted,surfaceView,up,normal,
+                                                lightCosine,ownership.gb,skySource);
+#endif
     vec3 reflectedDirection = reflect(-towardEye, normal);
     float reflectedAbove = smoothstep(-0.10, 0.0, dot(reflectedDirection, up));
     float reflectionWeight = clamp(WATER_REFLECTION_STRENGTH, 0.0, 1.0)

@@ -126,3 +126,5 @@ SSR 沿光线查询当前可见的屏幕深度。屏幕外或被遮住的几何�
 [波浪模型参考](https://developer.nvidia.com/gpugems/gpugems/part-i-natural-effects/chapter-1-effective-water-simulation-physical-models)。
 第一项结构性交付是 W1 的可信场景／深度输入，让后续反射和透射可以审查，
 避免把不同深度或雾空间混在一起。
+
+[水上折射和色散](WATER_M3_REFRACTION.zh-CN.md)已可沿可见水面追踪池底，在遮挡条件下保留原有结果。

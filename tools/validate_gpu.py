@@ -408,14 +408,14 @@ def shader_digest():
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--cxx',help='Installed MinGW g++ compiler; no download')
-    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial','snapshot','filtered-waves','screen-reflections','water-debug','water-transport','water-stability','water-bounds'),default='all')
+    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial','snapshot','filtered-waves','screen-reflections','water-debug','water-transport','water-stability','water-bounds','water-refraction'),default='all')
     parser.add_argument('--report',help='New JSON report path under the project; existing files are never overwritten')
     parser.add_argument('--debug-plate',help='Save the selected water suite comparison to a new project PNG')
     args=parser.parse_args()
     plate_path=None
     if args.debug_plate:
         plate_path=(ROOT/args.debug_plate).resolve()
-        require(args.suite in ('water-debug','water-transport','water-stability') and ROOT.resolve() in plate_path.parents
+        require(args.suite in ('water-debug','water-transport','water-stability','water-refraction') and ROOT.resolve() in plate_path.parents
                 and plate_path.suffix.lower()=='.png' and plate_path.parent.is_dir()
                 and not plate_path.exists(),'Water debug plate requires a new project PNG path')
 
@@ -504,6 +504,10 @@ def main():
             from validate_gpu_water_bounds import bounds_tests
             report['water_bounds']=bounds_tests(runner)
             print('PASS: empty-ray acceleration and odd viewport bounds',flush=True)
+        if args.suite in ('all','render','water-refraction'):
+            from validate_gpu_water_refraction import refraction_tests
+            report['water_refraction']=refraction_tests(runner,plate_path if args.suite=='water-refraction' else None)
+            print('PASS: refraction, target vetoes and optical paths',flush=True)
         require(shader_digest()==report['shader_sha256'],'Shader source changed during validation; report invalid')
         report['ok']=True
         report['finished_utc']=datetime.now(timezone.utc).isoformat()

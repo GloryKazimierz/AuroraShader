@@ -250,3 +250,5 @@ Base-330 by Balint supplied the original geometry foundation:
 [upstream Base-330](https://github.com/shaderLABS/Base-330).
 Its [Unlicense](LICENSE) is retained. Iris references accompany the relevant
 equations and interface contracts in the learning notes.
+
+[Water refraction](docs/WATER_M3_REFRACTION.md) · [水面折射与三视角对照](docs/WATER_M3_REFRACTION.zh-CN.md)

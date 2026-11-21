@@ -34,6 +34,8 @@ class WaterDirectives {
                 }
                 if (!String.join(",", formats.values()).equals(c[3].replace("-","")))
                     throw new AssertionError(c[1] + " formats " + formats);
+                if (c.length>4 && source.contains("applyWaterRefractionTransport(") != c[4].equals("1"))
+                    throw new AssertionError("Refraction mode expansion: "+c[1]);
                 programs++;
                 continue;
             }
@@ -117,6 +119,13 @@ def verify(work, iris_jar, slf4j_jar):
             filename=f'{index}-{path.name}'
             (work/filename).write_text(configure(expand(path),opts),encoding='utf-8')
             lines.append(['shader',filename,target,formats])
+    for mode, support, optics, hdr, debug in product(range(4),(0,1),(0,1),(0,1),(0,8)):
+        options={'WATER_REFRACTION':mode,FEATURE:bool(support),'WATER_OPTICS':optics,
+                 'SCENE_COLOR_MODE':hdr,'DEBUG_VIEW':debug}
+        filename=f'refract-{mode}-{support}-{optics}-{hdr}-{debug}.fsh'
+        (work/filename).write_text(configure(expand(SHADERS/'composite.fsh'),options),encoding='utf-8')
+        active=support and optics and hdr and not debug and mode>0
+        lines.append(['shader',filename,'0','-',str(int(bool(active)))])
     (work/'cases.tsv').write_text('\n'.join('\t'.join(row) for row in lines),encoding='utf-8')
     env=dict(os.environ,TEMP=str(work),TMP=str(work),TMPDIR=str(work))
     subprocess.run(['javac','-J-XX:-UsePerfData',f'-J-Djava.io.tmpdir={work}','-cp',cp,str(java)],
