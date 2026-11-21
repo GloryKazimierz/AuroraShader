@@ -270,3 +270,8 @@ value.WATER_TEMPORAL.0=Off
 value.WATER_TEMPORAL.1=On
 option.WATER_BIOLUMINESCENCE=Bioluminescent Surf
 option.WATER_BIOLUMINESCENCE.comment=Blue-green light in moving surface foam after dusk. Requires local or persistent foam.
+
+option.WATER_NEARCLIP=Shallow bed near the waterline
+value.WATER_NEARCLIP.0=Off
+value.WATER_NEARCLIP.1=Finite shadow evidence
+option.WATER_NEARCLIP.comment=Requires shadow-space caustics. Corrects a fully submerged view of a shallow, level bed when the water column is observed. Costs additional shadow reads.

@@ -270,3 +270,8 @@ value.WATER_TEMPORAL.0=关闭
 value.WATER_TEMPORAL.1=开启
 option.WATER_BIOLUMINESCENCE=夜光浪花
 option.WATER_BIOLUMINESCENCE.comment=日落后，正在运动的浪花会发出蓝绿色微光。需要开启本地或跨帧泡沫。
+
+option.WATER_NEARCLIP=贴近水面的浅水底
+value.WATER_NEARCLIP.0=关
+value.WATER_NEARCLIP.1=依据有限阴影记录
+option.WATER_NEARCLIP.comment=需要阴影空间焦散。眼睛与浅水底间整段浸没且具备连续采样时修正水色，额外开销来自逐格读取阴影图。

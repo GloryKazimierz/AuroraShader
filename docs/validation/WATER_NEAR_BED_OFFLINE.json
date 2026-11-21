@@ -1,0 +1,101 @@
+{
+  "ok": true,
+  "shader_sha256": "3c4b53fd69f0d12669bf474890a8c0fd834528f4930590b20741c595b69274b5",
+  "baseline_pinned_files": 151,
+  "exact_bypass_stages": 18,
+  "bypass_comparisons": [
+    {
+      "configuration": 0,
+      "stage": "vert",
+      "tokens": 33
+    },
+    {
+      "configuration": 0,
+      "stage": "frag",
+      "tokens": 54
+    },
+    {
+      "configuration": 1,
+      "stage": "vert",
+      "tokens": 33
+    },
+    {
+      "configuration": 1,
+      "stage": "frag",
+      "tokens": 9521
+    },
+    {
+      "configuration": 2,
+      "stage": "vert",
+      "tokens": 33
+    },
+    {
+      "configuration": 2,
+      "stage": "frag",
+      "tokens": 6285
+    },
+    {
+      "configuration": 3,
+      "stage": "vert",
+      "tokens": 33
+    },
+    {
+      "configuration": 3,
+      "stage": "frag",
+      "tokens": 54
+    },
+    {
+      "configuration": 4,
+      "stage": "vert",
+      "tokens": 33
+    },
+    {
+      "configuration": 4,
+      "stage": "frag",
+      "tokens": 54
+    },
+    {
+      "configuration": 5,
+      "stage": "vert",
+      "tokens": 33
+    },
+    {
+      "configuration": 5,
+      "stage": "frag",
+      "tokens": 54
+    },
+    {
+      "configuration": 6,
+      "stage": "vert",
+      "tokens": 33
+    },
+    {
+      "configuration": 6,
+      "stage": "frag",
+      "tokens": 54
+    },
+    {
+      "configuration": 7,
+      "stage": "vert",
+      "tokens": 33
+    },
+    {
+      "configuration": 7,
+      "stage": "frag",
+      "tokens": 54
+    },
+    {
+      "configuration": 8,
+      "stage": "vert",
+      "tokens": 33
+    },
+    {
+      "configuration": 8,
+      "stage": "frag",
+      "tokens": 6285
+    }
+  ],
+  "offline_linked_pairs": 33,
+  "python_ast": true,
+  "whitespace": true
+}

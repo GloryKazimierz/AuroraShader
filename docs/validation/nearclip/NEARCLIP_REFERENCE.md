@@ -20,4 +20,4 @@ The classification image has three light rows and eye-height columns−4cm,−1c
 
 ![CPU finite near-plane classification; not game imagery](NEARCLIP_classification.png)
 
-Run `python -B nearclip_reference.py` after copying only the script to an empty D: directory; retained reports refuse overwrite. The original failed single-patch design was replaced because a5cm near segment often leaves that one patch; this is why explicit finite coverage matters.
+Run `python -B nearclip_reference.py` after copying `tools/nearclip_reference.py` to an empty D: directory; retained reports refuse overwrite. The original failed single-patch design was replaced because a5cm near segment often leaves that one patch; this is why explicit finite coverage matters.

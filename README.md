@@ -2,7 +2,7 @@
 
 AuroraShader pairs azure days, coral sunsets and indigo nights with world-anchored water motion. Select **Shader Pack Settings → Water / Coastal (Medium)** to see currents, wakes, local foam and sun/moon glints. **Water → Water Body** offers freshwater, glacial turquoise, amber woodland streams, blue open sea and a smooth automatic camera-biome selection. Use **Water / Caustics (Ultra)** for illuminated beds, planar refraction, persistent foam and dual-cascade spectral normals on supported hardware.
 
-[Four water bodies at three depths](docs/validation/WATER_MATERIALS_views.png) · [中文画质与水色指南](docs/WATER_MATERIALS_AND_PRESETS.zh-CN.md) · [水管线、缓冲与观察视角](docs/WATER_PIPELINE.zh-CN.md) · [夜光浪花](docs/WATER_NIGHT_SURF.zh-CN.md) · [双尺度频谱波](docs/WATER_M6_SPECTRAL_NORMALS.zh-CN.md) · [水面时域稳定](docs/WATER_K_TEMPORAL.zh-CN.md) · [Optical transport](docs/WATER_M1_OPTICS.md) · [Reflections](docs/WATER_M2_REFLECTION_STABILITY.md)
+[Four water bodies at three depths](docs/validation/WATER_MATERIALS_views.png) · [中文画质与水色指南](docs/WATER_MATERIALS_AND_PRESETS.zh-CN.md) · [水管线、缓冲与观察视角](docs/WATER_PIPELINE.zh-CN.md) · [浅滩贴水镜头](docs/WATER_NEAR_BED.zh-CN.md) · [夜光浪花](docs/WATER_NIGHT_SURF.zh-CN.md) · [双尺度频谱波](docs/WATER_M6_SPECTRAL_NORMALS.zh-CN.md) · [水面时域稳定](docs/WATER_K_TEMPORAL.zh-CN.md) · [Optical transport](docs/WATER_M1_OPTICS.md) · [Reflections](docs/WATER_M2_REFLECTION_STABILITY.md)
 
 Open **Shader Pack Settings → Advanced → Debug View** for the water mask (7),
 filtered view-space normal (8), and distance to the recorded background (9).

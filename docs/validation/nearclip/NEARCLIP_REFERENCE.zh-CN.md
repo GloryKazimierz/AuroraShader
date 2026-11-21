@@ -20,4 +20,4 @@
 
 ![CPU有限近裁分类，不是游戏画面](NEARCLIP_classification.png)
 
-仅把脚本复制到空的D盘目录后运行`python -B nearclip_reference.py`；程序拒绝覆盖已保留报告。最早单片方案失败，因为约5厘米的近裁段经常离开该片；这正说明显式有限覆盖的重要性。
+把 `tools/nearclip_reference.py` 复制到空的D盘目录后运行`python -B nearclip_reference.py`；程序拒绝覆盖已保留报告。最早单片方案失败，因为约5厘米的近裁段经常离开该片；这正说明显式有限覆盖的重要性。

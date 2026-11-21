@@ -1,0 +1,48 @@
+{
+  "ok": true,
+  "shader_sha256": "3c4b53fd69f0d12669bf474890a8c0fd834528f4930590b20741c595b69274b5",
+  "gl": {
+    "vendor": "Intel",
+    "renderer": "Intel(R) Iris(R) Xe Graphics",
+    "version": "3.3.0 - Build 31.0.101.3962",
+    "glsl_version": "3.30 - Build 31.0.101.3962",
+    "major": 3,
+    "minor": 3,
+    "profile_mask": 2,
+    "profile": "compatibility",
+    "max_texture_size": 16384,
+    "max_texture_units": 32,
+    "max_draw_buffers": 8,
+    "max_color_attachments": 8
+  },
+  "cases": [
+    {
+      "depth_m": 0.12,
+      "eye_offset_m": -0.01,
+      "changed_pixels": 1530
+    },
+    {
+      "depth_m": 0.3,
+      "eye_offset_m": -0.04,
+      "changed_pixels": 1081
+    },
+    {
+      "depth_m": 0.12,
+      "eye_offset_m": 0.01,
+      "changed_pixels": 0
+    }
+  ],
+  "intermediate_coverage_counterexample": {
+    "pixel": [
+      67,
+      22
+    ],
+    "missing_shadow_texel": [
+      126,
+      113
+    ],
+    "endpoint_samples_preserved": true,
+    "exact_native": true
+  },
+  "scope": "Actual production composite1 including isolated near-clip experiment, then unchanged actual final.fsh. Analytic finite geometry and authored paired linear radiance; actual shadow.fsh compact records. No Minecraft screenshot, full renderer or FPS claim."
+}
