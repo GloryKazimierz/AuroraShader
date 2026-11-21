@@ -291,7 +291,7 @@ def validate_settings_profiles(root,*unused):
             assert restore_settings_profiles_source(relative,current)==before,relative
             pinned+=1
     current_files={str(path.relative_to(root)).replace('\\','/') for path in shaders.rglob('*') if path.is_file()}
-    assert current_files-set(old_files)=={'shaders/lang/zh_cn.lang','shaders/lib/foliage.glsl','shaders/lib/foliage_settings.glsl','shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl'}
+    assert current_files-set(old_files)=={'shaders/lang/zh_cn.lang','shaders/lib/foliage.glsl','shaders/lib/foliage_settings.glsl','shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl','shaders/lib/water_scene_snapshot.glsl'}
     assert len(list(profile_configurations(root)))==72
     print('PASS: M17 {} prior shader/property files pinned; all GLSL/defaults and rendering properties unchanged'.format(pinned))
     print('PASS: M17 3 distinct six-control profiles; inheritance, types, invalid tokens, subset matching and 45 retained artistic controls')

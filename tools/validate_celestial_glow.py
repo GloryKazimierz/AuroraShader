@@ -5,6 +5,7 @@ import struct
 import subprocess
 from pathlib import Path
 from itertools import product
+from validate_water_snapshot import restore_water_snapshot_source
 
 M18_BASELINE = '60871f45b7e84e331bacaf541874c7ae4df86090'
 GLOW_OPTIONS = {'CELESTIAL_GLOW','SUN_GLOW_STRENGTH','MOON_GLOW_STRENGTH'}
@@ -246,6 +247,7 @@ def restore_celestial_glow_source(relative,source):
     relative=relative.replace('\\','/')
     if relative.startswith('shaders/'):
         relative=relative[len('shaders/'):]
+    source=restore_water_snapshot_source(relative,source)
     if relative=='lib/geometry/sky_fragment.glsl':
         include='#include "/lib/celestial_glow.glsl"\n'
         assert source.count(include)==source.count(GLOW_CALL)==1
@@ -282,7 +284,7 @@ def validate_celestial_glow(root,expand,preprocess,compact,function_body):
         previous=subprocess.check_output(['git','-C',str(root),'show',M18_BASELINE+':'+path]).decode('utf-8').replace('\r\n','\n')
         assert restore_celestial_glow_source(relative,read(relative))==previous,relative
     current_files={str(path.relative_to(root)).replace('\\','/') for path in shaders.rglob('*') if path.is_file()}
-    assert current_files-set(old_files)=={'shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl'}
+    assert current_files-set(old_files)=={'shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl','shaders/lib/water_scene_snapshot.glsl'}
     assert len(list(shaders.glob('*.vsh')))==len(list(shaders.glob('*.fsh')))==24
     helper=read('lib/celestial_glow.glsl')
     code=compact(helper)

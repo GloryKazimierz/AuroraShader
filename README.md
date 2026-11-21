@@ -5,14 +5,16 @@ coral/gold sunsets, indigo nights and teal/violet aurora. It combines Minecraft'
 textures and lightmaps with directional lighting, shadows, atmosphere and gentle
 water effects. The aim is a coherent, playable pack with its own identity.
 
-**Current development: M19 — warm sun and cool moon glow**
-on `codex/milestone-19-celestial-glow`, based on M18 commit `60871f4`.
-Angular sky glow follows the independent sun and moon directions, with phase-aware
-moon brightness. Native celestial textures remain in their existing paths. There
-are 57 controls with English/Simplified Chinese labels and three quality profiles.
+**Current priority: convincing, beautiful water from every view.**
+W1 on `codex/water-01-scene-snapshot` starts from M19 commit `74c7164`.
+It captures matched lit color before camera-path fog and surface depth for future
+water reflection/transmission. W1 adds no water consumer or visual effect yet.
+There are still 57 controls and three quality profiles. The water roadmap covers
+filtered waves, screen-space traced reflections, transmission/absorption, verified
+flow, underwater optics, shoreline effects and measured quality/performance.
 
 [中文路线图](docs/AURORA_ROADMAP.zh-CN.md) ·
-[中文日月光晕原理](docs/MILESTONE_19.zh-CN.md) ·
+[中文水体专项路线](docs/WATER_ROADMAP.zh-CN.md) ·
 [English roadmap](docs/AURORA_ROADMAP.md)
 
 ## Current features
@@ -26,6 +28,7 @@ are 57 controls with English/Simplified Chinese labels and three quality profile
 | Bloom | Four-pass half-resolution bright-pixel extraction, separable blur and recombination |
 | Aurora | Bounded procedural teal/violet sky ribbons at night, with weather/vision fallbacks |
 | Water | Fluid classification, gentle tint, analytic sky-color reflection, world-anchored wave normals and luminance-preserving background-depth color |
+| Water tracing foundation | Matched eligible opaque color/depth snapshot; water ray tracing and physical transmission remain planned |
 | Foliage | Eleven vanilla leaf types, short grass and joined tall grass; shared terrain/shadow wind with fixed grass roots |
 | Settings | English/Simplified Chinese, grouped pages, three quality profiles and seven debug views |
 
@@ -89,7 +92,15 @@ Original baked face shading and lightmap influence remain in the source.
 | `colortex1` | Normalized RGBA16: encoded view normal and validity |
 | `colortex2` | Normalized RG16: independent block/sky light levels |
 | `colortex3`, `colortex4` | Half-resolution RGBA16F bloom intermediates |
-| Iris depth snapshots | Existing reconstruction inputs; water color uses pre-hand `depthtex2` |
+| `colortex5` | Full-resolution RGBA16F: pre-camera-fog lit linear RGB, alpha as snapshot validity |
+| `colortex6` | Full-resolution R32F: matching `depthtex1` value; invalid samples use 1 |
+| Iris depth snapshots | Existing reconstruction inputs; snapshot checks pre-hand `depthtex2` to reject nearer hand depth |
+
+The new snapshot is written with deferred lighting and remains unchanged during
+later geometry. Sky, unqualified data, hand-nearer pixels and invalid values become
+explicit misses; it contains neither all transparent layers nor hidden/off-screen
+geometry. The two new double-buffered attachments have a nominal cost of about
+47.46 MiB at 1920x1080; this is an allocation estimate, not measured frame time.
 
 Exposure and display encoding run once in normal final output. Data buffers are
 not gamma-converted. Water effects preserve alpha, geometry and foreground-fog
@@ -126,7 +137,7 @@ Run from this D: checkout:
 python -B tools/validate.py
 python -B tools/compile_glsl.py --compiler C:/VulkanSDK/1.4.363.0/Bin/glslangValidator.exe
 python -B tools/compile_glsl.py --profiles-only --compiler C:/VulkanSDK/1.4.363.0/Bin/glslangValidator.exe
-python -B tools/validate_gpu.py --cxx C:/msys64/ucrt64/bin/g++.exe --suite celestial
+python -B tools/validate_gpu.py --cxx C:/msys64/ucrt64/bin/g++.exe --suite snapshot
 git diff --check
 ```
 
@@ -137,14 +148,16 @@ or launches Minecraft. Generated inputs, binaries and compiler temporary files
 stay on the project drive and are removed after the run.
 
 Native suites: `probe`, `compile`, `profiles`, `render`, `depth`, `foliage`,
-`celestial`, or default `all`.
+`celestial`, `snapshot`, or default `all`.
 Use `--report docs/validation/NEW_NAME.json` to retain a new result; existing
 reports are never overwritten. Synthetic rendering covers bloom, water normals,
 final color, water-depth color, foliage math and celestial glow. Foliage wrappers exercise the
 shared displacement and clip functions, without native chunk attributes or
 geometry/shadow rasterization. Celestial checks also execute the actual sky pair
 with synthetic stage identifiers; this checks source branching without Iris's
-actual enum injection or sky meshes. The tool does not run Iris's patcher or reproduce
+actual enum injection or sky meshes. Snapshot checks use simultaneous mixed-format
+render targets and compare the actual deferred output against pinned M19 source.
+They do not execute Iris's buffer flipping. The tool does not run Iris's patcher or reproduce
 Minecraft's resource binding, draw scheduling or world rendering.
 
 User-confirmed Minecraft evidence is retained in [M3A](docs/MILESTONE_3A.md) and
@@ -152,7 +165,8 @@ User-confirmed Minecraft evidence is retained in [M3A](docs/MILESTONE_3A.md) and
 recorded in [M15](docs/MILESTONE_15.md) and [M16](docs/MILESTONE_16.md).
 [M17](docs/MILESTONE_17.md) records settings checks;
 [M18](docs/MILESTONE_18.md) records foliage evidence;
-[M19](docs/MILESTONE_19.md) records celestial-glow evidence and limits. Synthetic GPU success
+[M19](docs/MILESTONE_19.md) records celestial-glow evidence;
+[W1](docs/WATER_01_SNAPSHOT.md) records water-snapshot evidence and limits. Synthetic GPU success
 does not establish that the latest branch passed Minecraft testing. Tool duration
 is not a GPU-performance benchmark.
 
@@ -176,6 +190,8 @@ is not a GPU-performance benchmark.
 | Settings and profiles | [M17](docs/MILESTONE_17.md) / [中文](docs/MILESTONE_17.zh-CN.md) |
 | Foliage and shared shadow motion | [M18](docs/MILESTONE_18.md) / [中文](docs/MILESTONE_18.zh-CN.md) |
 | Angular sun/moon glow | [M19](docs/MILESTONE_19.md) / [中文](docs/MILESTONE_19.zh-CN.md) |
+| Water specialization and all-view criteria | [Water roadmap](docs/WATER_ROADMAP.md) / [中文](docs/WATER_ROADMAP.zh-CN.md) |
+| Matched scene/depth capture | [W1](docs/WATER_01_SNAPSHOT.md) / [中文](docs/WATER_01_SNAPSHOT.zh-CN.md) |
 
 `shaders/` contains 24 program pairs and configuration. Shared code/settings live
 in `shaders/lib/`, native geometry helpers in `shaders/lib/geometry/`, translations

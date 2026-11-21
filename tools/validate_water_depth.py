@@ -375,7 +375,7 @@ def validate_water_depth(root,expand,preprocess,compact,function_body):
     assert len(list(shaders.glob('*.vsh'))) == len(list(shaders.glob('*.fsh'))) == 24
     assert restore_water_depth_source('lang/en_us.lang',read('lang/en_us.lang')).startswith(prior('lang/en_us.lang'))
     new_files=set(str(path.relative_to(root)).replace('\\','/') for path in shaders.rglob('*') if path.is_file())-set(old_files)
-    assert new_files == {'shaders/lib/water_depth.glsl','shaders/lib/water_depth_settings.glsl','shaders/lang/zh_cn.lang','shaders/lib/foliage.glsl','shaders/lib/foliage_settings.glsl','shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl'},new_files
+    assert new_files == {'shaders/lib/water_depth.glsl','shaders/lib/water_depth_settings.glsl','shaders/lang/zh_cn.lang','shaders/lib/foliage.glsl','shaders/lib/foliage_settings.glsl','shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl','shaders/lib/water_scene_snapshot.glsl'},new_files
     source=read('lib/water_depth.glsl')
     assert source.startswith('#ifndef AURORA_WATER_DEPTH_INCLUDED\n#define AURORA_WATER_DEPTH_INCLUDED\n')
     assert source.endswith('#endif\n')
@@ -424,7 +424,8 @@ def validate_water_depth(root,expand,preprocess,compact,function_body):
     for path in shaders.glob('*.fsh'):
         selected=preprocess(expand(path),0,False)
         assert ('applyWaterDepthTint(' in selected) == (path.stem == 'gbuffers_water'),path.name
-        assert ('uniform sampler2D depthtex2;' in selected) == (path.stem == 'gbuffers_water'),path.name
+        # W1 also samples pre-hand depth in deferred; the tint hook above remains water-only.
+        assert ('uniform sampler2D depthtex2;' in selected) == (path.stem in ('gbuffers_water','deferred')),path.name
         uniforms=re.findall(r'^uniform\s+\w+\s+(\w+)\s*(?:=[^;]+)?;',selected,re.M)
         assert len(uniforms) == len(set(uniforms)),path.name
     settings,props,labels=read('lib/water_depth_settings.glsl'),read('shaders.properties'),read('lang/en_us.lang')

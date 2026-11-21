@@ -11,6 +11,7 @@ from itertools import product
 from validate_bloom import BLOOM_PROGRAMS, restore_bloom_properties
 from validate_aurora import restore_aurora_source
 from validate_water import restore_water_plumbing, restore_water_source
+from validate_water_snapshot import restore_water_snapshot_source, restore_water_snapshot_plumbing
 
 M8_BASELINE = '7ac62da5bada1ab0fd0eb6c66cb27222d6ed3586'
 GUARDED = ('pipeline_settings', 'color_space', 'scene_color', 'atmosphere_settings',
@@ -47,6 +48,7 @@ def remove_once(source, fragment):
 
 def restore_fog_plumbing(source):
     """Remove only the exact two M9 call sites from preprocessed historical checks."""
+    source = restore_water_snapshot_plumbing(source)
     return remove_once(remove_once(restore_water_plumbing(source), DEFERRED_FOG), LATE_FOG)
 
 
@@ -184,7 +186,7 @@ def validate_fog(root, expand, preprocess, compact, function_body):
     assert 'shadow' not in compact(function_body(fog, 'applyAtmosphericFog')).lower()
     assert 'returnscene;' == body(preprocess(expand(shaders/'deferred.fsh'), 0, False,
                                             overrides={'FOG_ENABLED':0}), 'applyAtmosphericFog')
-    deferred = read('deferred.fsh')
+    deferred = restore_water_snapshot_source('deferred.fsh', read('deferred.fsh'))
     assert deferred.count(DEFERRED_FOG) == 1
     main = body(deferred, 'main')
     assert main.index('if(surface.a>0.5)') < main.index('lightScene(') < main.index('applyCelestialPalette(') < main.index('applyAtmosphericFog(')

@@ -1,6 +1,6 @@
 # AuroraShader: visual direction and development roadmap
 
-Updated: 2026-11-13. [中文路线图](AURORA_ROADMAP.zh-CN.md).
+Updated: 2026-11-21. [中文路线图](AURORA_ROADMAP.zh-CN.md).
 
 ## Product direction
 
@@ -9,6 +9,16 @@ Complementary is a reference for completeness, quality, configurability and
 performance tiers; Aurora's artistic choices and implementation are developed
 within this project. The user's selected direction is **rich fantasy: vivid
 skies, dreamlike nights, and expressive color**.
+
+**Current priority: realistic, beautiful water.** The user's 2026-11-21 direction
+puts waves, flow, reflections/refraction and all-view stability first, while retaining
+Aurora's fantasy identity. [The water roadmap](WATER_ROADMAP.md) owns the ranked
+dependencies and controlled observation matrix. W1 matched scene/depth capture is
+implemented on `codex/water-01-scene-snapshot`, with CPU/offline/native checks passed.
+There is no water consumer yet; Minecraft/Iris runtime remains unobserved.
+[W1 implementation and evidence](WATER_01_SNAPSHOT.md).
+The proposed M20 Iris-preprocessing bridge was not implemented and is deferred
+behind this water-first work.
 
 The proposed visual vocabulary is:
 
@@ -48,6 +58,7 @@ rather than turning every surface into a uniform color wash.
 | M17 | Grouped settings, complete Simplified Chinese labels and three six-setting profiles | CPU/offline/native profile checks recorded; Iris UI/runtime confirmation pending |
 | M18 | Shared world-anchored leaf/grass displacement and matching shadows; profiles expanded to seven controls | CPU/offline/native checks recorded; Minecraft/Iris observation remains pending |
 | M19 | Independent angular sun/moon sky glow with bounded color and artistic lunar-phase brightness | CPU/offline/native checks recorded; Minecraft/Iris observation remains pending |
+| W1 | Matched pre-fog scene color/depth snapshot producer; no consumer yet | CPU/offline/native checks passed; Minecraft/Iris observation remains pending |
 
 M6–M18 remain available as historical branches. M19 builds on M18 without
 upgrading any runtime status merely because development continues.
@@ -113,14 +124,18 @@ Each step should ship a small, reviewable increment with its own learning notes.
    background, using independent celestial directions, angular falloff and artistic
    lunar-phase brightness. Retain native discs, terrain lighting and shared fog/water
    palettes; explain angular width versus pixel footprint and finite fallbacks.
-14. **Water transparency — next research priority.** Establish reliable
-   depth, sorting and composition contracts before selecting a transmission
-   feature. A future opaque-scene copy needs its own suitable attachment; gbuffer
-   `colortex0`–`colortex3` reads are atlas aliases, not the composed scene. This
-   remains research/planning, not implemented water-depth transmission.
-15. **Completeness.** Explore distinct dimension palettes, broader vegetation coverage,
-   measured performance budgets and broad compatibility. Maintain clear gameplay silhouettes
-   and stable temporal behavior.
+14. **Water-first specialization — current priority.** W1 implements matched
+   scene/depth capture before the deferred fog call. Planned work follows with
+   filtered multiscale normals, guarded SSR,
+   owned reflection/transmission composition and then flow/waterfall/underwater detail.
+   [The dedicated water roadmap](WATER_ROADMAP.md) records the full dependencies,
+   tracing limits, shore/foam/rain/caustics plans and scene/performance observations.
+   Existing M13/M14/M16 water remains the starting point, not a claim that these
+   planned systems are already implemented.
+15. **Broader completeness — secondary.** Dimension palettes, vegetation expansion
+   and unrelated graphics features wait behind water work, except for fixes needed
+   to keep the pack stable. Compatibility and measured performance remain part of
+   every water stage.
 
 Shadow improvements such as receiver-plane depth correction remain available
 when observed artifacts justify them. A larger menu of shadow algorithms is not
@@ -167,6 +182,7 @@ runtime success. No performance improvement is claimed without measurement.
 
 ## References
 
+- [Water-first roadmap and observation matrix](WATER_ROADMAP.md)
 - [Complementary's stated product priorities](https://www.complementary.dev/)
 - [Iris rendering program order](https://shaders.properties/current/reference/programs/overview/)
 - [M19 celestial sky-glow learning notes](MILESTONE_19.md)

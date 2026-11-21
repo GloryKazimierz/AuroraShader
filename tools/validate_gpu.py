@@ -135,13 +135,16 @@ class Runner:
         write_text(fragment, configure(source, options or {}))
         return vertex, fragment
 
-    def render(self, label, pair, width, height, textures=(), uniforms=(), storage='RGBA32F', optional=()):
+    def render(self, label, pair, width, height, textures=(), uniforms=(), storage='RGBA32F', optional=(),
+               extra_targets=(), read_target=0):
         self.sequence += 1
         stem = 'render-{:05d}'.format(self.sequence)
         output = self.scratch/(stem+'.raw')
         manifest = self.scratch/(stem+'.txt')
         lines = ['shaders {} {}'.format(*map(quote, pair)),
                  'target {} {} {} {}'.format(width, height, storage, quote(output))]
+        lines += ['color_target {} {} {}'.format(slot, attachment, fmt) for slot,attachment,fmt in extra_targets]
+        lines.append('read_target {}'.format(read_target))
         for index, (name, image, texture_storage) in enumerate(textures):
             tex_height, tex_width = len(image), len(image[0])
             require(all(len(row) == tex_width for row in image), 'Ragged input image')
@@ -160,6 +163,12 @@ class Runner:
                 label+': unexpected inactive bindings: '+str(payload['inactive_bindings']))
         require((payload.get('width'), payload.get('height'), payload.get('format')) == (width,height,storage), label+': result metadata differs')
         require(payload.get('row_order') == 'bottom_to_top' and payload.get('pixel_type') == 'RGBA_float32_little_endian', label+': unexpected pixel protocol')
+        targets=[dict(slot=0,attachment=0,format=storage)] + [
+            dict(slot=slot,attachment=attachment,format=fmt) for slot,attachment,fmt in sorted(extra_targets)]
+        require(payload.get('color_targets')==targets,label+': framebuffer routing differs')
+        selected=next(target for target in targets if target['slot']==read_target)
+        require(payload.get('read_target')==read_target and payload.get('read_format')==selected['format'],
+                label+': selected read attachment differs')
         data = output.read_bytes()
         require(len(data) == width*height*16, label+': output byte count differs')
         flat = struct.unpack('<{}f'.format(width*height*4), data)
@@ -399,7 +408,7 @@ def shader_digest():
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--cxx',help='Installed MinGW g++ compiler; no download')
-    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial'),default='all')
+    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial','snapshot'),default='all')
     parser.add_argument('--report',help='New JSON report path under the project; existing files are never overwritten')
     args=parser.parse_args()
     require(os.name=='nt','This optional WGL runner requires Windows; no GPU checks performed')
@@ -449,6 +458,12 @@ def main():
             from validate_gpu_celestial_glow import celestial_glow_tests
             report['celestial_glow']=celestial_glow_tests(runner,compare)
             print('PASS: celestial glow synthetic driver checks',flush=True)
+        if args.suite in ('all','render','snapshot'):
+            from validate_gpu_water_snapshot import snapshot_tests
+            if args.suite=='snapshot':
+                report['controls']=harness_controls(runner)
+            report['water_snapshot']=snapshot_tests(runner,compare)
+            print('PASS: matched water-scene snapshot and MRT checks',flush=True)
         require(shader_digest()==report['shader_sha256'],'Shader source changed during validation; report invalid')
         report['ok']=True
         report['finished_utc']=datetime.now(timezone.utc).isoformat()

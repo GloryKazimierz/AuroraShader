@@ -134,6 +134,7 @@ std::string readText(const std::string& name, std::size_t maximum) {
 struct GlInfo {
     std::string vendor, renderer, version, glsl;
     GLint major = 0, minor = 0, profileMask = 0, maxTextureSize = 0, maxTextureUnits = 0;
+    GLint maxDrawBuffers = 0, maxColorAttachments = 0;
     bool ready = false;
     std::string json() const {
         if (!ready) return "null";
@@ -146,7 +147,9 @@ struct GlInfo {
             << ",\"profile_mask\":" << profileMask
             << ",\"profile\":\"compatibility\""
             << ",\"max_texture_size\":" << maxTextureSize
-            << ",\"max_texture_units\":" << maxTextureUnits << '}';
+            << ",\"max_texture_units\":" << maxTextureUnits
+            << ",\"max_draw_buffers\":" << maxDrawBuffers
+            << ",\"max_color_attachments\":" << maxColorAttachments << '}';
         return out.str();
     }
 };
@@ -238,6 +241,8 @@ public:
         glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &info.profileMask);
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, &info.maxTextureSize);
         glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &info.maxTextureUnits);
+        glGetIntegerv(GL_MAX_DRAW_BUFFERS, &info.maxDrawBuffers);
+        glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &info.maxColorAttachments);
         checkGl("OpenGL probe");
         if (info.major < 3 || (info.major == 3 && info.minor < 3)
             || !(info.profileMask & GL_CONTEXT_COMPATIBILITY_PROFILE_BIT))
@@ -274,6 +279,7 @@ public:
     X(PFNGLUNIFORMMATRIX4FVPROC, UniformMatrix4fv) \
     X(PFNGLACTIVETEXTUREPROC, ActiveTexture) \
     X(PFNGLCLEARBUFFERFVPROC, ClearBufferfv) \
+    X(PFNGLDRAWBUFFERSPROC, DrawBuffers) \
     X(PFNGLGENFRAMEBUFFERSPROC, GenFramebuffers) \
     X(PFNGLBINDFRAMEBUFFERPROC, BindFramebuffer) \
     X(PFNGLFRAMEBUFFERTEXTURE2DPROC, FramebufferTexture2D) \
@@ -399,6 +405,7 @@ std::size_t pixels(int width, int height) {
 GLint storageFormat(const std::string& name) {
     if (name == "RGBA16F") return GL_RGBA16F;
     if (name == "RGBA32F") return GL_RGBA32F;
+    if (name == "R32F") return GL_R32F;
     throw Failure("manifest", "Unsupported storage format: " + name);
 }
 
@@ -439,6 +446,7 @@ std::vector<CompileCase> readBatch(const std::string& path) {
 
 struct ImageSpec { int width = 0, height = 0; std::string format, path; };
 struct TextureSpec : ImageSpec { std::string name; };
+struct ColorTargetSpec { int slot = 0, attachment = 0; std::string format; };
 struct UniformSpec {
     std::string name, type;
     std::array<float, 16> floats{};
@@ -447,6 +455,8 @@ struct UniformSpec {
 struct RenderSpec {
     std::string vertex, fragment;
     ImageSpec target;
+    std::vector<ColorTargetSpec> colorTargets;
+    int readTarget = 0;
     std::vector<TextureSpec> textures;
     std::vector<UniformSpec> uniforms;
 };
@@ -458,7 +468,8 @@ void imageFields(std::istringstream& line, ImageSpec& image) {
 }
 RenderSpec readRender(const std::string& path) {
     RenderSpec result;
-    bool hasShaders = false, hasTarget = false;
+    bool hasShaders = false, hasTarget = false, hasReadTarget = false;
+    std::set<int> targetSlots{0}, targetAttachments{0};
     std::size_t inputBytes = 0;
     std::set<std::string> names;
     manifestLines(path, [&](std::istringstream& line) {
@@ -471,6 +482,21 @@ RenderSpec readRender(const std::string& path) {
         } else if (directive == "target") {
             if (hasTarget) throw Failure("manifest", "Duplicate target directive");
             hasTarget = true; imageFields(line, result.target);
+        } else if (directive == "color_target") {
+            ColorTargetSpec target;
+            target.slot = integer(token(line)); target.attachment = integer(token(line));
+            target.format = token(line); storageFormat(target.format);
+            if (target.slot < 1 || target.slot > 7 || target.attachment < 1 || target.attachment > 7)
+                throw Failure("manifest", "Extra color target slots and attachments must be in [1,7]");
+            if (!targetSlots.insert(target.slot).second || !targetAttachments.insert(target.attachment).second)
+                throw Failure("manifest", "Duplicate color target slot or attachment");
+            result.colorTargets.push_back(std::move(target));
+        } else if (directive == "read_target") {
+            if (hasReadTarget) throw Failure("manifest", "Duplicate read_target directive");
+            hasReadTarget = true;
+            result.readTarget = integer(token(line));
+            if (result.readTarget < 0 || result.readTarget > 7)
+                throw Failure("manifest", "Read target slot must be in [0,7]");
         } else if (directive == "texture") {
             TextureSpec texture;
             texture.name = quoted(line); identifier(texture.name);
@@ -500,10 +526,26 @@ RenderSpec readRender(const std::string& path) {
         } else throw Failure("manifest", "Unknown directive: " + directive);
     });
     if (!hasShaders || !hasTarget) throw Failure("manifest", "Both shaders and target directives are required");
+    if (!targetSlots.count(result.readTarget)) throw Failure("manifest", "Read target slot is not defined");
+    result.colorTargets.push_back({0, 0, result.target.format});
+    std::sort(result.colorTargets.begin(), result.colorTargets.end(),
+        [](const ColorTargetSpec& a, const ColorTargetSpec& b) { return a.slot < b.slot; });
+    // Reserve an RGBA32F-sized allocation for every attachment plus one raw
+    // readback, even for smaller R32F/RGBA16F storage. Input budget is separate.
+    std::size_t targetBytes = pixels(result.target.width, result.target.height) * 4 * sizeof(float)
+                            * (result.colorTargets.size() + 1);
+    if (targetBytes > MAX_INPUT_BYTES)
+        throw Failure("manifest", "Color target and readback budget exceeded (256 MiB)");
     fs::path output = absolutePath(result.target.path);
     if (!fs::is_directory(output.parent_path())) throw Failure("output", "Output parent directory does not exist");
     if (fs::exists(output)) throw Failure("output", "Refusing to overwrite output: " + result.target.path);
     return result;
+}
+
+const ColorTargetSpec& selectedTarget(const RenderSpec& spec) {
+    for (const auto& target : spec.colorTargets)
+        if (target.slot == spec.readTarget) return target;
+    throw Failure("manifest", "Read target slot is not defined");
 }
 
 std::vector<float> readPixelsFile(const ImageSpec& image) {
@@ -540,8 +582,8 @@ void writePixelsFile(const std::string& path, const std::vector<float>& values) 
 class RenderObjects {
     const GlApi& gl_;
 public:
-    GLuint framebuffer = 0, target = 0;
-    std::vector<GLuint> inputs;
+    GLuint framebuffer = 0;
+    std::vector<GLuint> targets, inputs;
     explicit RenderObjects(const GlApi& gl) : gl_(gl) {}
     RenderObjects(const RenderObjects&) = delete;
     RenderObjects& operator=(const RenderObjects&) = delete;
@@ -549,7 +591,7 @@ public:
         gl_.UseProgram(0);
         gl_.BindFramebuffer(GL_FRAMEBUFFER, 0);
         if (framebuffer) gl_.DeleteFramebuffers(1, &framebuffer);
-        if (target) glDeleteTextures(1, &target);
+        if (!targets.empty()) glDeleteTextures(static_cast<GLsizei>(targets.size()), targets.data());
         if (!inputs.empty()) glDeleteTextures(static_cast<GLsizei>(inputs.size()), inputs.data());
     }
 };
@@ -610,19 +652,29 @@ std::vector<std::string> render(const GlApi& gl, const GlInfo& info, const Rende
     if (spec.target.width > info.maxTextureSize || spec.target.height > info.maxTextureSize
         || spec.textures.size() > static_cast<std::size_t>(info.maxTextureUnits))
         throw Failure("render limits", "Target or sampler count exceeds driver limits");
+    for (const auto& target : spec.colorTargets)
+        if (target.slot >= info.maxDrawBuffers || target.attachment >= info.maxColorAttachments)
+            throw Failure("render limits", "Color target mapping exceeds driver draw-buffer or attachment limits");
     Program program(gl);
     program.build(spec.vertex, spec.fragment);
     RenderObjects objects(gl);
     gl.ActiveTexture(GL_TEXTURE0);
-    glGenTextures(1, &objects.target);
-    glBindTexture(GL_TEXTURE_2D, objects.target);
-    textureParameters();
-    glTexImage2D(GL_TEXTURE_2D, 0, storageFormat(spec.target.format), spec.target.width,
-                 spec.target.height, 0, GL_RGBA, GL_FLOAT, nullptr);
     gl.GenFramebuffers(1, &objects.framebuffer);
     gl.BindFramebuffer(GL_FRAMEBUFFER, objects.framebuffer);
-    gl.FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, objects.target, 0);
-    glDrawBuffer(GL_COLOR_ATTACHMENT0); glReadBuffer(GL_COLOR_ATTACHMENT0);
+    std::vector<GLenum> drawBuffers(static_cast<std::size_t>(spec.colorTargets.back().slot + 1), GL_NONE);
+    for (const auto& target : spec.colorTargets) {
+        objects.targets.push_back(0);
+        glGenTextures(1, &objects.targets.back());
+        glBindTexture(GL_TEXTURE_2D, objects.targets.back());
+        textureParameters();
+        glTexImage2D(GL_TEXTURE_2D, 0, storageFormat(target.format), spec.target.width,
+                     spec.target.height, 0, GL_RGBA, GL_FLOAT, nullptr);
+        GLenum attachment = GL_COLOR_ATTACHMENT0 + static_cast<GLenum>(target.attachment);
+        gl.FramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, objects.targets.back(), 0);
+        drawBuffers[static_cast<std::size_t>(target.slot)] = attachment;
+    }
+    gl.DrawBuffers(static_cast<GLsizei>(drawBuffers.size()), drawBuffers.data());
+    glReadBuffer(GL_COLOR_ATTACHMENT0 + static_cast<GLenum>(selectedTarget(spec).attachment));
     GLenum status = gl.CheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE) {
         std::ostringstream message; message << "Incomplete framebuffer: 0x" << std::hex << status;
@@ -666,7 +718,7 @@ std::vector<std::string> render(const GlApi& gl, const GlInfo& info, const Rende
     // A missing fragment write must fail even when the expected result is zero.
     // ClearBufferfv avoids the legacy glClearColor state/clamping path.
     const GLfloat sentinel[] = {-11931.25f, -719.5f, -37.25f, -13.0f};
-    gl.ClearBufferfv(GL_COLOR, 0, sentinel);
+    for (const auto& target : spec.colorTargets) gl.ClearBufferfv(GL_COLOR, target.slot, sentinel);
     checkGl("render setup");
     // Compatibility input matches pack ftransform/gl_MultiTexCoord0 fullscreen vertices.
     glBegin(GL_TRIANGLES);
@@ -722,7 +774,17 @@ int main(int argc, char** argv) {
             std::cout << ",\"width\":" << spec.target.width << ",\"height\":" << spec.target.height
                       << ",\"format\":" << jsonQuote(spec.target.format)
                       << ",\"output\":" << jsonQuote(spec.target.path)
-                      << ",\"row_order\":\"bottom_to_top\",\"pixel_type\":\"RGBA_float32_little_endian\"";
+                      << ",\"row_order\":\"bottom_to_top\",\"pixel_type\":\"RGBA_float32_little_endian\""
+                      << ",\"read_target\":" << spec.readTarget
+                      << ",\"read_format\":" << jsonQuote(selectedTarget(spec).format);
+            std::cout << ",\"color_targets\":[";
+            for (std::size_t index = 0; index < spec.colorTargets.size(); ++index) {
+                if (index) std::cout << ',';
+                const auto& target = spec.colorTargets[index];
+                std::cout << "{\"slot\":" << target.slot << ",\"attachment\":" << target.attachment
+                          << ",\"format\":" << jsonQuote(target.format) << '}';
+            }
+            std::cout << ']';
             std::cout << ",\"inactive_bindings\":[";
             for (std::size_t index = 0; index < inactiveBindings.size(); ++index) {
                 if (index) std::cout << ',';

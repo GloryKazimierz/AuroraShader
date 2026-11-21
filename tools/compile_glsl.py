@@ -150,6 +150,11 @@ def configurations():
         yield 'gbuffers_skybasic', dict(SCENE_COLOR_MODE=1, CELESTIAL_GLOW=1,
                                       SUN_GLOW_STRENGTH=sun, MOON_GLOW_STRENGTH=moon, SKY_BLEND=blend)
 
+    # W1 adds deferred debug-bypass linkage. Existing matrices already cover both
+    # scene modes, shadow settings and fog states at debug 0; do not multiply them.
+    for mode, debug in product((0, 1), range(1, 7)):
+        yield 'deferred', dict(SCENE_COLOR_MODE=mode, DEBUG_VIEW=debug)
+
     # M17 adds actual profile selections without replacing prior configurations.
     from validate_settings_profiles import profile_configurations
     yield from profile_configurations(ROOT)

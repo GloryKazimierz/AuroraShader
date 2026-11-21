@@ -399,7 +399,7 @@ def validate_foliage(root,expand,preprocess,compact,function_body):
         previous=subprocess.check_output(['git','-C',str(root),'show',M17_BASELINE+':'+path]).decode('utf-8').replace('\r\n','\n')
         assert restore_foliage_source(relative,read(relative))==previous,relative
     current_files={str(path.relative_to(root)).replace('\\','/') for path in shaders.rglob('*') if path.is_file()}
-    assert current_files-set(old_files)=={'shaders/lib/foliage.glsl','shaders/lib/foliage_settings.glsl','shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl'}
+    assert current_files-set(old_files)=={'shaders/lib/foliage.glsl','shaders/lib/foliage_settings.glsl','shaders/lib/celestial_glow.glsl','shaders/lib/celestial_glow_settings.glsl','shaders/lib/water_scene_snapshot.glsl'}
     assert len(list(shaders.glob('*.vsh')))==len(list(shaders.glob('*.fsh')))==24
     helper=read('lib/foliage.glsl')
     code=compact(helper)

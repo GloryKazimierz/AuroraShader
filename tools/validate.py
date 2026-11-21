@@ -115,15 +115,16 @@ for debug, grayscale, shadows, filtering, softness, bias_mode in product(
         for name, signature in stage_variables(fs, "in").items():
             assert outputs.get(name) == signature, (fragment, name)
         locations = [int(n) for n in re.findall(
-            r"layout\(location = (\d+)\) out vec4", fs)]
+            r"layout\(location = (\d+)\) out (?:vec4|float)\b", fs)]
         targets = re.findall(r"/\* RENDERTARGETS: ([0-9,]+) \*/", fs)
-        expected = [] if vertex.stem == "shadow" else ([0, 1, 2] if vertex.stem in writers else [0])
+        expected = [] if vertex.stem == "shadow" else ([0, 1, 2] if vertex.stem in writers or vertex.stem == "deferred" else [0])
         assert locations == expected, (fragment, locations)
         if vertex.stem in ("final", "shadow"):
             assert not targets
         else:
             assert len(targets) == 1
-            expected_targets = [BLOOM_TARGETS[vertex.stem]] if vertex.stem in BLOOM_TARGETS else expected
+            expected_targets = ([0, 5, 6] if vertex.stem == "deferred" else
+                                [BLOOM_TARGETS[vertex.stem]] if vertex.stem in BLOOM_TARGETS else expected)
             assert list(map(int, targets[0].split(","))) == expected_targets
         if vertex.stem in writers:
             assert "writeSurfaceData(lmcoord);" in fs
@@ -669,3 +670,7 @@ validate_foliage(ROOT, expand, preprocess, compact, function_body)
 # M19 adds independent sun/moon background glow before the existing aurora.
 from validate_celestial_glow import validate_celestial_glow
 validate_celestial_glow(ROOT, expand, preprocess, compact, function_body)
+
+# W1 captures matched scene radiance/depth while pinning every M19 shader file.
+from validate_water_snapshot import validate_water_snapshot
+validate_water_snapshot(ROOT, expand, preprocess, compact, function_body)
