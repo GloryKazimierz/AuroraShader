@@ -201,6 +201,16 @@ def verify(work, iris_jar, slf4j_jar):
         (work/name).write_text(configure(expand(SHADERS/'shadow.fsh'),opts),encoding='utf-8')
         on=bool(shadows and caustic and support)
         lines.append(['shader',name,'0' if on else '-','RGBA16' if on else '-',str(int(on)),'causticRecord ='])
+    for enabled,support,optics in product((0,1),repeat=3):
+        opts=dict(WATER_UNDERWATER=enabled,WATER_OPTICS=optics)
+        opts[FEATURE]=bool(support)
+        optical=bool(optics and support)
+        on=optical and bool(enabled)
+        for program,target,marker in [('composite','0','resolveWaterUnderwater('),
+                                      ('gbuffers_water','0,7,8' if optical else '0','captureWaterExitSurface(')]:
+            name=f'exit-{program}-{enabled}-{support}-{optics}.fsh'
+            (work/name).write_text(configure(expand(SHADERS/(program+'.fsh')),opts),encoding='utf-8')
+            lines.append(['shader',name,target,'-',str(int(on)),marker])
     (work/'cases.tsv').write_text('\n'.join('\t'.join(row) for row in lines),encoding='utf-8')
     env=dict(os.environ,TEMP=str(work),TMP=str(work),TMPDIR=str(work))
     subprocess.run(['javac','-J-XX:-UsePerfData',f'-J-Djava.io.tmpdir={work}','-cp',cp,str(java)],

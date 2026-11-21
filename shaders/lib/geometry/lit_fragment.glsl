@@ -18,6 +18,9 @@
 #endif
 #endif
 flat in int waterSurface;
+#ifdef AURORA_WATER_UNDERWATER_ACTIVE
+in float waterInterfaceHeight;
+#endif
 #ifndef WRITE_SURFACE_DATA
 in vec3 normalView;
 #endif
@@ -108,6 +111,10 @@ void main() {
 #ifdef AURORA_WATER_OPTICS_ACTIVE
     captureWaterOpticsSurface(fogView, normalView, lmcoord, waterWorldDx, waterWorldDy,
         waterSurface, blendFunc, color, gl_FragCoord.z, waterOpticsSurface, waterOpticsOwnership);
+#ifdef AURORA_WATER_UNDERWATER_ACTIVE
+    captureWaterExitSurface(fogView, normalView, lmcoord, waterWorldDx, waterWorldDy,
+        waterSurface, waterInterfaceHeight, blendFunc, color, gl_FragCoord.z, waterOpticsSurface, waterOpticsOwnership);
+#endif
 #endif
     // Use the water's own position; existing late fog still runs once afterward.
     color.rgb = applyWaterStyle(color.rgb, fogView, normalView, lmcoord, waterSurface, blendFunc, fogColor, waterWorldDx, waterWorldDy);

@@ -73,7 +73,7 @@ In Shader Pack Settings, choose **Water / Coastal (Medium)** for moving water, r
 | Balanced / Light / Soft Shadows | Original balanced, lighter or softer-shadow rendering |
 | Water / Low | Simpler world-anchored waves and sky reflections |
 | Water / Coastal (Medium) | Absorption, scattering, currents, rain and wake normals, local foam and glints |
-| Water / Reflections (High) | Coastal plus screen-space scene reflections with empty-space skipping |
+| Water / Reflections (High) | Coastal plus screen-space scene reflections and underwater Snell windows at observed exit surfaces |
 | Water / Caustics (Ultra) | High plus shadow-space caustics and persistent foam |
 
 Profiles leave water color, clarity, wave strength and grading available for art direction. Refraction can be selected separately under Water → Reflection and Refraction. Each preset resets the performance switches so a previous high-cost selection does not carry over. Optical profiles select the HDR beauty view. The default shader settings match Balanced.
@@ -242,3 +242,5 @@ equations and interface contracts in the learning notes.
 [Foam, sun and moon glints](docs/WATER_M5_FOAM.md) · [岸边泡沫与日月高光](docs/WATER_M5_FOAM.zh-CN.md)
 
 [Water-bed caustics, settings and optical model](docs/WATER_M4_CAUSTICS.md) · [中文水底焦散图解](docs/WATER_M4_CAUSTICS.zh-CN.md) · [Driver comparison](docs/validation/WATER_CAUSTIC_WAVES_views.png)
+
+[Underwater transmission and total internal reflection](docs/WATER_M3B_UNDERWATER.md) · [水下斯涅尔视窗与出水边界](docs/WATER_M3B_UNDERWATER.zh-CN.md)

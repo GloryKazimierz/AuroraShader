@@ -408,14 +408,14 @@ def shader_digest():
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--cxx',help='Installed MinGW g++ compiler; no download')
-    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial','snapshot','filtered-waves','screen-reflections','water-debug','water-transport','water-stability','water-bounds','water-refraction','water-motion','water-foam','water-glints','water-caustics','water-caustics-time','water-caustic-waves','water-materials'),default='all')
+    parser.add_argument('--suite',choices=('all','probe','compile','render','depth','profiles','foliage','celestial','snapshot','filtered-waves','screen-reflections','water-debug','water-transport','water-stability','water-bounds','water-refraction','water-motion','water-foam','water-glints','water-caustics','water-caustics-time','water-caustic-waves','water-materials','water-underwater'),default='all')
     parser.add_argument('--report',help='New JSON report path under the project; existing files are never overwritten')
     parser.add_argument('--debug-plate',help='Save the selected water suite comparison to a new project PNG')
     args=parser.parse_args()
     plate_path=None
     if args.debug_plate:
         plate_path=(ROOT/args.debug_plate).resolve()
-        require(args.suite in ('water-debug','water-transport','water-stability','water-refraction','water-motion','water-foam','water-glints','water-caustics','water-caustic-waves','water-materials') and ROOT.resolve() in plate_path.parents
+        require(args.suite in ('water-debug','water-transport','water-stability','water-refraction','water-motion','water-foam','water-glints','water-caustics','water-caustic-waves','water-materials','water-underwater') and ROOT.resolve() in plate_path.parents
                 and plate_path.suffix.lower()=='.png' and plate_path.parent.is_dir()
                 and not plate_path.exists(),'Water debug plate requires a new project PNG path')
 
@@ -521,6 +521,10 @@ def main():
             if panels is not None:
                 motion_plate(panels,plate_path)
             print('PASS: slope-driven flow, rain and entity-contact wake',flush=True)
+        if args.suite in ('all','render','water-underwater'):
+            from validate_gpu_water_underwater import underwater_tests
+            report['water_underwater']=underwater_tests(runner,plate_path if args.suite=='water-underwater' else None)
+            print('PASS: observed underwater exits, critical angle and geometry classification',flush=True)
         if args.suite in ('all','render','water-glints'):
             from validate_gpu_water_glints import glint_tests
             report['water_glints']=glint_tests(runner,plate_path if args.suite=='water-glints' else None)

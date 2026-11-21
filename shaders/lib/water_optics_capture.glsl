@@ -98,6 +98,7 @@ void captureWaterOpticsSurface(vec3 viewPosition, vec3 normalView, vec2 lightmap
     // The other channels are meaningful only when that count remains exactly1.
     ownership = vec4(1.0 / 255.0, levels, 0.0);
 }
+#include "/lib/water_exit_capture.glsl"
 #endif
 #endif
 #endif

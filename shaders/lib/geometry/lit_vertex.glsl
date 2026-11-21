@@ -10,6 +10,11 @@ in vec2 mc_Entity;
 #endif
 #ifdef APPLY_WATER_STYLE
 flat out int waterSurface;
+#include "/lib/water_underwater_settings.glsl"
+#ifdef AURORA_WATER_UNDERWATER_ACTIVE
+in vec4 at_midBlock;
+out float waterInterfaceHeight;
+#endif
 #endif
 #ifdef APPLY_FOLIAGE_WIND
 #include "/lib/foliage.glsl"
@@ -32,5 +37,10 @@ void main() {
 #ifdef APPLY_WATER_STYLE
     // Block ID alone is insufficient: y==1 marks a fluid draw, not its host block.
     waterSurface = (mc_Entity.x == 10001.0 && mc_Entity.y == 1.0) ? 1 : 0;
+#ifdef AURORA_WATER_UNDERWATER_ACTIVE
+    // Signed 1/64-block vertex->center offset: a real bottom is near height0.
+    // This distinguishes Sodium's reversed top quad from a downward bottom face.
+    waterInterfaceHeight = 0.5 - at_midBlock.y / 64.0;
+#endif
 #endif
 }

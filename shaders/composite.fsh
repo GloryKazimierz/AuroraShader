@@ -1,6 +1,7 @@
 #version 330 compatibility
 #include "/lib/water_optics_settings.glsl"
 #include "/lib/water_resolve.glsl"
+#include "/lib/water_underwater_resolve.glsl"
 #include "/lib/water_glint.glsl"
 #include "/lib/water_foam_resolve.glsl"
 uniform sampler2D colortex0;
@@ -19,6 +20,9 @@ void main() {
     color = scene;
 #ifdef AURORA_WATER_OPTICS_ACTIVE
     color.rgb = resolveWaterOptics(scene.rgb, pixel, textureSize(colortex0, 0));
+#endif
+#ifdef AURORA_WATER_UNDERWATER_ACTIVE
+    color.rgb = resolveWaterUnderwater(color.rgb,pixel,textureSize(colortex0,0));
 #endif
 #ifdef AURORA_WATER_GLINT_ACTIVE
     color.rgb=applyWaterGlint(color.rgb,pixel,textureSize(colortex0,0));

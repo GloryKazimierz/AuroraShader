@@ -81,6 +81,11 @@ def water_optics_configurations():
         for refraction,foam in product((0,1,3),(0,2)):
             yield 'composite',dict(enabled,WATER_CAUSTICS=caustics,SHADOWS_ENABLED=shadows,
                                    WATER_CELESTIAL_GLINT=1,WATER_FOAM=foam,WATER_REFRACTION=refraction)
+    for exits,reflection,foam,feature in product((0,1),(0,1),(0,2),(False,True)):
+        for name in ('gbuffers_water','composite'):
+            yield name,dict(enabled,WATER_UNDERWATER=exits,WATER_SCREEN_REFLECTIONS=reflection,
+                            WATER_FOAM=foam,WATER_CELESTIAL_GLINT=1,WATER_INTERACTIONS=1,
+                            WATER_FLOW=1,WATER_CAUSTICS=1,IRIS_FEATURE_PER_BUFFER_BLENDING=feature)
     for glints,foam,shadows,fog in product((0,1),(0,1,2),(False,True),(0,1)):
         yield 'composite',dict(enabled,WATER_CELESTIAL_GLINT=glints,WATER_FOAM=foam,SHADOWS_ENABLED=shadows,FOG_ENABLED=fog)
     for tiles, ssr, budget in product((0,1),(0,1),(64,128)):

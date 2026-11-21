@@ -285,12 +285,36 @@ def test_foam_routes():
     print(f'PASS: {checks} opt-in foam routing, persistent formats and default-off checks',flush=True)
 
 
+def test_underwater_routes():
+    options=option_definitions(ROOT)
+    require(options['WATER_UNDERWATER']['default']=='0','Underwater optics must remain opt-in')
+    require(load_profiles(ROOT)['WATER_HIGH']['WATER_UNDERWATER']=='1','Underwater preset')
+    count=0
+    for option,support,optics,hdr,debug in product((0,1),(False,True),(0,1),(0,1),(0,7)):
+        config=dict(WATER_UNDERWATER=option,IRIS_FEATURE_PER_BUFFER_BLENDING=support,
+                    WATER_OPTICS=optics,SCENE_COLOR_MODE=hdr,DEBUG_VIEW=debug)
+        active=bool(option and support and optics and hdr and not debug)
+        for name,ext in (('gbuffers_water','vsh'),('gbuffers_water','fsh'),('composite','fsh')):
+            source,macros=select(expand(SHADERS/(name+'.'+ext)),config)
+            require(('AURORA_WATER_UNDERWATER_ACTIVE' in macros)==active,'Underwater active mismatch')
+            token='resolveWaterUnderwater' if name=='composite' else 'waterInterfaceHeight'
+            require((token in source)==active,'Unexpected underwater code in bypass stage')
+            if ext=='fsh' and name=='gbuffers_water' and active:
+                require(routing(source)==(0,7,8),'Exit records must reuse existing surface data')
+        count+=1
+    capture=(SHADERS/'lib/water_exit_capture.glsl').read_text()
+    require('interfaceHeight<=.0625' in capture and 'if(dot(normal,up)<0.0)normal=-normal;' in capture,
+            'Reversed top requires height evidence before orienting the normal')
+    print(f'PASS: {count} finite-exit gates, buffer reuse and true-bottom exclusion checks',flush=True)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--historical', action='store_true', help='Also replay the complete pinned M0 suite')
     args = parser.parse_args()
     test_pack()
     test_foam_routes()
+    test_underwater_routes()
     test_lab()
     if args.historical:
         print('Replaying original M0 checks from '+BASE, flush=True)
